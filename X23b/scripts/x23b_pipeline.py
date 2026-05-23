@@ -106,6 +106,32 @@ DMC_X23 = {
     "urea": (108.5, 0.3),
 }
 
+MULTILEVEL_CC_X23 = {
+    "14-cyclohexanedione": 94.4,
+    "acetic_acid": 71.2,
+    "adamantane": 66.0,
+    "ammonia": 37.6,
+    "anthracene": 111.4,
+    "benzene": 51.6,
+    "co2": 29.4,
+    "cyanamide": 82.6,
+    "cytosine": 163.1,
+    "ethylcarbamate": 86.5,
+    "formamide": 84.0,
+    "hexamine": 88.0,
+    "imidazole": 88.4,
+    "naphthalene": 82.5,
+    "oxalic_acid_alpha": 103.0,
+    "oxalic_acid_beta": 101.6,
+    "pyrazine": 64.3,
+    "pyrazole": 79.3,
+    "succinic_acid": 128.2,
+    "triazine": 60.3,
+    "trioxane": 67.8,
+    "uracil": 139.7,
+    "urea": 111.0,
+}
+
 BOESE_DFT_D3_VOLUMES = {
     "PBE+D3": {
         "14-cyclohexanedione": 276.1,
@@ -998,6 +1024,7 @@ def make_error_range_plot(rows_energy: list[dict[str, object]]) -> None:
     methods = [
         ("GFN1-xTB opt", errors_for("cell_opt", "gamma", "GFN1-xTB")),
         ("GFN2-xTB opt", errors_for("cell_opt", "gamma", "GFN2-xTB")),
+        ("ML-CCSD(T)/RPA+ph", [MULTILEVEL_CC_X23[str(system["id"])] - float(system["ref_energy"]) for system in SYSTEMS]),
         ("DMC-X23", [DMC_X23[str(system["id"])][0] - float(system["ref_energy"]) for system in SYSTEMS]),
     ]
 
@@ -1021,17 +1048,17 @@ set border 3 lw 1.4 lc rgb '#333333'
 set tics out nomirror scale 0.7
 set grid xtics lc rgb '#e2e2e2' lw 0.7
 set xrange [-50:240]
-set yrange [0.4:3.6]
-set lmargin 15
+set yrange [0.4:4.6]
+set lmargin 22
 set rmargin 4
 set tmargin 2
 set bmargin 4
 set xlabel 'Deviation from X23b / kJ mol^{-1}'
-set ytics ('GFN1-xTB opt' 1, 'GFN2-xTB opt' 2, 'DMC-X23' 3)
+set ytics ('GFN1-xTB opt' 1, 'GFN2-xTB opt' 2, 'ML-CCSD(T)/RPA+ph' 3, 'DMC-X23' 4)
 set key top right box spacing 1.15 samplen 1.8
 set bars 0.45
-set arrow 1 from 0,0.45 to 0,3.55 nohead lw 1.3 lc rgb '#555555'
-set object 1 rectangle from -4.184,0.45 to 4.184,3.55 fillcolor rgb '#f0f0f0' behind
+set arrow 1 from 0,0.45 to 0,4.55 nohead lw 1.3 lc rgb '#555555'
+set object 1 rectangle from -4.184,0.45 to 4.184,4.55 fillcolor rgb '#f0f0f0' behind
 plot '{dat}' using 5:1:3:7 with xerrorbars pt 0 lw 1.6 lc rgb '#9c9c9c' title 'min--max', \\
      '' using 5:1:4:6 with xerrorbars pt 0 lw 5.0 lc rgb '#4C78A8' title 'interquartile range', \\
      '' using 5:1 with points pt 7 ps 1.05 lc rgb '#4C78A8' title 'median', \\

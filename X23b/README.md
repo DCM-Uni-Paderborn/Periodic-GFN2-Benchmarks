@@ -15,21 +15,19 @@ the complete X23 Quantum ESPRESSO crystal input is used for that system.
   geometries.
 - `inputs/`: CP2K input files for crystal single points, gas-phase molecular
   optimizations, and Gamma-point crystal cell optimizations.
-- `runs/`: CP2K inputs and outputs generated on Spark.
+- `runs/`: generated CP2K working directories, ignored by Git.
 - `data/`: metadata, reference values, extracted energies, volume errors, and
   aggregate statistics, including the DMC-X23 comparison values used for the
   system-resolved lattice-energy figure.
 - `figures/`: plots generated from the benchmark data, including the
   system-resolved X23b lattice-energy profile.
-- `scripts/`: input generation, analysis, plotting, and remote run scripts.
+- `scripts/`: input generation, analysis, plotting, and run scripts.
 
-## Spark Defaults
+## Run Defaults
 
-The remote run script uses the current Spark CP2K/tblite wrapper:
-
-`/home/kuehne88/bin/cp2k-current-tblite.psmp`
-
-The default execution mode is many independent single-core jobs:
+The run script expects the CP2K executable through the `CP2K` environment
+variable, or otherwise falls back to `cp2k.psmp`. The default execution mode is
+many independent single-core jobs:
 
 - `OMP_NUM_THREADS=1`
 - `OPENBLAS_NUM_THREADS=1`
