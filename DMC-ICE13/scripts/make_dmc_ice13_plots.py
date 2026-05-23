@@ -206,12 +206,12 @@ def make_log_mae_plot(summary_rows: list[dict[str, object]]) -> None:
         "GFN2-xTB (Gamma)": "#8fb0df",
         "GFN1-xTB": "#c44e52",
         "GFN1-xTB (Gamma)": "#e6a0a3",
-        "PBE-D4": "#55a868",
         "PBE": "#9bd49f",
-        "PBE0-D4": "#8172b3",
+        "PBE-D4": "#55a868",
         "PBE0": "#b8a7db",
-        "SCAN+rVV10": "#ccb974",
+        "PBE0-D4": "#8172b3",
         "SCAN": "#dfcf8c",
+        "SCAN+rVV10": "#ccb974",
     }
     parts = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
@@ -332,23 +332,22 @@ def main() -> None:
 
     rel_dat = DATA / "relative_energies_for_plot.dat"
     with rel_dat.open("w") as handle:
-        handle.write("# index phase DMC DMC_error GFN1 GFN2 GFN1_Gamma GFN2_Gamma PBE-D4 PBE0-D4 SCAN+rVV10 PBE PBE0 SCAN\n")
+        handle.write("# index phase DMC DMC_error GFN1 GFN2 GFN1_Gamma GFN2_Gamma PBE PBE-D4 PBE0 PBE0-D4 SCAN SCAN+rVV10\n")
         for index, phase in enumerate(PHASES, start=1):
             handle.write(
                 f"{index} {phase} {dmc_rel[phase]:.6f} {DMC_REL_ERROR[phase]:.6f} "
                 f"{method_rel['GFN1-xTB'][phase]:.6f} {method_rel['GFN2-xTB'][phase]:.6f} "
                 f"{gamma_rel['GFN1-xTB (Gamma)'][phase]:.6f} {gamma_rel['GFN2-xTB (Gamma)'][phase]:.6f} "
-                f"{method_rel['PBE-D4'][phase]:.6f} {method_rel['PBE0-D4'][phase]:.6f} "
-                f"{method_rel['SCAN+rVV10'][phase]:.6f} "
-                f"{method_rel['PBE'][phase]:.6f} {method_rel['PBE0'][phase]:.6f} "
-                f"{method_rel['SCAN'][phase]:.6f}\n"
+                f"{method_rel['PBE'][phase]:.6f} {method_rel['PBE-D4'][phase]:.6f} "
+                f"{method_rel['PBE0'][phase]:.6f} {method_rel['PBE0-D4'][phase]:.6f} "
+                f"{method_rel['SCAN'][phase]:.6f} {method_rel['SCAN+rVV10'][phase]:.6f}\n"
             )
 
     err_dat = DATA / "relative_errors_for_plot.dat"
     with err_dat.open("w") as handle:
         handle.write(
             "# index phase GFN1_error GFN2_error GFN1_Gamma_error GFN2_Gamma_error "
-            "PBE-D4_error PBE0-D4_error SCAN+rVV10_error PBE_error PBE0_error SCAN_error\n"
+            "PBE_error PBE-D4_error PBE0_error PBE0-D4_error SCAN_error SCAN+rVV10_error\n"
         )
         for index, phase in enumerate(PHASES, start=1):
             handle.write(
@@ -356,12 +355,12 @@ def main() -> None:
                 f"{method_rel['GFN2-xTB'][phase] - dmc_rel[phase]:.6f} "
                 f"{gamma_rel['GFN1-xTB (Gamma)'][phase] - dmc_rel[phase]:.6f} "
                 f"{gamma_rel['GFN2-xTB (Gamma)'][phase] - dmc_rel[phase]:.6f} "
-                f"{method_rel['PBE-D4'][phase] - dmc_rel[phase]:.6f} "
-                f"{method_rel['PBE0-D4'][phase] - dmc_rel[phase]:.6f} "
-                f"{method_rel['SCAN+rVV10'][phase] - dmc_rel[phase]:.6f} "
                 f"{method_rel['PBE'][phase] - dmc_rel[phase]:.6f} "
+                f"{method_rel['PBE-D4'][phase] - dmc_rel[phase]:.6f} "
                 f"{method_rel['PBE0'][phase] - dmc_rel[phase]:.6f} "
-                f"{method_rel['SCAN'][phase] - dmc_rel[phase]:.6f}\n"
+                f"{method_rel['PBE0-D4'][phase] - dmc_rel[phase]:.6f} "
+                f"{method_rel['SCAN'][phase] - dmc_rel[phase]:.6f} "
+                f"{method_rel['SCAN+rVV10'][phase] - dmc_rel[phase]:.6f}\n"
             )
 
     mae_dat = DATA / "relative_mae_for_plot.dat"
@@ -422,9 +421,9 @@ plot '{rel_dat}' using 1:3:xtic(2) w lp ls 1 title 'DMC', \\
 	     '' using 1:6 w lp ls 3 title 'GFN2-xTB', \\
 	     '' using 1:7 w lp ls 7 title 'GFN1-xTB (\u0393-point)', \\
 	     '' using 1:8 w lp ls 8 title 'GFN2-xTB (\u0393-point)', \\
-	     '' using 1:9 w lp ls 4 title 'PBE-D4', \\
-	     '' using 1:10 w lp ls 5 title 'PBE0-D4', \\
-	     '' using 1:11 w lp ls 6 title 'SCAN+rVV10'
+	     '' using 1:10 w lp ls 4 title 'PBE-D4', \\
+	     '' using 1:12 w lp ls 5 title 'PBE0-D4', \\
+	     '' using 1:14 w lp ls 6 title 'SCAN+rVV10'
 """
     )
 
@@ -444,12 +443,12 @@ plot '{rel_dat}' using 1:3:xtic(2) w lp ls 1 title 'DMC', \\
 	     '' using 1:6 w lp ls 3 title 'GFN2-xTB', \\
 	     '' using 1:7 w lp ls 7 title 'GFN1-xTB (\u0393-point)', \\
 	     '' using 1:8 w lp ls 8 title 'GFN2-xTB (\u0393-point)', \\
-	     '' using 1:9 w lp ls 4 title 'PBE-D4', \\
-	     '' using 1:12 w lp ls 10 title 'PBE', \\
-	     '' using 1:10 w lp ls 5 title 'PBE0-D4', \\
-	     '' using 1:13 w lp ls 11 title 'PBE0', \\
-	     '' using 1:11 w lp ls 6 title 'SCAN+rVV10', \\
-	     '' using 1:14 w lp ls 12 title 'SCAN'
+	     '' using 1:9 w lp ls 10 title 'PBE', \\
+	     '' using 1:10 w lp ls 4 title 'PBE-D4', \\
+	     '' using 1:11 w lp ls 11 title 'PBE0', \\
+	     '' using 1:12 w lp ls 5 title 'PBE0-D4', \\
+	     '' using 1:13 w lp ls 12 title 'SCAN', \\
+	     '' using 1:14 w lp ls 6 title 'SCAN+rVV10'
 """
     )
 
@@ -467,9 +466,9 @@ plot '{err_dat}' using 1:3:xtic(2) w lp ls 2 title 'GFN1-xTB', \\
 	     '' using 1:4 w lp ls 3 title 'GFN2-xTB', \\
 	     '' using 1:5 w lp ls 7 title 'GFN1-xTB (\u0393-point)', \\
 	     '' using 1:6 w lp ls 8 title 'GFN2-xTB (\u0393-point)', \\
-	     '' using 1:7 w lp ls 4 title 'PBE-D4', \\
-	     '' using 1:8 w lp ls 5 title 'PBE0-D4', \\
-	     '' using 1:9 w lp ls 6 title 'SCAN+rVV10'
+	     '' using 1:8 w lp ls 4 title 'PBE-D4', \\
+	     '' using 1:10 w lp ls 5 title 'PBE0-D4', \\
+	     '' using 1:12 w lp ls 6 title 'SCAN+rVV10'
 """
     )
 
@@ -487,12 +486,12 @@ plot '{err_dat}' using 1:3:xtic(2) w lp ls 2 title 'GFN1-xTB', \\
 	     '' using 1:4 w lp ls 3 title 'GFN2-xTB', \\
 	     '' using 1:5 w lp ls 7 title 'GFN1-xTB (\u0393-point)', \\
 	     '' using 1:6 w lp ls 8 title 'GFN2-xTB (\u0393-point)', \\
-	     '' using 1:7 w lp ls 4 title 'PBE-D4', \\
-	     '' using 1:10 w lp ls 10 title 'PBE', \\
-	     '' using 1:8 w lp ls 5 title 'PBE0-D4', \\
-	     '' using 1:11 w lp ls 11 title 'PBE0', \\
-	     '' using 1:9 w lp ls 6 title 'SCAN+rVV10', \\
-	     '' using 1:12 w lp ls 12 title 'SCAN'
+	     '' using 1:7 w lp ls 10 title 'PBE', \\
+	     '' using 1:8 w lp ls 4 title 'PBE-D4', \\
+	     '' using 1:9 w lp ls 11 title 'PBE0', \\
+	     '' using 1:10 w lp ls 5 title 'PBE0-D4', \\
+	     '' using 1:11 w lp ls 12 title 'SCAN', \\
+	     '' using 1:12 w lp ls 6 title 'SCAN+rVV10'
 """
     )
 
