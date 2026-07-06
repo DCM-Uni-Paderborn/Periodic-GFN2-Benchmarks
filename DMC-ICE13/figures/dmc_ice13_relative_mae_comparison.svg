@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"  standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg width="720" height="480" viewBox="0 0 720 480"
  xmlns="http://www.w3.org/2000/svg"
@@ -157,22 +157,22 @@
 	</g>
 	<path  d='M423.5,366.9 L423.5,375.9 '></path>
 	<g transform="translate(428.0,384.2) rotate(45)" style="stroke:none; fill:black; font-family:Helvetica; font-size:12.00pt; text-anchor:start">
-		<text><tspan>PBE-D4</tspan>
+		<text><tspan>GFN2-xTB</tspan>
 		</text>
 	</g>
 	<path  d='M482.2,366.9 L482.2,375.9 '></path>
 	<g transform="translate(486.7,384.2) rotate(45)" style="stroke:none; fill:black; font-family:Helvetica; font-size:12.00pt; text-anchor:start">
-		<text><tspan>PBE0</tspan>
+		<text><tspan>PBE-D4</tspan>
 		</text>
 	</g>
 	<path  d='M540.8,366.9 L540.8,375.9 '></path>
 	<g transform="translate(545.3,384.2) rotate(45)" style="stroke:none; fill:black; font-family:Helvetica; font-size:12.00pt; text-anchor:start">
-		<text><tspan>PBE</tspan>
+		<text><tspan>PBE0</tspan>
 		</text>
 	</g>
 	<path  d='M599.5,366.9 L599.5,375.9 '></path>
 	<g transform="translate(604.0,384.2) rotate(45)" style="stroke:none; fill:black; font-family:Helvetica; font-size:12.00pt; text-anchor:start">
-		<text><tspan>GFN2-xTB</tspan>
+		<text><tspan>PBE</tspan>
 		</text>
 	</g>
 	<path  d='M658.1,366.9 L658.1,375.9 '></path>
@@ -235,43 +235,43 @@
 </g>
 <g style="fill:none; color:red; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
 	<g style = 'stroke:none; shape-rendering:crispEdges'>
-		<polygon fill = 'rgb( 76, 114, 176)' fill-opacity = '0.850000' points = '402.4,366.9 402.4,256.0 444.7,256.0 444.7,366.9 '/>
+		<polygon fill = 'rgb( 76, 114, 176)' fill-opacity = '0.850000' points = '402.4,366.9 402.4,273.8 444.7,273.8 444.7,366.9 '/>
 	</g>
 </g>
 <g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
-	<path  d='M402.4,366.9 L402.4,256.1 L444.6,256.1 L444.6,366.9 L402.4,366.9 Z '></path>
+	<path  d='M402.4,366.9 L402.4,273.9 L444.6,273.9 L444.6,366.9 L402.4,366.9 Z '></path>
 </g>
 <g style="fill:none; color:red; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
 	<g style = 'stroke:none; shape-rendering:crispEdges'>
-		<polygon fill = 'rgb( 76, 114, 176)' fill-opacity = '0.850000' points = '461.1,366.9 461.1,213.5 503.4,213.5 503.4,366.9 '/>
+		<polygon fill = 'rgb( 76, 114, 176)' fill-opacity = '0.850000' points = '461.1,366.9 461.1,256.0 503.4,256.0 503.4,366.9 '/>
 	</g>
 </g>
 <g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
-	<path  d='M461.1,366.9 L461.1,213.6 L503.3,213.6 L503.3,366.9 L461.1,366.9 Z '></path>
+	<path  d='M461.1,366.9 L461.1,256.1 L503.3,256.1 L503.3,366.9 L461.1,366.9 Z '></path>
 </g>
 <g style="fill:none; color:red; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
 	<g style = 'stroke:none; shape-rendering:crispEdges'>
-		<polygon fill = 'rgb( 76, 114, 176)' fill-opacity = '0.850000' points = '519.7,366.9 519.7,177.6 562.1,177.6 562.1,366.9 '/>
+		<polygon fill = 'rgb( 76, 114, 176)' fill-opacity = '0.850000' points = '519.7,366.9 519.7,213.5 562.1,213.5 562.1,366.9 '/>
 	</g>
 </g>
 <g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
-	<path  d='M519.7,366.9 L519.7,177.7 L562.0,177.7 L562.0,366.9 L519.7,366.9 Z '></path>
+	<path  d='M519.7,366.9 L519.7,213.6 L562.0,213.6 L562.0,366.9 L519.7,366.9 Z '></path>
 </g>
 <g style="fill:none; color:red; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
 	<g style = 'stroke:none; shape-rendering:crispEdges'>
-		<polygon fill = 'rgb( 76, 114, 176)' fill-opacity = '0.850000' points = '578.4,366.9 578.4,107.6 620.7,107.6 620.7,366.9 '/>
+		<polygon fill = 'rgb( 76, 114, 176)' fill-opacity = '0.850000' points = '578.4,366.9 578.4,177.6 620.7,177.6 620.7,366.9 '/>
 	</g>
 </g>
 <g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
-	<path  d='M578.4,366.9 L578.4,107.7 L620.6,107.7 L620.6,366.9 L578.4,366.9 Z '></path>
+	<path  d='M578.4,366.9 L578.4,177.7 L620.6,177.7 L620.6,366.9 L578.4,366.9 Z '></path>
 </g>
 <g style="fill:none; color:red; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
 	<g style = 'stroke:none; shape-rendering:crispEdges'>
-		<polygon fill = 'rgb( 76, 114, 176)' fill-opacity = '0.850000' points = '637.0,366.9 637.0,16.5 679.4,16.5 679.4,366.9 '/>
+		<polygon fill = 'rgb( 76, 114, 176)' fill-opacity = '0.850000' points = '637.0,366.9 637.0,133.0 679.4,133.0 679.4,366.9 '/>
 	</g>
 </g>
 <g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
-	<path  d='M637.0,366.9 L637.0,16.6 L679.3,16.6 L679.3,366.9 L637.0,366.9 Z '></path>
+	<path  d='M637.0,366.9 L637.0,133.1 L679.3,133.1 L679.3,366.9 L637.0,366.9 Z '></path>
 </g>
 <g style="fill:none; color:red; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
 </g>

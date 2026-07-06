@@ -185,76 +185,76 @@
 <circle cx="832.3" cy="1015.9" r="3.1" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.4" stroke-opacity="0.46"/>
 <text x="273.0" y="1019.9" text-anchor="end" class="method">revPBE-D4</text>
 <text x="841.3" y="1019.9" class="value">3.04</text>
-<line x1="285.0" y1="1040.3" x2="860.9" y2="1040.3" stroke="#9aa5b1" stroke-width="3.2" stroke-linecap="round" stroke-opacity="0.46"/>
-<circle cx="860.9" cy="1040.3" r="3.1" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.4" stroke-opacity="0.46"/>
-<text x="273.0" y="1044.3" text-anchor="end" class="method">PBE-D3(BJ)</text>
-<text x="869.9" y="1044.3" class="value">3.43</text>
-<line x1="285.0" y1="1064.7" x2="872.2" y2="1064.7" stroke="#9aa5b1" stroke-width="3.2" stroke-linecap="round" stroke-opacity="0.46"/>
-<circle cx="872.2" cy="1064.7" r="3.1" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.4" stroke-opacity="0.46"/>
-<text x="273.0" y="1068.7" text-anchor="end" class="method">HF-D3(BJ)atm</text>
-<text x="881.2" y="1068.7" class="value">3.59</text>
-<line x1="285.0" y1="1089.1" x2="878.1" y2="1089.1" stroke="#9aa5b1" stroke-width="3.2" stroke-linecap="round" stroke-opacity="0.46"/>
-<circle cx="878.1" cy="1089.1" r="3.1" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.4" stroke-opacity="0.46"/>
-<text x="273.0" y="1093.1" text-anchor="end" class="method">PBE-D3(BJ)atm</text>
-<text x="887.1" y="1093.1" class="value">3.69</text>
-<line x1="285.0" y1="1113.6" x2="885.0" y2="1113.6" stroke="#55a868" stroke-width="5.0" stroke-linecap="round" stroke-opacity="0.78"/>
-<circle cx="885.0" cy="1113.6" r="4.4" fill="#ffffff" stroke="#55a868" stroke-width="1.4" stroke-opacity="0.78"/>
-<text x="273.0" y="1117.6" text-anchor="end" class="method">PBE-D4</text>
-<text x="894.0" y="1117.6" class="value">3.79</text>
-<line x1="285.0" y1="1138.0" x2="887.7" y2="1138.0" stroke="#9aa5b1" stroke-width="3.2" stroke-linecap="round" stroke-opacity="0.46"/>
-<circle cx="887.7" cy="1138.0" r="3.1" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.4" stroke-opacity="0.46"/>
-<text x="273.0" y="1142.0" text-anchor="end" class="method">HF-D3(BJ)</text>
-<text x="896.7" y="1142.0" class="value">3.84</text>
-<line x1="285.0" y1="1162.4" x2="892.7" y2="1162.4" stroke="#9aa5b1" stroke-width="3.2" stroke-linecap="round" stroke-opacity="0.46"/>
-<circle cx="892.7" cy="1162.4" r="3.1" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.4" stroke-opacity="0.46"/>
-<text x="273.0" y="1166.4" text-anchor="end" class="method">HF-D4</text>
-<text x="901.7" y="1166.4" class="value">3.92</text>
-<line x1="285.0" y1="1186.9" x2="961.8" y2="1186.9" stroke="#b8a7db" stroke-width="5.0" stroke-linecap="round" stroke-opacity="0.78"/>
-<circle cx="961.8" cy="1186.9" r="4.4" fill="#ffffff" stroke="#b8a7db" stroke-width="1.4" stroke-opacity="0.78"/>
-<text x="273.0" y="1190.9" text-anchor="end" class="method">PBE0</text>
-<text x="970.8" y="1190.9" class="value">5.25</text>
-<line x1="285.0" y1="1211.3" x2="983.0" y2="1211.3" stroke="#9aa5b1" stroke-width="3.2" stroke-linecap="round" stroke-opacity="0.46"/>
-<circle cx="983.0" cy="1211.3" r="3.1" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.4" stroke-opacity="0.46"/>
-<text x="273.0" y="1215.3" text-anchor="end" class="method">B3LYP</text>
-<text x="992.0" y="1215.3" class="value">5.74</text>
-<line x1="285.0" y1="1235.7" x2="984.9" y2="1235.7" stroke="#9aa5b1" stroke-width="3.2" stroke-linecap="round" stroke-opacity="0.46"/>
-<circle cx="984.9" cy="1235.7" r="3.1" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.4" stroke-opacity="0.46"/>
-<text x="273.0" y="1239.7" text-anchor="end" class="method">LDA</text>
-<text x="993.9" y="1239.7" class="value">5.79</text>
-<line x1="285.0" y1="1260.1" x2="1000.7" y2="1260.1" stroke="#9aa5b1" stroke-width="3.2" stroke-linecap="round" stroke-opacity="0.46"/>
-<circle cx="1000.7" cy="1260.1" r="3.1" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.4" stroke-opacity="0.46"/>
-<text x="273.0" y="1264.1" text-anchor="end" class="method">HF-D3atm</text>
-<text x="1009.7" y="1264.1" class="value">6.19</text>
-<line x1="285.0" y1="1284.6" x2="1006.3" y2="1284.6" stroke="#9aa5b1" stroke-width="3.2" stroke-linecap="round" stroke-opacity="0.46"/>
-<circle cx="1006.3" cy="1284.6" r="3.1" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.4" stroke-opacity="0.46"/>
-<text x="273.0" y="1288.6" text-anchor="end" class="method">revPBE0</text>
-<text x="1015.3" y="1288.6" class="value">6.34</text>
-<line x1="285.0" y1="1309.0" x2="1009.6" y2="1309.0" stroke="#9aa5b1" stroke-width="3.2" stroke-linecap="round" stroke-opacity="0.46"/>
-<circle cx="1009.6" cy="1309.0" r="3.1" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.4" stroke-opacity="0.46"/>
-<text x="273.0" y="1313.0" text-anchor="end" class="method">HF-D3</text>
-<text x="1018.6" y="1313.0" class="value">6.43</text>
-<line x1="285.0" y1="1333.4" x2="1011.5" y2="1333.4" stroke="#9bd49f" stroke-width="5.0" stroke-linecap="round" stroke-opacity="0.78"/>
-<circle cx="1011.5" cy="1333.4" r="4.4" fill="#ffffff" stroke="#9bd49f" stroke-width="1.4" stroke-opacity="0.78"/>
-<text x="273.0" y="1337.4" text-anchor="end" class="method">PBE</text>
-<text x="1020.5" y="1337.4" class="value">6.48</text>
-<line x1="285.0" y1="1357.9" x2="1061.9" y2="1357.9" stroke="#9aa5b1" stroke-width="3.2" stroke-linecap="round" stroke-opacity="0.46"/>
-<circle cx="1061.9" cy="1357.9" r="3.1" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.4" stroke-opacity="0.46"/>
-<text x="273.0" y="1361.9" text-anchor="end" class="method">revPBE</text>
-<text x="1070.9" y="1361.9" class="value">8.02</text>
-<line x1="285.0" y1="1382.3" x2="1077.1" y2="1382.3" stroke="#8fb0df" stroke-width="4.6" stroke-linecap="round" stroke-opacity="0.70" stroke-dasharray="8 7"/>
-<circle cx="1077.1" cy="1382.3" r="4.8" fill="#ffffff" stroke="#8fb0df" stroke-width="2.0" stroke-opacity="0.70"/>
-<text x="273.0" y="1386.3" text-anchor="end" class="method-hi">GFN2-xTB (Γ-point)</text>
-<text x="1086.1" y="1386.3" class="value-hi">8.55</text>
-<line x1="285.0" y1="1406.7" x2="1086.0" y2="1406.7" stroke="#4c72b0" stroke-width="7.0" stroke-linecap="round" stroke-opacity="0.95"/>
-<circle cx="1086.0" cy="1406.7" r="5.7" fill="#ffffff" stroke="#4c72b0" stroke-width="2.0" stroke-opacity="0.95"/>
-<text x="273.0" y="1410.7" text-anchor="end" class="method-hi">GFN2-xTB</text>
-<text x="1095.0" y="1410.7" class="value-hi">8.88</text>
-<line x1="285.0" y1="1431.1" x2="1134.4" y2="1431.1" stroke="#e6a0a3" stroke-width="4.6" stroke-linecap="round" stroke-opacity="0.70" stroke-dasharray="8 7"/>
-<circle cx="1134.4" cy="1431.1" r="4.8" fill="#ffffff" stroke="#e6a0a3" stroke-width="2.0" stroke-opacity="0.70"/>
-<text x="273.0" y="1435.1" text-anchor="end" class="method-hi">GFN1-xTB (Γ-point)</text>
-<text x="1143.4" y="1435.1" class="value-hi">10.89</text>
-<line x1="285.0" y1="1455.6" x2="1178.2" y2="1455.6" stroke="#c44e52" stroke-width="7.0" stroke-linecap="round" stroke-opacity="0.95"/>
-<circle cx="1178.2" cy="1455.6" r="5.7" fill="#ffffff" stroke="#c44e52" stroke-width="2.0" stroke-opacity="0.95"/>
-<text x="273.0" y="1459.6" text-anchor="end" class="method-hi">GFN1-xTB</text>
-<text x="1187.2" y="1459.6" class="value-hi">13.11</text>
+<line x1="285.0" y1="1040.3" x2="843.6" y2="1040.3" stroke="#4c72b0" stroke-width="7.0" stroke-linecap="round" stroke-opacity="0.95"/>
+<circle cx="843.6" cy="1040.3" r="5.7" fill="#ffffff" stroke="#4c72b0" stroke-width="2.0" stroke-opacity="0.95"/>
+<text x="273.0" y="1044.3" text-anchor="end" class="method-hi">GFN2-xTB</text>
+<text x="852.6" y="1044.3" class="value-hi">3.19</text>
+<line x1="285.0" y1="1064.7" x2="860.9" y2="1064.7" stroke="#9aa5b1" stroke-width="3.2" stroke-linecap="round" stroke-opacity="0.46"/>
+<circle cx="860.9" cy="1064.7" r="3.1" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.4" stroke-opacity="0.46"/>
+<text x="273.0" y="1068.7" text-anchor="end" class="method">PBE-D3(BJ)</text>
+<text x="869.9" y="1068.7" class="value">3.43</text>
+<line x1="285.0" y1="1089.1" x2="872.2" y2="1089.1" stroke="#9aa5b1" stroke-width="3.2" stroke-linecap="round" stroke-opacity="0.46"/>
+<circle cx="872.2" cy="1089.1" r="3.1" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.4" stroke-opacity="0.46"/>
+<text x="273.0" y="1093.1" text-anchor="end" class="method">HF-D3(BJ)atm</text>
+<text x="881.2" y="1093.1" class="value">3.59</text>
+<line x1="285.0" y1="1113.6" x2="878.1" y2="1113.6" stroke="#9aa5b1" stroke-width="3.2" stroke-linecap="round" stroke-opacity="0.46"/>
+<circle cx="878.1" cy="1113.6" r="3.1" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.4" stroke-opacity="0.46"/>
+<text x="273.0" y="1117.6" text-anchor="end" class="method">PBE-D3(BJ)atm</text>
+<text x="887.1" y="1117.6" class="value">3.69</text>
+<line x1="285.0" y1="1138.0" x2="885.0" y2="1138.0" stroke="#55a868" stroke-width="5.0" stroke-linecap="round" stroke-opacity="0.78"/>
+<circle cx="885.0" cy="1138.0" r="4.4" fill="#ffffff" stroke="#55a868" stroke-width="1.4" stroke-opacity="0.78"/>
+<text x="273.0" y="1142.0" text-anchor="end" class="method">PBE-D4</text>
+<text x="894.0" y="1142.0" class="value">3.79</text>
+<line x1="285.0" y1="1162.4" x2="887.7" y2="1162.4" stroke="#9aa5b1" stroke-width="3.2" stroke-linecap="round" stroke-opacity="0.46"/>
+<circle cx="887.7" cy="1162.4" r="3.1" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.4" stroke-opacity="0.46"/>
+<text x="273.0" y="1166.4" text-anchor="end" class="method">HF-D3(BJ)</text>
+<text x="896.7" y="1166.4" class="value">3.84</text>
+<line x1="285.0" y1="1186.9" x2="892.7" y2="1186.9" stroke="#9aa5b1" stroke-width="3.2" stroke-linecap="round" stroke-opacity="0.46"/>
+<circle cx="892.7" cy="1186.9" r="3.1" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.4" stroke-opacity="0.46"/>
+<text x="273.0" y="1190.9" text-anchor="end" class="method">HF-D4</text>
+<text x="901.7" y="1190.9" class="value">3.92</text>
+<line x1="285.0" y1="1211.3" x2="961.8" y2="1211.3" stroke="#b8a7db" stroke-width="5.0" stroke-linecap="round" stroke-opacity="0.78"/>
+<circle cx="961.8" cy="1211.3" r="4.4" fill="#ffffff" stroke="#b8a7db" stroke-width="1.4" stroke-opacity="0.78"/>
+<text x="273.0" y="1215.3" text-anchor="end" class="method">PBE0</text>
+<text x="970.8" y="1215.3" class="value">5.25</text>
+<line x1="285.0" y1="1235.7" x2="966.5" y2="1235.7" stroke="#8fb0df" stroke-width="4.6" stroke-linecap="round" stroke-opacity="0.70" stroke-dasharray="8 7"/>
+<circle cx="966.5" cy="1235.7" r="4.8" fill="#ffffff" stroke="#8fb0df" stroke-width="2.0" stroke-opacity="0.70"/>
+<text x="273.0" y="1239.7" text-anchor="end" class="method-hi">GFN2-xTB (Γ-point)</text>
+<text x="975.5" y="1239.7" class="value-hi">5.36</text>
+<line x1="285.0" y1="1260.1" x2="983.0" y2="1260.1" stroke="#9aa5b1" stroke-width="3.2" stroke-linecap="round" stroke-opacity="0.46"/>
+<circle cx="983.0" cy="1260.1" r="3.1" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.4" stroke-opacity="0.46"/>
+<text x="273.0" y="1264.1" text-anchor="end" class="method">B3LYP</text>
+<text x="992.0" y="1264.1" class="value">5.74</text>
+<line x1="285.0" y1="1284.6" x2="984.9" y2="1284.6" stroke="#9aa5b1" stroke-width="3.2" stroke-linecap="round" stroke-opacity="0.46"/>
+<circle cx="984.9" cy="1284.6" r="3.1" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.4" stroke-opacity="0.46"/>
+<text x="273.0" y="1288.6" text-anchor="end" class="method">LDA</text>
+<text x="993.9" y="1288.6" class="value">5.79</text>
+<line x1="285.0" y1="1309.0" x2="1000.7" y2="1309.0" stroke="#9aa5b1" stroke-width="3.2" stroke-linecap="round" stroke-opacity="0.46"/>
+<circle cx="1000.7" cy="1309.0" r="3.1" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.4" stroke-opacity="0.46"/>
+<text x="273.0" y="1313.0" text-anchor="end" class="method">HF-D3atm</text>
+<text x="1009.7" y="1313.0" class="value">6.19</text>
+<line x1="285.0" y1="1333.4" x2="1006.3" y2="1333.4" stroke="#9aa5b1" stroke-width="3.2" stroke-linecap="round" stroke-opacity="0.46"/>
+<circle cx="1006.3" cy="1333.4" r="3.1" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.4" stroke-opacity="0.46"/>
+<text x="273.0" y="1337.4" text-anchor="end" class="method">revPBE0</text>
+<text x="1015.3" y="1337.4" class="value">6.34</text>
+<line x1="285.0" y1="1357.9" x2="1009.6" y2="1357.9" stroke="#9aa5b1" stroke-width="3.2" stroke-linecap="round" stroke-opacity="0.46"/>
+<circle cx="1009.6" cy="1357.9" r="3.1" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.4" stroke-opacity="0.46"/>
+<text x="273.0" y="1361.9" text-anchor="end" class="method">HF-D3</text>
+<text x="1018.6" y="1361.9" class="value">6.43</text>
+<line x1="285.0" y1="1382.3" x2="1011.5" y2="1382.3" stroke="#9bd49f" stroke-width="5.0" stroke-linecap="round" stroke-opacity="0.78"/>
+<circle cx="1011.5" cy="1382.3" r="4.4" fill="#ffffff" stroke="#9bd49f" stroke-width="1.4" stroke-opacity="0.78"/>
+<text x="273.0" y="1386.3" text-anchor="end" class="method">PBE</text>
+<text x="1020.5" y="1386.3" class="value">6.48</text>
+<line x1="285.0" y1="1406.7" x2="1019.3" y2="1406.7" stroke="#e6a0a3" stroke-width="4.6" stroke-linecap="round" stroke-opacity="0.70" stroke-dasharray="8 7"/>
+<circle cx="1019.3" cy="1406.7" r="4.8" fill="#ffffff" stroke="#e6a0a3" stroke-width="2.0" stroke-opacity="0.70"/>
+<text x="273.0" y="1410.7" text-anchor="end" class="method-hi">GFN1-xTB (Γ-point)</text>
+<text x="1028.3" y="1410.7" class="value-hi">6.70</text>
+<line x1="285.0" y1="1431.1" x2="1061.6" y2="1431.1" stroke="#c44e52" stroke-width="7.0" stroke-linecap="round" stroke-opacity="0.95"/>
+<circle cx="1061.6" cy="1431.1" r="5.7" fill="#ffffff" stroke="#c44e52" stroke-width="2.0" stroke-opacity="0.95"/>
+<text x="273.0" y="1435.1" text-anchor="end" class="method-hi">GFN1-xTB</text>
+<text x="1070.6" y="1435.1" class="value-hi">8.01</text>
+<line x1="285.0" y1="1455.6" x2="1061.9" y2="1455.6" stroke="#9aa5b1" stroke-width="3.2" stroke-linecap="round" stroke-opacity="0.46"/>
+<circle cx="1061.9" cy="1455.6" r="3.1" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.4" stroke-opacity="0.46"/>
+<text x="273.0" y="1459.6" text-anchor="end" class="method">revPBE</text>
+<text x="1070.9" y="1459.6" class="value">8.02</text>
 </svg>

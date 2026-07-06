@@ -157,13 +157,17 @@ def load_gamma_gfn_relative_energies(results: dict[str, object]) -> dict[str, di
 
 def write_csv(path: Path, rows: list[dict[str, object]], fieldnames: list[str]) -> None:
     with path.open("w", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer = csv.DictWriter(handle, fieldnames=fieldnames, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 
 
 def run_gnuplot(script: str) -> None:
     subprocess.run(["gnuplot"], input=script.encode(), check=True)
+
+
+def normalize_text_file(path: Path) -> None:
+    path.write_text("\n".join(line.rstrip() for line in path.read_text().splitlines()) + "\n")
 
 
 def svg_attr(attrs: dict[str, object]) -> str:
@@ -519,6 +523,7 @@ plot '"""
     )
 
     for svg in FIGURES.glob("*.svg"):
+        normalize_text_file(svg)
         png = svg.with_suffix(".png")
         pdf = svg.with_suffix(".pdf")
         subprocess.run(["rsvg-convert", str(svg), "-o", str(png)], check=True)
