@@ -1,0 +1,67 @@
+{
+  "cp2k": {
+    "executable": "/Users/tkuehne/gxtb-local-build/install/cp2k/bin/cp2k.ssmp",
+    "sha256": "f5eb42ab68102490db4914b98601512b37bd2d283eb2e5fbf3a6ac3cd17c8785",
+    "source": {
+      "available": true,
+      "branch": "master",
+      "revision": "faf9aae91266170dfee8a9f7171a5135bc5eb368",
+      "source_path": "/Users/tkuehne/gxtb-local-build/cp2k",
+      "status": "M src/tblite_interface.F",
+      "working_tree_diff_sha256": "429b0cf3367644a193919c911659e1269809940f8f2d5cb0c61df6bf98e318b7"
+    },
+    "version": "CP2K version 2026.1 (Development Version)\n Source code revision faf9aae\n cp2kflags: omp no_statm_access libdftd4 dftd4_v4_2 s_dftd3 mctc-lib tblite\n compiler: GCC version 16.1.0\n compiler options:\n   -I /Users/tkuehne/gxtb-local-build/cp2k-build/src/start -I /Users/tk\n   uehne/gxtb-local-build/cp2k/src -I /Users/tkuehne/gxtb-local-build/c\n   p2k-build/src -I /Users/tkuehne/gxtb-local-build/cp2k/src/base -I /U\n   sers/tkuehne/gxtb-local-build/cp2k/src/common -I /Users/tkuehne/gxtb\n   -local-build/cp2k/src/motion -I /Users/tkuehne/gxtb-local-build/cp2k\n   /src/dbm -I /Users/tkuehne/gxtb-local-build/cp2k-build/src/mod_files\n    -I /Users/tkuehne/gxtb-local-build/install/tblite/include -I /Users\n   /tkuehne/gxtb-local-build/install/tblite/include/tblite/GNU-16.1.0 -\n   I /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platfo\n   rm/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/vecLib.framew\n   ork/Headers -I /Users/tkuehne/gxtb-local-build/install/tblite/includ\n   e/toml-f/modules -I /Users/tkuehne/gxtb-local-build/install/tblite/i\n   nclude/mctc-lib/modules -I /Users/tkuehne/gxtb-local-build/install/t\n   blite/include/dftd4/GNU-16.1.0 -I /Users/tkuehne/gxtb-local-build/in\n   stall/tblite/include/multicharge/GNU-16.1.0 -I /Users/tkuehne/gxtb-l\n   ocal-build/install/tblite/include/s-dftd3/GNU-16.1.0 -I /Users/tkueh\n   ne/dropbox/cp2k-xtb/cp2k-ot-metallic/tools/toolchain/install/dbcsr-2\n   .9.1/include -mmacosx-version-min=15.0.0 -mlittle-endian -mabi=lp64 \n   -mcpu=apple-m1 -g -O3 -O3 -Wno-deprecated-declarations -Wno-maybe-un\n   initialized -Wuninitialized -Wuse-without-only -std=f2008 -fPIE -ffr\n   ee-form -fimplicit-none -fno-omit-frame-pointer -fbacktrace -fallow-\n   argument-mismatch -funroll-loops -fopenmp -fpreprocessed -J src"
+  },
+  "protocol": {
+    "adaptive_scales": {
+      "MgO/GFN2": [
+        0.9,
+        0.92
+      ]
+    },
+    "benchmark": "LC12 (Goldzak12)",
+    "cell_protocol": "cubic equation of state",
+    "default_scf_strategy": "tblite modified-Broyden defaults",
+    "energy_meshes": [
+      "k333",
+      "k444",
+      "k555"
+    ],
+    "eos_mesh": "k444",
+    "kpoint_scheme": "CP2K native Bloch MACDONALD FULL_GRID",
+    "reported_energy": "Total energy extrapolated to T->0",
+    "result_mesh": "k444",
+    "scales": [
+      0.82,
+      0.88,
+      0.94,
+      0.98,
+      1.0,
+      1.02,
+      1.06,
+      1.12,
+      1.2,
+      1.3,
+      1.45
+    ],
+    "scf_retry_strategies": [
+      "TBLITE_MIXER ITERATIONS 1200 MEMORY 1 DAMPING 0.05",
+      "TBLITE_MIXER ITERATIONS 2400 MEMORY 1 DAMPING 0.01"
+    ],
+    "smearing_temperature_K": 300.0,
+    "tblite_accuracy": 0.05
+  },
+  "tblite": {
+    "executable": "/Users/tkuehne/gxtb-local-build/install/tblite/bin/tblite",
+    "sha256": "1136763738cc7c0b095829344ccc2949d77bc76ad804365ec2cf5839437d109c",
+    "source": {
+      "available": true,
+      "branch": "codex/main-plus-pr350",
+      "revision": "8a9d09474b93d25c044d6f46ce920750c7fe4cf7",
+      "source_path": "/Users/tkuehne/gxtb-local-build/tblite",
+      "status": "",
+      "working_tree_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version": "tblite version 0.6.0\nddX support: disabled\nHDF5 support: disabled\nTREXIO support: disabled"
+  }
+}
