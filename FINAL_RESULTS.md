@@ -1,5 +1,9 @@
 # Periodic GFN2-xTB Paper Revision Package
 
+> This file records the earlier DMC13/X23b production build. The later,
+> independently versioned Klimes-23 build and results are documented in
+> `Klimes-Solids23/README.md`; do not mix the two build manifests.
+
 Generated: 2026-07-06
 
 This package collects the final local results used to revise `main_jctc_revised.tex` for the paper "Advancing GFN2-xTB for Periodic Systems via multipolar Ewald Summation in CP2K".

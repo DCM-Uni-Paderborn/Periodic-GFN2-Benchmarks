@@ -1,0 +1,25 @@
+{
+  "attempts": 3,
+  "category": "semiconductor",
+  "damping": 0.04,
+  "dataset": "klimes",
+  "elapsed_seconds": 128.65459609031677,
+  "energy_hartree": null,
+  "full_grid": true,
+  "kmesh": [
+    8,
+    8,
+    8
+  ],
+  "kpoint_path": "CP2K native Bloch",
+  "label": "GaAs",
+  "max_scf": 1200,
+  "method": "GFN2",
+  "natoms": 8,
+  "ok": false,
+  "reason": "CP2K did not reach PROGRAM ENDED",
+  "return_code": -15,
+  "system": "GaAs",
+  "volume_A3": 143.3722832576,
+  "volume_factor": 0.8
+}

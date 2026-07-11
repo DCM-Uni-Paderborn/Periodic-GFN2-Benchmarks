@@ -18,3 +18,6 @@ __pycache__/
 DMC-ICE13/runs/
 DMC-ICE13/runs_kpoints/
 X23b/runs/
+
+# Large CP2K continuation scratch; compact inputs/results remain versioned.
+Klimes-Solids23/results/**/*-RESTART.kp*

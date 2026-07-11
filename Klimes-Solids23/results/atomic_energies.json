@@ -1,0 +1,226 @@
+{
+  "GFN1": {
+    "Ag": {
+      "energy_hartree": -3.770338182676694,
+      "spin_polarized": true,
+      "unpaired_electrons": 1
+    },
+    "Al": {
+      "energy_hartree": -1.0845841895977903,
+      "spin_polarized": true,
+      "unpaired_electrons": 1
+    },
+    "As": {
+      "energy_hartree": -2.2604838148156623,
+      "spin_polarized": true,
+      "unpaired_electrons": 3
+    },
+    "Ba": {
+      "energy_hartree": -0.4742595783451311,
+      "spin_polarized": false,
+      "unpaired_electrons": 0
+    },
+    "C": {
+      "energy_hartree": -1.7846718074182715,
+      "spin_polarized": true,
+      "unpaired_electrons": 2
+    },
+    "Ca": {
+      "energy_hartree": -0.5864589388109813,
+      "spin_polarized": false,
+      "unpaired_electrons": 0
+    },
+    "Cl": {
+      "energy_hartree": -4.174378944039753,
+      "spin_polarized": true,
+      "unpaired_electrons": 1
+    },
+    "Cs": {
+      "energy_hartree": -0.23714139015150945,
+      "spin_polarized": true,
+      "unpaired_electrons": 1
+    },
+    "Cu": {
+      "energy_hartree": -4.399214612684887,
+      "spin_polarized": true,
+      "unpaired_electrons": 1
+    },
+    "F": {
+      "energy_hartree": -5.011907342358815,
+      "spin_polarized": true,
+      "unpaired_electrons": 1
+    },
+    "Ga": {
+      "energy_hartree": -1.1626605434809885,
+      "spin_polarized": true,
+      "unpaired_electrons": 1
+    },
+    "Ge": {
+      "energy_hartree": -1.5425513213996023,
+      "spin_polarized": true,
+      "unpaired_electrons": 2
+    },
+    "K": {
+      "energy_hartree": -0.21904297096377498,
+      "spin_polarized": true,
+      "unpaired_electrons": 1
+    },
+    "Li": {
+      "energy_hartree": -0.27607144263849226,
+      "spin_polarized": true,
+      "unpaired_electrons": 1
+    },
+    "Mg": {
+      "energy_hartree": -0.7328492086440124,
+      "spin_polarized": false,
+      "unpaired_electrons": 0
+    },
+    "Na": {
+      "energy_hartree": -0.18090497068668604,
+      "spin_polarized": true,
+      "unpaired_electrons": 1
+    },
+    "O": {
+      "energy_hartree": -4.40653818742387,
+      "spin_polarized": true,
+      "unpaired_electrons": 2
+    },
+    "Pd": {
+      "energy_hartree": -4.406890147355881,
+      "spin_polarized": false,
+      "unpaired_electrons": 0
+    },
+    "Rb": {
+      "energy_hartree": -0.2846926883500828,
+      "spin_polarized": true,
+      "unpaired_electrons": 1
+    },
+    "Rh": {
+      "energy_hartree": -3.7221809574766267,
+      "spin_polarized": true,
+      "unpaired_electrons": 3
+    },
+    "Si": {
+      "energy_hartree": -1.6521989847020664,
+      "spin_polarized": true,
+      "unpaired_electrons": 2
+    },
+    "Sr": {
+      "energy_hartree": -0.5027433177275922,
+      "spin_polarized": false,
+      "unpaired_electrons": 0
+    }
+  },
+  "GFN2": {
+    "Ag": {
+      "energy_hartree": -3.8287007102716593,
+      "spin_polarized": true,
+      "unpaired_electrons": 1
+    },
+    "Al": {
+      "energy_hartree": -0.9123161118130766,
+      "spin_polarized": true,
+      "unpaired_electrons": 1
+    },
+    "As": {
+      "energy_hartree": -2.2968851552425376,
+      "spin_polarized": true,
+      "unpaired_electrons": 3
+    },
+    "Ba": {
+      "energy_hartree": -0.433642020732054,
+      "spin_polarized": false,
+      "unpaired_electrons": 0
+    },
+    "C": {
+      "energy_hartree": -1.8386463706199814,
+      "spin_polarized": true,
+      "unpaired_electrons": 2
+    },
+    "Ca": {
+      "energy_hartree": -0.3716463524887721,
+      "spin_polarized": false,
+      "unpaired_electrons": 0
+    },
+    "Cl": {
+      "energy_hartree": -4.490550134315199,
+      "spin_polarized": true,
+      "unpaired_electrons": 1
+    },
+    "Cs": {
+      "energy_hartree": -0.15262996246142935,
+      "spin_polarized": true,
+      "unpaired_electrons": 1
+    },
+    "Cu": {
+      "energy_hartree": -3.7563311309852363,
+      "spin_polarized": true,
+      "unpaired_electrons": 1
+    },
+    "F": {
+      "energy_hartree": -4.634302455361783,
+      "spin_polarized": true,
+      "unpaired_electrons": 1
+    },
+    "Ga": {
+      "energy_hartree": -1.0878118359705864,
+      "spin_polarized": true,
+      "unpaired_electrons": 1
+    },
+    "Ge": {
+      "energy_hartree": -1.8351896368848257,
+      "spin_polarized": true,
+      "unpaired_electrons": 2
+    },
+    "K": {
+      "energy_hartree": -0.17107723906142183,
+      "spin_polarized": true,
+      "unpaired_electrons": 1
+    },
+    "Li": {
+      "energy_hartree": -0.1889716865751749,
+      "spin_polarized": true,
+      "unpaired_electrons": 1
+    },
+    "Mg": {
+      "energy_hartree": -0.46597466379242625,
+      "spin_polarized": false,
+      "unpaired_electrons": 0
+    },
+    "Na": {
+      "energy_hartree": -0.17463424982163403,
+      "spin_polarized": true,
+      "unpaired_electrons": 1
+    },
+    "O": {
+      "energy_hartree": -3.8233069427973434,
+      "spin_polarized": true,
+      "unpaired_electrons": 2
+    },
+    "Pd": {
+      "energy_hartree": -4.4098452999302,
+      "spin_polarized": false,
+      "unpaired_electrons": 0
+    },
+    "Rb": {
+      "energy_hartree": -0.164773948675345,
+      "spin_polarized": true,
+      "unpaired_electrons": 1
+    },
+    "Rh": {
+      "energy_hartree": -3.784862067752194,
+      "spin_polarized": true,
+      "unpaired_electrons": 3
+    },
+    "Si": {
+      "energy_hartree": -1.5983599381592066,
+      "spin_polarized": true,
+      "unpaired_electrons": 2
+    },
+    "Sr": {
+      "energy_hartree": -0.4624308530006268,
+      "spin_polarized": false,
+      "unpaired_electrons": 0
+    }
+  }
+}

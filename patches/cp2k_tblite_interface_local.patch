@@ -1,5 +1,5 @@
 diff --git a/src/tblite_interface.F b/src/tblite_interface.F
-index cb403c496f..e75da7f9a1 100644
+index 2408987..c0900b6 100644
 --- a/src/tblite_interface.F
 +++ b/src/tblite_interface.F
 @@ -472,10 +472,12 @@ CONTAINS
@@ -7,8 +7,8 @@ index cb403c496f..e75da7f9a1 100644
  
        tb%calc%max_iter = iterations
 +      tb%calc%mixer_input%max_iter = iterations
-       tb%mixer_memory = memory
 +      tb%calc%mixer_input%memory = memory
+       tb%mixer_memory = memory
        tb%mixer_solver = solver
        tb%mixer_damping = damping
 -      tb%calc%mixer_damping = damping

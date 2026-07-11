@@ -1,0 +1,32 @@
+{
+  "attempts": 2,
+  "category": "simple_metal",
+  "cp2k_mixer_alpha": null,
+  "damping": 0.2,
+  "dataset": "klimes",
+  "elapsed_seconds": 667.7531011104584,
+  "energy_hartree": -5.01127882662242,
+  "full_grid": true,
+  "kmesh": [
+    16,
+    16,
+    16
+  ],
+  "kpoint_path": "CP2K native Bloch",
+  "label": "Al",
+  "max_scf": 750,
+  "method": "GFN1",
+  "mixer_profile_stage": 2,
+  "natoms": 4,
+  "ok": true,
+  "reason": "ok",
+  "return_code": 0,
+  "scc_mixer": "TBLITE",
+  "start_attempt": 1,
+  "system": "Al",
+  "tblite_mixer_damping": 0.2,
+  "tblite_mixer_iterations": 750,
+  "tblite_mixer_memory": 100,
+  "volume_A3": 90.95073119999998,
+  "volume_factor": 1.4
+}

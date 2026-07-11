@@ -1,0 +1,50 @@
+{
+  "benchmark": "Klimes-23",
+  "generated_date": "2026-07-11",
+  "scope": "Klimes-23 only; no Buccheri data",
+  "cp2k": {
+    "revision": "faf9aae91266170dfee8a9f7171a5135bc5eb368",
+    "version_banner": "CP2K version 2026.1 (Development Version)",
+    "source_track": "trunk",
+    "binary_path_as_run": "/Users/tkuehne/gxtb-local-build/install/cp2k/bin/cp2k.ssmp",
+    "binary_sha256": "f5eb42ab68102490db4914b98601512b37bd2d283eb2e5fbf3a6ac3cd17c8785",
+    "flags": ["omp", "libdftd4", "dftd4_v4_2", "s_dftd3", "mctc-lib", "tblite"],
+    "local_patch": "../patches/cp2k_tblite_interface_local.patch",
+    "local_patch_sha256": "fb8a130b3145e6a3ab70280e9e34aaab7f3b61b9cc83c6c45bbc9e879c1c50ff"
+  },
+  "tblite": {
+    "revision": "8a9d09474b93d25c044d6f46ce920750c7fe4cf7",
+    "version": "0.6.0",
+    "binary_path_as_run": "/Users/tkuehne/gxtb-local-build/install/tblite/bin/tblite",
+    "binary_sha256": "1136763738cc7c0b095829344ccc2949d77bc76ad804365ec2cf5839437d109c",
+    "included_prs": {
+      "343": "a32675a",
+      "350": "8c5e562"
+    },
+    "experimental_wsc_patch_applied": false
+  },
+  "periodic_protocol": {
+    "path": "CP2K native Bloch",
+    "full_grid": true,
+    "metal_kmesh": [16, 16, 16],
+    "nonmetal_kmesh": [8, 8, 8],
+    "born_von_karman_supercell": false,
+    "electronic_temperature_K": 300.0,
+    "energy_used": "CP2K Total energy (extrapolated to T->0)",
+    "standard_volume_factors": [0.80, 0.84, 0.88, 0.92, 0.96, 1.00, 1.04, 1.08, 1.12, 1.16, 1.20],
+    "eos_model": "Murnaghan",
+    "minimum_points_per_fit": 7,
+    "fit_r_squared_minimum": 0.999
+  },
+  "counts": {
+    "systems": 23,
+    "methods": 2,
+    "raw_sidecars": 867,
+    "successful_sidecars": 866,
+    "failed_sidecars": 1,
+    "accepted_eos_fits": 44,
+    "total_eos_fits": 46,
+    "gfn1_accepted": 23,
+    "gfn2_accepted": 21
+  }
+}
