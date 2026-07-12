@@ -86,9 +86,9 @@ python3 Goldzak12/scripts/continue_goldzak12_eos.py \
 ```
 
 Raw calculations and generated inputs are kept below `Goldzak12/runs` and
-`Goldzak12/inputs` and are ignored by Git. Curated CSV/Markdown tables,
-provenance, and publication-ready PNG/PDF figures are versioned in
-`Goldzak12/data` and `Goldzak12/figures`.
+`Goldzak12/inputs` and are ignored by Git. Curated CSV/Markdown tables and
+provenance are versioned in `Goldzak12/data`; `Goldzak12/figures` contains the
+PNG/PDF figure used in the revised manuscript.
 
 Literature comparison
 ---------------------
