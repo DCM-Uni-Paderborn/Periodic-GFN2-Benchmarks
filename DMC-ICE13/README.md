@@ -37,7 +37,8 @@ J. Chem. Phys. 157, 134701 (2022), DOI: 10.1063/5.0102645.
 - `data/dmc_ice13_reference_cli_rows.csv` and
   `data/dmc_ice13_reference_cli_summary.csv`: direct CP2K-native versus tblite
   CLI energy, gradient, and virial checks for all 26 Gamma calculations.
-- `figures/`: PDF, SVG, and PNG plots generated from the benchmark data.
+- `figures/`: PDF, SVG, and PNG versions of the three DMC-ICE13 plots used in
+  the revised manuscript and Supporting Information.
 - `scripts/`: input generation, extraction, analysis, plotting, and run scripts.
 
 The original PDF and Supporting Information are not redistributed here. The

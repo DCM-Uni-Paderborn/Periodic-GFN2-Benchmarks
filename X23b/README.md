@@ -30,8 +30,8 @@ the complete X23 Quantum ESPRESSO crystal input is used for that system.
   `x23b_reference_cli_{gfn1,gfn2}_{rows,summary}.csv` files record direct
   CP2K-native versus tblite CLI checks on all initial and final Gamma
   geometries.
-- `figures/`: plots generated from the benchmark data, including the
-  system-resolved X23b lattice-energy profile.
+- `figures/`: PDF, SVG, and PNG versions of the three X23b plots used in the
+  revised manuscript and Supporting Information.
 - `scripts/`: input generation, analysis, plotting, and run scripts.
 
 ## Run Defaults

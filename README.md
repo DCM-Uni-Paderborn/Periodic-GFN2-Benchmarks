@@ -1,7 +1,8 @@
 # Periodic GFN2 Benchmarks
 
 This repository collects the paper-relevant benchmark inputs, curated output
-data, analysis scripts, and figures for periodic GFN calculations in CP2K.
+data, analysis scripts, and the figures used in the revised manuscript and
+Supporting Information for periodic GFN calculations in CP2K.
 
 ## Contents
 
@@ -24,10 +25,10 @@ data, analysis scripts, and figures for periodic GFN calculations in CP2K.
 - `FINAL_RESULTS.md`, `CODE_PATCHES.md`, and `paper_revision_numbers.csv`:
   compact provenance for the current paper revision.
 
-Generated CP2K working directories and raw standard-output files are not
-tracked. They can be recreated from the versioned inputs and scripts; the
-curated CSV, JSON, and plotting data files are the benchmark data used in the
-manuscript.
+Generated CP2K working directories, raw standard-output files, and optional
+diagnostic plots are not tracked. They can be recreated from the versioned
+inputs and scripts; the curated CSV, JSON, plotting data, and manuscript figure
+files are the benchmark data used in the paper.
 
 ## Current revision snapshot
 
