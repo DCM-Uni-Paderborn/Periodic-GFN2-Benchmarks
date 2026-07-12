@@ -1,74 +1,84 @@
 # Periodic GFN2-xTB Paper Revision Package
 
-Generated: 2026-07-06
+Generated: 2026-07-12
 
-This package collects the final local results used to revise `main_jctc_revised.tex` for the paper "Advancing GFN2-xTB for Periodic Systems via multipolar Ewald Summation in CP2K".
+This package records the final data used for the revised manuscript
+"Advancing GFN2-xTB for Periodic Systems via multipolar Ewald Summation in
+CP2K".
 
 ## Build State
 
-- CP2K binary: `/private/tmp/cp2k-pr-5533-build-cellhess4/bin/cp2k.psmp`
-- CP2K revision: `518a50992f009b083c127372f294e6485306c05b` (`CP2K version 2026.1 (Development Version)`, trunk build)
-- CP2K flags include: `spglib`, `mctc-lib`, `tblite`
-- tblite source: `/private/tmp/gxtb-clean-pr350-20260702/tblite-src`
-- tblite HEAD: `5b14b8430bb2ffb3c96808466ad670821f81f745`
-- tblite includes PR343 commit `a32675a` and PR350 commit `c36ee59`
-- tblite binary: `/private/tmp/gxtb-clean-pr350-20260702/tblite-install/bin/tblite` (`tblite version 0.6.0`)
+- CP2K development trunk: `faf9aae91266170dfee8a9f7171a5135bc5eb368`
+- tblite `main`: `eb50bbfbe1c0869e2e18c9b7cc13144e5130b6df`
+- tblite PR 350 head: `8c5e56255dc0f7001615489f24162ed770888d8b`
+- tblite local merge: `8a9d09474b93d25c044d6f46ce920750c7fe4cf7`
+- CP2K executable SHA-256: `f2b8e6e516b60d49af722997dd0bf06c10b54b2a2a221f786e5eaea38cccd8a5`
+- tblite executable SHA-256: `d50145af569a6ce4ea4e73e68d1cb004c3ca240105deb941c0244b7d431ed47f`
+- linked `libcp2k` SHA-256: `7656b6154614290d3e121f2f7a2d527b5e0e5d128eacf456e3c35e847894741d`
+- linked `libtblite` SHA-256: `f7bd2a841543dcbb71da0954f2e2bf016b7a202dace377f26f72ac139035c3e6`
 
-## Code Patchsets
+The two self-contained source diffs are
+`patches/tblite_main_pr350_wsc_derivatives.patch` and
+`patches/cp2k_trunk_tblite_full_symmetry_scc.patch`. All production k-point
+calculations use native Bloch sampling with full SPGLIB symmetry reduction.
 
-- `patches/tblite_wsc_multipole_ewald_local.patch`: Wigner-Seitz/multipole Ewald/cutoff fixes in tblite.
-- `patches/cp2k_tblite_interface_local.patch`: CP2K tblite-interface mixer-setting forwarding for the current tblite API.
-- `scripts/`: exact benchmark helper scripts used for DMC13, X23b cellopt variants, X23b final k-point single-points, and CP2K-native-vs-CLI checks.
-- `tex/`: synchronized copies of the updated Overleaf manuscript and SI files.
-- `figures/`: synchronized PDF figures regenerated from the final DMC13 and X23b data.
+## DMC-ICE13
 
-Interpretation for PR preparation:
-
-- The tblite patch is the main physics fix candidate: WSC image indexing, multipolar Ewald cutoffs, direct/reciprocal multipole matrix and virial/gradient consistency.
-- The CP2K patch is an interface-maintenance fix: mixer settings are forwarded into `tb%calc%mixer_input` for the current tblite API.
-- The X23b `KEEP_ANGLES` improvement is a benchmark protocol choice, not a physics-code patch.
-
-## Final DMC-ICE13 Result
-
-Final DMC13 numbers are from `/Users/tkuehne/Documents/g-xTB/dmc13_nativebloch_final_20260705/DMC-ICE13/data/dmc_ice13_kpoint_stats.csv`.
+All 156/156 calculations completed. Statistics are relative to ice Ih over
+the twelve non-reference phases, in kJ mol-1 per water molecule.
 
 | Mesh | Method | ME | MAE | RMSE | MaxAE |
 |---|---|---:|---:|---:|---:|
-| Gamma | GFN1-xTB | -5.288685 | 6.696681 | 7.155635 | 10.475948 |
-| Gamma | GFN2-xTB | 1.372619 | 5.355715 | 10.382540 | 34.362751 |
-| k333 | GFN1-xTB | -8.008187 | 8.008187 | 8.653532 | 13.666572 |
-| k333 | GFN2-xTB | -2.383503 | 3.185301 | 3.648584 | 6.792092 |
-| k555 | GFN1-xTB | -8.009417 | 8.009417 | 8.654820 | 13.666818 |
-| k555 | GFN2-xTB | -2.385201 | 3.183706 | 3.646806 | 6.792092 |
+| Gamma | GFN1-xTB | -5.285749 | 6.694624 | 7.153219 | 10.470050 |
+| Gamma | GFN2-xTB | 0.906983 | 5.578897 | 10.188726 | 33.462413 |
+| k333 | GFN1-xTB | -8.005255 | 8.005255 | 8.650658 | 13.663936 |
+| k333 | GFN2-xTB | -2.837920 | 3.462919 | 3.812981 | 6.346296 |
+| k555 | GFN1-xTB | -8.006485 | 8.006485 | 8.651947 | 13.664182 |
+| k555 | GFN2-xTB | -2.839590 | 3.461353 | 3.811621 | 6.346296 |
 
-Compared with the previous paper numbers, the k333 MAE improves from 13.112632 to 8.008187 kJ mol-1 for GFN1-xTB and from 8.877913 to 3.185301 kJ mol-1 for GFN2-xTB.
+Relative to the previous manuscript values, the k333 GFN1 MAE changes from
+8.008187 to 8.005255 kJ mol-1 and the GFN2 MAE from 3.185301 to 3.462919
+kJ mol-1.
 
-## Final X23b Cell Optimization Result
+## X23b
 
-Recommended relaxed-cell protocol for this revision: CP2K-native Bloch \(2^3\)-mesh cell optimization with angle conservation. The final GFN2/cytosine point uses CP2K numerical stress and the relaxed maximum-gradient threshold discussed in the benchmark logs; CP2K writes the final CIF with `Optimization converged: TRUE`.
+All 46/46 native-Bloch k222 angle-conserving cell optimizations completed.
+All 46/46 k333 and 46/46 k444 single points on the final k222 geometries also
+completed. Volumes therefore come from k222 optimization, while the reported
+lattice energies use the converged k333 reevaluation.
 
 | Quantity | Method | N | ME | MAE | RMSE | MaxAE |
 |---|---|---:|---:|---:|---:|---:|
-| Lattice energy / kJ mol-1 | GFN1-xTB | 23 | -0.710350 | 11.129018 | 14.815022 | 38.461935 |
-| Lattice energy / kJ mol-1 | GFN2-xTB | 23 | -11.986205 | 14.459836 | 23.427726 | 90.069662 |
-| Cell volume / percent | GFN1-xTB | 23 | -5.815548 | 7.914787 | 9.478583 | 19.084442 |
-| Cell volume / percent | GFN2-xTB | 23 | -1.791691 | 5.616637 | 7.363220 | 18.421974 |
+| Lattice energy, k333 on k222 geometry / kJ mol-1 | GFN1-xTB | 23 | 0.258871 | 11.345702 | 14.019344 | 30.935058 |
+| Lattice energy, k333 on k222 geometry / kJ mol-1 | GFN2-xTB | 23 | -12.018989 | 14.092104 | 21.341752 | 77.785392 |
+| Cell volume, k222 optimization / percent | GFN1-xTB | 23 | -5.960071 | 7.514116 | 9.019708 | 19.236681 |
+| Cell volume, k222 optimization / percent | GFN2-xTB | 23 | -1.657324 | 5.842296 | 7.530373 | 19.952589 |
 
-Key point: full native-Bloch k-point cell optimization reduces the relaxed-cell lattice-energy MAEs strongly relative to the Gamma-only cellopt table. GFN2-xTB gives the better volume statistics, while GFN1-xTB remains better in aggregate lattice-energy MAE on this benchmark.
+The k333-to-k444 mean absolute changes are 0.079329 kJ mol-1 for GFN1-xTB
+and 0.084265 kJ mol-1 for GFN2-xTB. The corresponding k444 MAEs are 11.366118
+and 14.166994 kJ mol-1.
+
+## LC12
+
+The k444 equation-of-state fits are valid for 12/12 GFN1 solids and 10/12
+GFN2 solids. GFN2/MgO and GFN2/LiH have no physical bracketed minimum before
+their electronic branches collapse. Cohesive energies use k555 single points
+on the k444 minima.
+
+| Method | N | Lattice-constant MAE / A | Cohesive-energy MAE / eV atom-1 |
+|---|---:|---:|---:|
+| GFN1-xTB | 12 | 0.136650 | 1.457694 |
+| GFN2-xTB | 10 | 0.062410 | 1.299325 |
 
 ## Verification
 
-- tblite CLI finite-difference checks: final CLI virial max errors of order 1e-8 to 1e-7; force max errors below 5e-9 in the small test set.
-- CP2K-native finite-difference checks: Gamma and k-point stress/force checks pass at about 1e-6 to 4e-6 stress-component scale, with small force-component differences.
-- CP2K-native vs tblite CLI on X23b keep-angle final geometries:
-  - max energy difference: 1.3918e-08 Eh (GFN1), 1.1903e-08 Eh (GFN2)
-  - max force-component difference: 2.8001e-07 (GFN1), 5.6153e-07 (GFN2)
-  - max virial-component difference: 2.6810e-06 (GFN1), 6.6761e-06 (GFN2)
-
-## Paper Guidance
-
-Recommended wording changes:
-
-- DMC13: emphasize a clear improvement from GFN1-xTB to GFN2-xTB after the current multipolar Ewald/k-point fixes. Use k333/k555 as converged native Bloch k-point data.
-- X23b relaxed cells: use the native Bloch \(2^3\)-mesh cellopt table generated in `x23b_k222_cellopt_nativebloch_final_20260705_merged`.
-- Code: present tblite multipolar Ewald/WSC changes as the main implementation correction; keep CP2K interface details and benchmark protocol separate.
+- tblite: 35/35 enabled no-ddX test groups pass.
+- CP2K: 625/625 xTB regression matchers and 131/131 focused periodic
+  matchers pass.
+- Standalone tblite finite differences give maximum force/virial residuals of
+  `2.19e-8`/`1.11e-7` atomic units for GFN1 and
+  `6.36e-9`/`4.93e-8` atomic units for GFN2.
+- Native-Bloch k-point analytical forces and stresses agree with finite
+  differences to below 0.01 percent.
+- On all final Gamma X23b geometries, CP2K-native and tblite CLI energies,
+  gradients, and virials agree to the limits recorded in `CODE_PATCHES.md`.

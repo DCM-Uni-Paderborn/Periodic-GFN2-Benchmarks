@@ -10,7 +10,7 @@ energies.
 Current production run
 ----------------------
 
-The 2026-07-11 rerun used:
+The 2026-07-12 rerun used:
 
 - CP2K trunk revision `faf9aae91266170dfee8a9f7171a5135bc5eb368` with the
   local CP2K/tblite interface patch recorded by hash in
@@ -18,10 +18,10 @@ The 2026-07-11 rerun used:
 - tblite revision `8a9d09474b93d25c044d6f46ce920750c7fe4cf7`, which combines current
   `main` with PR #350 and includes the previously merged PR #343;
 - conventional cubic eight-atom cells and CP2K native Bloch sampling through
-  `&KPOINTS` with `SCHEME MACDONALD` and `FULL_GRID T`; no Born-von-Karman
-  supercells;
+  `&KPOINTS` with `SCHEME MACDONALD`, `SYMMETRY T`, and `FULL_GRID F`, using
+  full SPGLIB symmetry reduction; no Born-von-Karman supercells;
 - a `k444` cubic equation of state, `k333/k444/k555` final single points, and
-  `k444` as the reported cohesive-energy mesh;
+  `k555` as the reported cohesive-energy mesh;
 - CP2K energies extrapolated to electronic temperature `T -> 0`;
 - matching tblite CLI isolated-atom references with explicit atomic spins and
   `ACCURACY 0.05`.
@@ -33,19 +33,28 @@ valid GFN1 fits and 10/12 valid GFN2 fits. GFN2/MgO has no bracketed stable
 minimum on the compressed branch, while GFN2/LiH has a discontinuous EOS and
 fails the general fit-quality criterion.
 
+Volume continuation with separate CP2K Bloch-wavefunction and native tblite
+SCC restarts removes the earlier independent-start failures. LiH converges for
+all 32 sampled points down to scale 0.71, but its energy continues to decrease
+until the electronic branch collapses below that range. MgO can be followed in
+fine steps to scale 0.926, where its energy is still decreasing; the additional
+0.90 and 0.88 points enter the same charge-collapse branch even after damped
+2400-step SCC retries. The 10/12 coverage therefore reflects missing physical
+EOS minima, not unfinished production jobs.
+
 Current versus previous results
 -------------------------------
 
 | method | coverage | lattice MAE (A) | cohesive-energy MAE (eV/atom) |
 |---|---:|---:|---:|
-| GFN1 current | 12/12 | 0.137628 | 1.450563 |
-| GFN1 previous | 12/12 | 0.164341 | 1.455859 |
-| GFN2 current | 10/12 | 0.062599 | 1.293172 |
+| GFN1 current | 12/12 | 0.136650 | 1.457694 |
+| GFN1 previous | 12/12 | 0.164341 | 1.457325 |
+| GFN2 current | 10/12 | 0.062410 | 1.299325 |
 | GFN2 previous | 11/12 | 0.147638 | 1.731839 |
 
 On the identical ten-system GFN2 subset, the lattice-constant MAE decreases
-from 0.133264 to 0.062599 A and the cohesive-energy MAE decreases from 1.534124
-to 1.293172 eV/atom. The frozen previous tables are in
+from 0.133264 to 0.062410 A and the cohesive-energy MAE decreases from 1.534521
+to 1.299325 eV/atom. The frozen previous tables are in
 `data/baseline_20260710`; `data/old_vs_new.md` and the associated CSV files
 contain the complete per-system comparison.
 
@@ -56,19 +65,24 @@ Run from the repository root:
 
 ```bash
 python3 Goldzak12/scripts/run_goldzak12_eos_benchmark.py \
-  --cp2k /Users/tkuehne/gxtb-local-build/install/cp2k/bin/cp2k.ssmp \
-  --tblite /Users/tkuehne/gxtb-local-build/install/tblite/bin/tblite \
-  --cp2k-source /Users/tkuehne/gxtb-local-build/cp2k \
-  --tblite-source /Users/tkuehne/gxtb-local-build/tblite \
+  --cp2k /path/to/cp2k.ssmp \
+  --tblite /path/to/tblite \
+  --cp2k-source /path/to/cp2k \
+  --tblite-source /path/to/tblite \
   --jobs 10 --threads 1 --eos-mesh k444 \
   --energy-mesh k333 --energy-mesh k444 --energy-mesh k555 \
-  --result-mesh k444
+  --result-mesh k555
 
-python3 Goldzak12/scripts/compare_goldzak12_results.py --mesh k444
+python3 Goldzak12/scripts/compare_goldzak12_results.py --mesh k555
 python3 Goldzak12/scripts/plot_literature_comparison.py
 python3 Goldzak12/scripts/validate_goldzak12_results.py \
   --eos-mesh k444 --energy-mesh k333 --energy-mesh k444 \
-  --energy-mesh k555 --result-mesh k444
+  --energy-mesh k555 --result-mesh k555
+
+python3 Goldzak12/scripts/continue_goldzak12_eos.py \
+  --solid LiH --method GFN2 --mesh k444 --start-scale 0.94 \
+  --scale 0.93 --scale 0.92 --variant lih_scc_continuation \
+  --mixer tblite --memory 250 --damping 0.4 --promote
 ```
 
 Raw calculations and generated inputs are kept below `Goldzak12/runs` and

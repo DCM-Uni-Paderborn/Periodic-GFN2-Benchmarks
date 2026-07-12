@@ -1,26 +1,58 @@
 {
   "cp2k": {
-    "executable": "/Users/tkuehne/gxtb-local-build/install/cp2k/bin/cp2k.ssmp",
-    "sha256": "f5eb42ab68102490db4914b98601512b37bd2d283eb2e5fbf3a6ac3cd17c8785",
+    "executable": "cp2k.ssmp",
+    "sha256": "f2b8e6e516b60d49af722997dd0bf06c10b54b2a2a221f786e5eaea38cccd8a5",
+    "shared_library_sha256": {
+      "libcp2k.2026.1.dylib": "7656b6154614290d3e121f2f7a2d527b5e0e5d128eacf456e3c35e847894741d",
+      "libtblite.0.6.0.dylib": "f7bd2a841543dcbb71da0954f2e2bf016b7a202dace377f26f72ac139035c3e6"
+    },
     "source": {
       "available": true,
       "branch": "master",
+      "dirty": true,
       "revision": "faf9aae91266170dfee8a9f7171a5135bc5eb368",
-      "source_path": "/Users/tkuehne/gxtb-local-build/cp2k",
-      "status": "M src/tblite_interface.F",
-      "working_tree_diff_sha256": "429b0cf3367644a193919c911659e1269809940f8f2d5cb0c61df6bf98e318b7"
+      "working_tree_diff_sha256": "030ebb78da890a1cc57f76c62c05c5c3f46fdec0abe8c2c816311d3e44f457fc"
     },
-    "version": "CP2K version 2026.1 (Development Version)\n Source code revision faf9aae\n cp2kflags: omp no_statm_access libdftd4 dftd4_v4_2 s_dftd3 mctc-lib tblite\n compiler: GCC version 16.1.0\n compiler options:\n   -I /Users/tkuehne/gxtb-local-build/cp2k-build/src/start -I /Users/tk\n   uehne/gxtb-local-build/cp2k/src -I /Users/tkuehne/gxtb-local-build/c\n   p2k-build/src -I /Users/tkuehne/gxtb-local-build/cp2k/src/base -I /U\n   sers/tkuehne/gxtb-local-build/cp2k/src/common -I /Users/tkuehne/gxtb\n   -local-build/cp2k/src/motion -I /Users/tkuehne/gxtb-local-build/cp2k\n   /src/dbm -I /Users/tkuehne/gxtb-local-build/cp2k-build/src/mod_files\n    -I /Users/tkuehne/gxtb-local-build/install/tblite/include -I /Users\n   /tkuehne/gxtb-local-build/install/tblite/include/tblite/GNU-16.1.0 -\n   I /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platfo\n   rm/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/vecLib.framew\n   ork/Headers -I /Users/tkuehne/gxtb-local-build/install/tblite/includ\n   e/toml-f/modules -I /Users/tkuehne/gxtb-local-build/install/tblite/i\n   nclude/mctc-lib/modules -I /Users/tkuehne/gxtb-local-build/install/t\n   blite/include/dftd4/GNU-16.1.0 -I /Users/tkuehne/gxtb-local-build/in\n   stall/tblite/include/multicharge/GNU-16.1.0 -I /Users/tkuehne/gxtb-l\n   ocal-build/install/tblite/include/s-dftd3/GNU-16.1.0 -I /Users/tkueh\n   ne/dropbox/cp2k-xtb/cp2k-ot-metallic/tools/toolchain/install/dbcsr-2\n   .9.1/include -mmacosx-version-min=15.0.0 -mlittle-endian -mabi=lp64 \n   -mcpu=apple-m1 -g -O3 -O3 -Wno-deprecated-declarations -Wno-maybe-un\n   initialized -Wuninitialized -Wuse-without-only -std=f2008 -fPIE -ffr\n   ee-form -fimplicit-none -fno-omit-frame-pointer -fbacktrace -fallow-\n   argument-mismatch -funroll-loops -fopenmp -fpreprocessed -J src"
+    "version": "CP2K version 2026.1 (Development Version)\n Source code revision faf9aae9\n cp2kflags: omp no_statm_access spglib libdftd4 dftd4_v4_2 s_dftd3 mctc-lib tblite\n compiler: GCC version 16.1.0"
   },
   "protocol": {
     "adaptive_scales": {
+      "LiH/GFN2": [
+        0.71,
+        0.72,
+        0.73,
+        0.74,
+        0.75,
+        0.76,
+        0.77,
+        0.78,
+        0.79,
+        0.8,
+        0.81,
+        0.83,
+        0.84,
+        0.85,
+        0.86,
+        0.87,
+        0.89,
+        0.9,
+        0.91,
+        0.92,
+        0.93
+      ],
       "MgO/GFN2": [
         0.9,
-        0.92
+        0.92,
+        0.926,
+        0.927,
+        0.928,
+        0.93
       ]
     },
     "benchmark": "LC12 (Goldzak12)",
+    "catastrophic_charge_collapse_energy_hartree": -50.0,
     "cell_protocol": "cubic equation of state",
+    "charge_collapse_filter_hartree_below_curve_median": 25.0,
     "default_scf_strategy": "tblite modified-Broyden defaults",
     "energy_meshes": [
       "k333",
@@ -28,9 +60,9 @@
       "k555"
     ],
     "eos_mesh": "k444",
-    "kpoint_scheme": "CP2K native Bloch MACDONALD FULL_GRID",
+    "kpoint_scheme": "CP2K native Bloch MACDONALD with full SPGLIB symmetry reduction",
     "reported_energy": "Total energy extrapolated to T->0",
-    "result_mesh": "k444",
+    "result_mesh": "k555",
     "scales": [
       0.82,
       0.88,
@@ -51,16 +83,29 @@
     "smearing_temperature_K": 300.0,
     "tblite_accuracy": 0.05
   },
+  "repository_patches": {
+    "cp2k": {
+      "path": "../../patches/cp2k_trunk_tblite_full_symmetry_scc.patch",
+      "sha256": "a54705795ea3c5c3ffd6e5e2197e00329e49b5ced05d3945f7ce39e9d84e3a2a"
+    },
+    "tblite": {
+      "path": "../../patches/tblite_main_pr350_wsc_derivatives.patch",
+      "sha256": "1fbc37841a420cb766d3aeafac59fb1479c3bc2874152620356059518d7ff5c7"
+    }
+  },
   "tblite": {
-    "executable": "/Users/tkuehne/gxtb-local-build/install/tblite/bin/tblite",
-    "sha256": "1136763738cc7c0b095829344ccc2949d77bc76ad804365ec2cf5839437d109c",
+    "executable": "tblite",
+    "sha256": "d50145af569a6ce4ea4e73e68d1cb004c3ca240105deb941c0244b7d431ed47f",
+    "shared_library_sha256": {
+      "libcp2k.2026.1.dylib": "7656b6154614290d3e121f2f7a2d527b5e0e5d128eacf456e3c35e847894741d",
+      "libtblite.0.6.0.dylib": "f7bd2a841543dcbb71da0954f2e2bf016b7a202dace377f26f72ac139035c3e6"
+    },
     "source": {
       "available": true,
       "branch": "codex/main-plus-pr350",
+      "dirty": true,
       "revision": "8a9d09474b93d25c044d6f46ce920750c7fe4cf7",
-      "source_path": "/Users/tkuehne/gxtb-local-build/tblite",
-      "status": "",
-      "working_tree_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      "working_tree_diff_sha256": "e57e8f212d925d841fb5d1e06fa419d45767b16e25abc44088e66b09fe92ba36"
     },
     "version": "tblite version 0.6.0\nddX support: disabled\nHDF5 support: disabled\nTREXIO support: disabled"
   }

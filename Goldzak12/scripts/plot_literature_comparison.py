@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
 import csv
+import json
 import math
 from collections import defaultdict
 from pathlib import Path
@@ -55,7 +57,12 @@ def add_record(
     )
 
 
-def collect_records() -> tuple[list[dict[str, object]], dict[str, dict[str, float]]]:
+def provenance_result_mesh() -> str:
+    provenance = json.loads((DATA / "build_provenance.json").read_text())
+    return str(provenance["protocol"]["result_mesh"])
+
+
+def collect_records(result_mesh: str) -> tuple[list[dict[str, object]], dict[str, dict[str, float]]]:
     goldzak = read_csv(DATA / "reference_goldzak2022.csv")
     refs = {
         row["solid"]: {
@@ -67,11 +74,11 @@ def collect_records() -> tuple[list[dict[str, object]], dict[str, dict[str, floa
     records: list[dict[str, object]] = []
 
     for row in read_csv(DATA / "eos_results.csv"):
-        if row["energy_mesh"] != "k444" or row["sp_completed"] != "True":
+        if row["energy_mesh"] != result_mesh or row["sp_completed"] != "True":
             continue
         add_record(
             records,
-            "This work: CP2K/tblite k444 EOS",
+            f"This work: CP2K/tblite {result_mesh} EOS",
             "GFN-xTB",
             row["method"],
             row["solid"],
@@ -393,7 +400,11 @@ def plot_common5_heatmap(records: list[dict[str, object]]) -> None:
 
 
 def main() -> int:
-    records, _ = collect_records()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--mesh", help="final cohesive-energy mesh; defaults to build provenance")
+    args = parser.parse_args()
+    result_mesh = args.mesh or provenance_result_mesh()
+    records, _ = collect_records(result_mesh)
     available = summarize(records)
     common5 = summarize(records, COMMON5)
     write_csv(DATA / "literature_comparison_records.csv", records)

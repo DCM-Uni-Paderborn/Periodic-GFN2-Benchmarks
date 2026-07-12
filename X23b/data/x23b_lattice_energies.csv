@@ -3,229 +3,321 @@ single_point,gamma,GFN1-xTB,14-cyclohexanedione,"1,4-Cyclohexanedione",True,96.9
 single_point,k111,GFN1-xTB,14-cyclohexanedione,"1,4-Cyclohexanedione",True,96.918544,90.000000,6.918544
 single_point,k222,GFN1-xTB,14-cyclohexanedione,"1,4-Cyclohexanedione",True,88.998318,90.000000,-1.001682
 single_point,k333,GFN1-xTB,14-cyclohexanedione,"1,4-Cyclohexanedione",True,89.022686,90.000000,-0.977314
-cell_opt,k222,GFN1-xTB,14-cyclohexanedione,"1,4-Cyclohexanedione",True,107.738878,90.000000,17.738878
+cell_opt,k222,GFN1-xTB,14-cyclohexanedione,"1,4-Cyclohexanedione",True,108.088009,90.000000,18.088009
+cell_opt_single_point,k333,GFN1-xTB,14-cyclohexanedione,"1,4-Cyclohexanedione",True,108.130256,90.000000,18.130256
+cell_opt_single_point,k444,GFN1-xTB,14-cyclohexanedione,"1,4-Cyclohexanedione",True,108.129875,90.000000,18.129875
 single_point,gamma,GFN2-xTB,14-cyclohexanedione,"1,4-Cyclohexanedione",True,72.863003,90.000000,-17.136997
 single_point,k111,GFN2-xTB,14-cyclohexanedione,"1,4-Cyclohexanedione",True,72.863003,90.000000,-17.136997
 single_point,k222,GFN2-xTB,14-cyclohexanedione,"1,4-Cyclohexanedione",True,60.586024,90.000000,-29.413976
 single_point,k333,GFN2-xTB,14-cyclohexanedione,"1,4-Cyclohexanedione",True,60.617159,90.000000,-29.382841
-cell_opt,k222,GFN2-xTB,14-cyclohexanedione,"1,4-Cyclohexanedione",True,77.146801,90.000000,-12.853199
+cell_opt,k222,GFN2-xTB,14-cyclohexanedione,"1,4-Cyclohexanedione",True,77.636403,90.000000,-12.363597
+cell_opt_single_point,k333,GFN2-xTB,14-cyclohexanedione,"1,4-Cyclohexanedione",True,77.713072,90.000000,-12.286928
+cell_opt_single_point,k444,GFN2-xTB,14-cyclohexanedione,"1,4-Cyclohexanedione",True,77.712567,90.000000,-12.287433
 single_point,gamma,GFN1-xTB,acetic_acid,Acetic acid,True,-181.810491,73.600000,-255.410491
 single_point,k111,GFN1-xTB,acetic_acid,Acetic acid,True,-181.810491,73.600000,-255.410491
 single_point,k222,GFN1-xTB,acetic_acid,Acetic acid,True,-153.639635,73.600000,-227.239635
 single_point,k333,GFN1-xTB,acetic_acid,Acetic acid,True,-153.533293,73.600000,-227.133293
-cell_opt,k222,GFN1-xTB,acetic_acid,Acetic acid,True,80.835860,73.600000,7.235860
+cell_opt,k222,GFN1-xTB,acetic_acid,Acetic acid,True,81.874978,73.600000,8.274978
+cell_opt_single_point,k333,GFN1-xTB,acetic_acid,Acetic acid,True,82.268658,73.600000,8.668658
+cell_opt_single_point,k444,GFN1-xTB,acetic_acid,Acetic acid,True,82.278828,73.600000,8.678828
 single_point,gamma,GFN2-xTB,acetic_acid,Acetic acid,True,-177.780525,73.600000,-251.380525
 single_point,k111,GFN2-xTB,acetic_acid,Acetic acid,True,-177.780525,73.600000,-251.380525
 single_point,k222,GFN2-xTB,acetic_acid,Acetic acid,True,-149.170215,73.600000,-222.770215
 single_point,k333,GFN2-xTB,acetic_acid,Acetic acid,True,-148.992891,73.600000,-222.592891
-cell_opt,k222,GFN2-xTB,acetic_acid,Acetic acid,True,71.104587,73.600000,-2.495413
+cell_opt,k222,GFN2-xTB,acetic_acid,Acetic acid,True,69.144359,73.600000,-4.455641
+cell_opt_single_point,k333,GFN2-xTB,acetic_acid,Acetic acid,True,69.242832,73.600000,-4.357168
+cell_opt_single_point,k444,GFN2-xTB,acetic_acid,Acetic acid,True,69.244144,73.600000,-4.355856
 single_point,gamma,GFN1-xTB,adamantane,Adamantane,True,-595.540988,71.800000,-667.340988
 single_point,k111,GFN1-xTB,adamantane,Adamantane,True,-595.540988,71.800000,-667.340988
 single_point,k222,GFN1-xTB,adamantane,Adamantane,True,-576.089524,71.800000,-647.889524
 single_point,k333,GFN1-xTB,adamantane,Adamantane,True,-576.065395,71.800000,-647.865395
-cell_opt,k222,GFN1-xTB,adamantane,Adamantane,True,63.483900,71.800000,-8.316100
+cell_opt,k222,GFN1-xTB,adamantane,Adamantane,True,63.547142,71.800000,-8.252858
+cell_opt_single_point,k333,GFN1-xTB,adamantane,Adamantane,True,63.552237,71.800000,-8.247763
+cell_opt_single_point,k444,GFN1-xTB,adamantane,Adamantane,True,63.552227,71.800000,-8.247773
 single_point,gamma,GFN2-xTB,adamantane,Adamantane,True,-595.927689,71.800000,-667.727689
 single_point,k111,GFN2-xTB,adamantane,Adamantane,True,-595.927689,71.800000,-667.727689
 single_point,k222,GFN2-xTB,adamantane,Adamantane,True,-571.097664,71.800000,-642.897664
 single_point,k333,GFN2-xTB,adamantane,Adamantane,True,-571.052689,71.800000,-642.852689
-cell_opt,k222,GFN2-xTB,adamantane,Adamantane,True,38.238032,71.800000,-33.561968
+cell_opt,k222,GFN2-xTB,adamantane,Adamantane,True,38.414397,71.800000,-33.385603
+cell_opt_single_point,k333,GFN2-xTB,adamantane,Adamantane,True,38.416478,71.800000,-33.383522
+cell_opt_single_point,k444,GFN2-xTB,adamantane,Adamantane,True,38.416495,71.800000,-33.383505
 single_point,gamma,GFN1-xTB,ammonia,Ammonia,True,22.597337,38.700000,-16.102663
 single_point,k111,GFN1-xTB,ammonia,Ammonia,True,22.597337,38.700000,-16.102663
 single_point,k222,GFN1-xTB,ammonia,Ammonia,True,27.250075,38.700000,-11.449925
 single_point,k333,GFN1-xTB,ammonia,Ammonia,True,27.270352,38.700000,-11.429648
-cell_opt,k222,GFN1-xTB,ammonia,Ammonia,True,36.265605,38.700000,-2.434395
+cell_opt,k222,GFN1-xTB,ammonia,Ammonia,True,35.876556,38.700000,-2.823444
+cell_opt_single_point,k333,GFN1-xTB,ammonia,Ammonia,True,35.928359,38.700000,-2.771641
+cell_opt_single_point,k444,GFN1-xTB,ammonia,Ammonia,True,35.928218,38.700000,-2.771782
 single_point,gamma,GFN2-xTB,ammonia,Ammonia,True,14.936446,38.700000,-23.763554
 single_point,k111,GFN2-xTB,ammonia,Ammonia,True,14.936446,38.700000,-23.763554
 single_point,k222,GFN2-xTB,ammonia,Ammonia,True,18.668656,38.700000,-20.031344
 single_point,k333,GFN2-xTB,ammonia,Ammonia,True,18.672776,38.700000,-20.027224
-cell_opt,k222,GFN2-xTB,ammonia,Ammonia,True,24.315960,38.700000,-14.384040
+cell_opt,k222,GFN2-xTB,ammonia,Ammonia,True,29.358420,38.700000,-9.341580
+cell_opt_single_point,k333,GFN2-xTB,ammonia,Ammonia,True,29.369541,38.700000,-9.330459
+cell_opt_single_point,k444,GFN2-xTB,ammonia,Ammonia,True,29.369647,38.700000,-9.330353
 single_point,gamma,GFN1-xTB,anthracene,Anthracene,True,-96.461375,110.400000,-206.861375
 single_point,k111,GFN1-xTB,anthracene,Anthracene,True,-96.461375,110.400000,-206.861375
 single_point,k222,GFN1-xTB,anthracene,Anthracene,True,-101.296239,110.400000,-211.696239
 single_point,k333,GFN1-xTB,anthracene,Anthracene,True,-101.230624,110.400000,-211.630624
-cell_opt,k222,GFN1-xTB,anthracene,Anthracene,True,114.681300,110.400000,4.281300
+cell_opt,k222,GFN1-xTB,anthracene,Anthracene,True,113.599179,110.400000,3.199179
+cell_opt_single_point,k333,GFN1-xTB,anthracene,Anthracene,True,122.258912,110.400000,11.858912
+cell_opt_single_point,k444,GFN1-xTB,anthracene,Anthracene,True,121.659796,110.400000,11.259796
 single_point,gamma,GFN2-xTB,anthracene,Anthracene,True,-91.295315,110.400000,-201.695315
 single_point,k111,GFN2-xTB,anthracene,Anthracene,True,-91.295315,110.400000,-201.695315
 single_point,k222,GFN2-xTB,anthracene,Anthracene,True,-97.230054,110.400000,-207.630054
 single_point,k333,GFN2-xTB,anthracene,Anthracene,True,-97.163136,110.400000,-207.563136
-cell_opt,k222,GFN2-xTB,anthracene,Anthracene,True,97.077587,110.400000,-13.322413
+cell_opt,k222,GFN2-xTB,anthracene,Anthracene,True,95.325277,110.400000,-15.074723
+cell_opt_single_point,k333,GFN2-xTB,anthracene,Anthracene,True,102.099766,110.400000,-8.300234
+cell_opt_single_point,k444,GFN2-xTB,anthracene,Anthracene,True,101.846765,110.400000,-8.553235
 single_point,gamma,GFN1-xTB,benzene,Benzene,True,42.968423,54.800000,-11.831577
 single_point,k111,GFN1-xTB,benzene,Benzene,True,42.968423,54.800000,-11.831577
 single_point,k222,GFN1-xTB,benzene,Benzene,True,43.094641,54.800000,-11.705359
 single_point,k333,GFN1-xTB,benzene,Benzene,True,43.094536,54.800000,-11.705464
-cell_opt,k222,GFN1-xTB,benzene,Benzene,True,46.395681,54.800000,-8.404319
+cell_opt,k222,GFN1-xTB,benzene,Benzene,True,46.427226,54.800000,-8.372774
+cell_opt_single_point,k333,GFN1-xTB,benzene,Benzene,True,46.426409,54.800000,-8.373591
+cell_opt_single_point,k444,GFN1-xTB,benzene,Benzene,True,46.426408,54.800000,-8.373592
 single_point,gamma,GFN2-xTB,benzene,Benzene,True,37.519588,54.800000,-17.280412
 single_point,k111,GFN2-xTB,benzene,Benzene,True,37.519588,54.800000,-17.280412
 single_point,k222,GFN2-xTB,benzene,Benzene,True,37.846320,54.800000,-16.953680
 single_point,k333,GFN2-xTB,benzene,Benzene,True,37.846341,54.800000,-16.953659
-cell_opt,k222,GFN2-xTB,benzene,Benzene,True,40.458029,54.800000,-14.341971
+cell_opt,k222,GFN2-xTB,benzene,Benzene,True,40.481067,54.800000,-14.318933
+cell_opt_single_point,k333,GFN2-xTB,benzene,Benzene,True,40.481010,54.800000,-14.318990
+cell_opt_single_point,k444,GFN2-xTB,benzene,Benzene,True,40.481010,54.800000,-14.318990
 single_point,gamma,GFN1-xTB,co2,Carbon dioxide,True,15.819430,29.400000,-13.580570
 single_point,k111,GFN1-xTB,co2,Carbon dioxide,True,15.819430,29.400000,-13.580570
 single_point,k222,GFN1-xTB,co2,Carbon dioxide,True,15.774486,29.400000,-13.625514
 single_point,k333,GFN1-xTB,co2,Carbon dioxide,True,15.774524,29.400000,-13.625476
-cell_opt,k222,GFN1-xTB,co2,Carbon dioxide,True,15.902661,29.400000,-13.497339
+cell_opt,k222,GFN1-xTB,co2,Carbon dioxide,True,12.543700,29.400000,-16.856300
+cell_opt_single_point,k333,GFN1-xTB,co2,Carbon dioxide,True,12.543736,29.400000,-16.856264
+cell_opt_single_point,k444,GFN1-xTB,co2,Carbon dioxide,True,12.543736,29.400000,-16.856264
 single_point,gamma,GFN2-xTB,co2,Carbon dioxide,True,19.955327,29.400000,-9.444673
 single_point,k111,GFN2-xTB,co2,Carbon dioxide,True,19.955327,29.400000,-9.444673
 single_point,k222,GFN2-xTB,co2,Carbon dioxide,True,20.049143,29.400000,-9.350857
 single_point,k333,GFN2-xTB,co2,Carbon dioxide,True,20.049182,29.400000,-9.350818
-cell_opt,k222,GFN2-xTB,co2,Carbon dioxide,True,21.127373,29.400000,-8.272627
+cell_opt,k222,GFN2-xTB,co2,Carbon dioxide,True,24.230167,29.400000,-5.169833
+cell_opt_single_point,k333,GFN2-xTB,co2,Carbon dioxide,True,24.230212,29.400000,-5.169788
+cell_opt_single_point,k444,GFN2-xTB,co2,Carbon dioxide,True,24.230213,29.400000,-5.169787
 single_point,gamma,GFN1-xTB,cyanamide,Cyanamide,True,-18.293995,81.500000,-99.793995
 single_point,k111,GFN1-xTB,cyanamide,Cyanamide,True,-18.293995,81.500000,-99.793995
 single_point,k222,GFN1-xTB,cyanamide,Cyanamide,True,-17.814937,81.500000,-99.314937
 single_point,k333,GFN1-xTB,cyanamide,Cyanamide,True,-17.814572,81.500000,-99.314572
-cell_opt,k222,GFN1-xTB,cyanamide,Cyanamide,True,70.072148,81.500000,-11.427852
+cell_opt,k222,GFN1-xTB,cyanamide,Cyanamide,True,68.159872,81.500000,-13.340128
+cell_opt_single_point,k333,GFN1-xTB,cyanamide,Cyanamide,True,68.160687,81.500000,-13.339313
+cell_opt_single_point,k444,GFN1-xTB,cyanamide,Cyanamide,True,68.160692,81.500000,-13.339308
 single_point,gamma,GFN2-xTB,cyanamide,Cyanamide,True,-12.419021,81.500000,-93.919021
 single_point,k111,GFN2-xTB,cyanamide,Cyanamide,True,-12.419021,81.500000,-93.919021
 single_point,k222,GFN2-xTB,cyanamide,Cyanamide,True,-11.860750,81.500000,-93.360750
 single_point,k333,GFN2-xTB,cyanamide,Cyanamide,True,-11.860810,81.500000,-93.360810
-cell_opt,k222,GFN2-xTB,cyanamide,Cyanamide,True,79.100832,81.500000,-2.399168
+cell_opt,k222,GFN2-xTB,cyanamide,Cyanamide,True,79.330290,81.500000,-2.169710
+cell_opt_single_point,k333,GFN2-xTB,cyanamide,Cyanamide,True,79.330556,81.500000,-2.169444
+cell_opt_single_point,k444,GFN2-xTB,cyanamide,Cyanamide,True,79.330558,81.500000,-2.169442
 single_point,gamma,GFN1-xTB,cytosine,Cytosine,True,-51.548276,163.500000,-215.048276
 single_point,k111,GFN1-xTB,cytosine,Cytosine,True,-51.548276,163.500000,-215.048276
 single_point,k222,GFN1-xTB,cytosine,Cytosine,True,-10.659093,163.500000,-174.159093
 single_point,k333,GFN1-xTB,cytosine,Cytosine,True,-10.529066,163.500000,-174.029066
-cell_opt,k222,GFN1-xTB,cytosine,Cytosine,True,155.492902,163.500000,-8.007098
+cell_opt,k222,GFN1-xTB,cytosine,Cytosine,True,156.255847,163.500000,-7.244153
+cell_opt_single_point,k333,GFN1-xTB,cytosine,Cytosine,True,157.002774,163.500000,-6.497226
+cell_opt_single_point,k444,GFN1-xTB,cytosine,Cytosine,True,157.005233,163.500000,-6.494767
 single_point,gamma,GFN2-xTB,cytosine,Cytosine,True,-53.725069,163.500000,-217.225069
 single_point,k111,GFN2-xTB,cytosine,Cytosine,True,-53.725069,163.500000,-217.225069
 single_point,k222,GFN2-xTB,cytosine,Cytosine,True,-8.079862,163.500000,-171.579862
 single_point,k333,GFN2-xTB,cytosine,Cytosine,True,-7.937551,163.500000,-171.437551
-cell_opt,k222,GFN2-xTB,cytosine,Cytosine,True,156.812039,163.500000,-6.687961
+cell_opt,k222,GFN2-xTB,cytosine,Cytosine,True,150.819753,163.500000,-12.680247
+cell_opt_single_point,k333,GFN2-xTB,cytosine,Cytosine,True,151.016983,163.500000,-12.483017
+cell_opt_single_point,k444,GFN2-xTB,cytosine,Cytosine,True,151.025903,163.500000,-12.474097
 single_point,gamma,GFN1-xTB,ethylcarbamate,Ethyl carbamate,True,-138.707869,88.200000,-226.907869
 single_point,k111,GFN1-xTB,ethylcarbamate,Ethyl carbamate,True,-138.707869,88.200000,-226.907869
 single_point,k222,GFN1-xTB,ethylcarbamate,Ethyl carbamate,True,-117.333752,88.200000,-205.533752
 single_point,k333,GFN1-xTB,ethylcarbamate,Ethyl carbamate,True,-117.219175,88.200000,-205.419175
-cell_opt,k222,GFN1-xTB,ethylcarbamate,Ethyl carbamate,True,87.245753,88.200000,-0.954247
+cell_opt,k222,GFN1-xTB,ethylcarbamate,Ethyl carbamate,True,87.473780,88.200000,-0.726220
+cell_opt_single_point,k333,GFN1-xTB,ethylcarbamate,Ethyl carbamate,True,87.548093,88.200000,-0.651907
+cell_opt_single_point,k444,GFN1-xTB,ethylcarbamate,Ethyl carbamate,True,87.547979,88.200000,-0.652021
 single_point,gamma,GFN2-xTB,ethylcarbamate,Ethyl carbamate,True,-139.680409,88.200000,-227.880409
 single_point,k111,GFN2-xTB,ethylcarbamate,Ethyl carbamate,True,-139.680409,88.200000,-227.880409
 single_point,k222,GFN2-xTB,ethylcarbamate,Ethyl carbamate,True,-109.351100,88.200000,-197.551100
 single_point,k333,GFN2-xTB,ethylcarbamate,Ethyl carbamate,True,-109.060939,88.200000,-197.260939
-cell_opt,k222,GFN2-xTB,ethylcarbamate,Ethyl carbamate,True,87.358615,88.200000,-0.841385
+cell_opt,k222,GFN2-xTB,ethylcarbamate,Ethyl carbamate,True,80.539239,88.200000,-7.660761
+cell_opt_single_point,k333,GFN2-xTB,ethylcarbamate,Ethyl carbamate,True,80.710739,88.200000,-7.489261
+cell_opt_single_point,k444,GFN2-xTB,ethylcarbamate,Ethyl carbamate,True,80.711634,88.200000,-7.488366
 single_point,gamma,GFN1-xTB,formamide,Formamide,True,-54.304865,81.100000,-135.404865
 single_point,k111,GFN1-xTB,formamide,Formamide,True,-54.304865,81.100000,-135.404865
 single_point,k222,GFN1-xTB,formamide,Formamide,True,-34.312321,81.100000,-115.412321
 single_point,k333,GFN1-xTB,formamide,Formamide,True,-34.198226,81.100000,-115.298226
-cell_opt,k222,GFN1-xTB,formamide,Formamide,True,86.501132,81.100000,5.401132
+cell_opt,k222,GFN1-xTB,formamide,Formamide,True,86.023171,81.100000,4.923171
+cell_opt_single_point,k333,GFN1-xTB,formamide,Formamide,True,87.199327,81.100000,6.099327
+cell_opt_single_point,k444,GFN1-xTB,formamide,Formamide,True,87.206519,81.100000,6.106519
 single_point,gamma,GFN2-xTB,formamide,Formamide,True,-63.060020,81.100000,-144.160020
 single_point,k111,GFN2-xTB,formamide,Formamide,True,-63.060020,81.100000,-144.160020
 single_point,k222,GFN2-xTB,formamide,Formamide,True,-39.794023,81.100000,-120.894023
 single_point,k333,GFN2-xTB,formamide,Formamide,True,-39.635321,81.100000,-120.735321
-cell_opt,k222,GFN2-xTB,formamide,Formamide,True,81.401049,81.100000,0.301049
+cell_opt,k222,GFN2-xTB,formamide,Formamide,True,79.331672,81.100000,-1.768328
+cell_opt_single_point,k333,GFN2-xTB,formamide,Formamide,True,79.991572,81.100000,-1.108428
+cell_opt_single_point,k444,GFN2-xTB,formamide,Formamide,True,80.001823,81.100000,-1.098177
 single_point,gamma,GFN1-xTB,hexamine,Hexamine,True,63.013320,84.100000,-21.086680
 single_point,k111,GFN1-xTB,hexamine,Hexamine,True,63.013320,84.100000,-21.086680
 single_point,k222,GFN1-xTB,hexamine,Hexamine,True,76.712935,84.100000,-7.387065
 single_point,k333,GFN1-xTB,hexamine,Hexamine,True,76.938517,84.100000,-7.161483
-cell_opt,k222,GFN1-xTB,hexamine,Hexamine,True,83.976600,84.100000,-0.123400
+cell_opt,k222,GFN1-xTB,hexamine,Hexamine,True,83.954604,84.100000,-0.145396
+cell_opt_single_point,k333,GFN1-xTB,hexamine,Hexamine,True,84.209290,84.100000,0.109290
+cell_opt_single_point,k444,GFN1-xTB,hexamine,Hexamine,True,84.213437,84.100000,0.113437
 single_point,gamma,GFN2-xTB,hexamine,Hexamine,True,84.130038,84.100000,0.030038
 single_point,k111,GFN2-xTB,hexamine,Hexamine,True,84.130038,84.100000,0.030038
 single_point,k222,GFN2-xTB,hexamine,Hexamine,True,83.722781,84.100000,-0.377219
 single_point,k333,GFN2-xTB,hexamine,Hexamine,True,83.681793,84.100000,-0.418207
-cell_opt,k222,GFN2-xTB,hexamine,Hexamine,True,93.304089,84.100000,9.204089
+cell_opt,k222,GFN2-xTB,hexamine,Hexamine,True,64.558637,84.100000,-19.541363
+cell_opt_single_point,k333,GFN2-xTB,hexamine,Hexamine,True,64.497001,84.100000,-19.602999
+cell_opt_single_point,k444,GFN2-xTB,hexamine,Hexamine,True,64.496433,84.100000,-19.603567
 single_point,gamma,GFN1-xTB,imidazole,Imidazole,True,68.799504,90.400000,-21.600496
 single_point,k111,GFN1-xTB,imidazole,Imidazole,True,68.799504,90.400000,-21.600496
 single_point,k222,GFN1-xTB,imidazole,Imidazole,True,67.371394,90.400000,-23.028606
 single_point,k333,GFN1-xTB,imidazole,Imidazole,True,67.379457,90.400000,-23.020543
-cell_opt,k222,GFN1-xTB,imidazole,Imidazole,True,51.938065,90.400000,-38.461935
+cell_opt,k222,GFN1-xTB,imidazole,Imidazole,True,53.844092,90.400000,-36.555908
+cell_opt_single_point,k333,GFN1-xTB,imidazole,Imidazole,True,59.464942,90.400000,-30.935058
+cell_opt_single_point,k444,GFN1-xTB,imidazole,Imidazole,True,58.818520,90.400000,-31.581480
 single_point,gamma,GFN2-xTB,imidazole,Imidazole,True,70.085568,90.400000,-20.314432
 single_point,k111,GFN2-xTB,imidazole,Imidazole,True,70.085568,90.400000,-20.314432
 single_point,k222,GFN2-xTB,imidazole,Imidazole,True,70.738457,90.400000,-19.661543
 single_point,k333,GFN2-xTB,imidazole,Imidazole,True,70.715845,90.400000,-19.684155
-cell_opt,k222,GFN2-xTB,imidazole,Imidazole,True,0.330338,90.400000,-90.069662
+cell_opt,k222,GFN2-xTB,imidazole,Imidazole,True,3.576464,90.400000,-86.823536
+cell_opt_single_point,k333,GFN2-xTB,imidazole,Imidazole,True,12.614608,90.400000,-77.785392
+cell_opt_single_point,k444,GFN2-xTB,imidazole,Imidazole,True,11.214104,90.400000,-79.185896
 single_point,gamma,GFN1-xTB,naphthalene,Naphthalene,True,-124.624617,81.300000,-205.924617
 single_point,k111,GFN1-xTB,naphthalene,Naphthalene,True,-124.624617,81.300000,-205.924617
 single_point,k222,GFN1-xTB,naphthalene,Naphthalene,True,-124.913650,81.300000,-206.213650
 single_point,k333,GFN1-xTB,naphthalene,Naphthalene,True,-124.890618,81.300000,-206.190618
-cell_opt,k222,GFN1-xTB,naphthalene,Naphthalene,True,57.050329,81.300000,-24.249671
+cell_opt,k222,GFN1-xTB,naphthalene,Naphthalene,True,56.602992,81.300000,-24.697008
+cell_opt_single_point,k333,GFN1-xTB,naphthalene,Naphthalene,True,62.762366,81.300000,-18.537634
+cell_opt_single_point,k444,GFN1-xTB,naphthalene,Naphthalene,True,62.321880,81.300000,-18.978120
 single_point,gamma,GFN2-xTB,naphthalene,Naphthalene,True,-119.245319,81.300000,-200.545319
 single_point,k111,GFN2-xTB,naphthalene,Naphthalene,True,-119.245319,81.300000,-200.545319
 single_point,k222,GFN2-xTB,naphthalene,Naphthalene,True,-118.075075,81.300000,-199.375075
 single_point,k333,GFN2-xTB,naphthalene,Naphthalene,True,-118.052833,81.300000,-199.352833
-cell_opt,k222,GFN2-xTB,naphthalene,Naphthalene,True,44.280761,81.300000,-37.019239
+cell_opt,k222,GFN2-xTB,naphthalene,Naphthalene,True,42.734312,81.300000,-38.565688
+cell_opt_single_point,k333,GFN2-xTB,naphthalene,Naphthalene,True,47.647674,81.300000,-33.652326
+cell_opt_single_point,k444,GFN2-xTB,naphthalene,Naphthalene,True,47.472284,81.300000,-33.827716
 single_point,gamma,GFN1-xTB,oxalic_acid_alpha,Oxalic acid alpha,True,82.716682,98.800000,-16.083318
 single_point,k111,GFN1-xTB,oxalic_acid_alpha,Oxalic acid alpha,True,82.716682,98.800000,-16.083318
 single_point,k222,GFN1-xTB,oxalic_acid_alpha,Oxalic acid alpha,True,85.458124,98.800000,-13.341876
 single_point,k333,GFN1-xTB,oxalic_acid_alpha,Oxalic acid alpha,True,85.459555,98.800000,-13.340445
-cell_opt,k222,GFN1-xTB,oxalic_acid_alpha,Oxalic acid alpha,True,116.188908,98.800000,17.388908
+cell_opt,k222,GFN1-xTB,oxalic_acid_alpha,Oxalic acid alpha,True,113.817766,98.800000,15.017766
+cell_opt_single_point,k333,GFN1-xTB,oxalic_acid_alpha,Oxalic acid alpha,True,113.827633,98.800000,15.027633
+cell_opt_single_point,k444,GFN1-xTB,oxalic_acid_alpha,Oxalic acid alpha,True,113.827747,98.800000,15.027747
 single_point,gamma,GFN2-xTB,oxalic_acid_alpha,Oxalic acid alpha,True,75.548252,98.800000,-23.251748
 single_point,k111,GFN2-xTB,oxalic_acid_alpha,Oxalic acid alpha,True,75.548252,98.800000,-23.251748
 single_point,k222,GFN2-xTB,oxalic_acid_alpha,Oxalic acid alpha,True,79.504952,98.800000,-19.295048
 single_point,k333,GFN2-xTB,oxalic_acid_alpha,Oxalic acid alpha,True,79.509359,98.800000,-19.290641
-cell_opt,k222,GFN2-xTB,oxalic_acid_alpha,Oxalic acid alpha,True,106.645222,98.800000,7.845222
+cell_opt,k222,GFN2-xTB,oxalic_acid_alpha,Oxalic acid alpha,True,108.362761,98.800000,9.562761
+cell_opt_single_point,k333,GFN2-xTB,oxalic_acid_alpha,Oxalic acid alpha,True,108.385247,98.800000,9.585247
+cell_opt_single_point,k444,GFN2-xTB,oxalic_acid_alpha,Oxalic acid alpha,True,108.385560,98.800000,9.585560
 single_point,gamma,GFN1-xTB,oxalic_acid_beta,Oxalic acid beta,True,111.887181,96.800000,15.087181
 single_point,k111,GFN1-xTB,oxalic_acid_beta,Oxalic acid beta,True,111.887181,96.800000,15.087181
 single_point,k222,GFN1-xTB,oxalic_acid_beta,Oxalic acid beta,True,94.888457,96.800000,-1.911543
 single_point,k333,GFN1-xTB,oxalic_acid_beta,Oxalic acid beta,True,95.537228,96.800000,-1.262772
-cell_opt,k222,GFN1-xTB,oxalic_acid_beta,Oxalic acid beta,True,124.643243,96.800000,27.843243
+cell_opt,k222,GFN1-xTB,oxalic_acid_beta,Oxalic acid beta,True,123.891012,96.800000,27.091012
+cell_opt_single_point,k333,GFN1-xTB,oxalic_acid_beta,Oxalic acid beta,True,125.097609,96.800000,28.297609
+cell_opt_single_point,k444,GFN1-xTB,oxalic_acid_beta,Oxalic acid beta,True,125.024901,96.800000,28.224901
 single_point,gamma,GFN2-xTB,oxalic_acid_beta,Oxalic acid beta,True,81.296309,96.800000,-15.503691
 single_point,k111,GFN2-xTB,oxalic_acid_beta,Oxalic acid beta,True,81.296309,96.800000,-15.503691
 single_point,k222,GFN2-xTB,oxalic_acid_beta,Oxalic acid beta,True,60.635635,96.800000,-36.164365
 single_point,k333,GFN2-xTB,oxalic_acid_beta,Oxalic acid beta,True,61.595626,96.800000,-35.204374
-cell_opt,k222,GFN2-xTB,oxalic_acid_beta,Oxalic acid beta,True,82.718195,96.800000,-14.081805
+cell_opt,k222,GFN2-xTB,oxalic_acid_beta,Oxalic acid beta,True,109.486271,96.800000,12.686271
+cell_opt_single_point,k333,GFN2-xTB,oxalic_acid_beta,Oxalic acid beta,True,111.055570,96.800000,14.255570
+cell_opt_single_point,k444,GFN2-xTB,oxalic_acid_beta,Oxalic acid beta,True,111.005774,96.800000,14.205774
 single_point,gamma,GFN1-xTB,pyrazine,Pyrazine,True,-182.575309,64.300000,-246.875309
 single_point,k111,GFN1-xTB,pyrazine,Pyrazine,True,-182.575309,64.300000,-246.875309
 single_point,k222,GFN1-xTB,pyrazine,Pyrazine,True,-138.386972,64.300000,-202.686972
 single_point,k333,GFN1-xTB,pyrazine,Pyrazine,True,-138.157458,64.300000,-202.457458
-cell_opt,k222,GFN1-xTB,pyrazine,Pyrazine,True,63.221297,64.300000,-1.078703
+cell_opt,k222,GFN1-xTB,pyrazine,Pyrazine,True,61.364869,64.300000,-2.935131
+cell_opt_single_point,k333,GFN1-xTB,pyrazine,Pyrazine,True,61.942014,64.300000,-2.357986
+cell_opt_single_point,k444,GFN1-xTB,pyrazine,Pyrazine,True,61.931457,64.300000,-2.368543
 single_point,gamma,GFN2-xTB,pyrazine,Pyrazine,True,-183.964884,64.300000,-248.264884
 single_point,k111,GFN2-xTB,pyrazine,Pyrazine,True,-183.964884,64.300000,-248.264884
 single_point,k222,GFN2-xTB,pyrazine,Pyrazine,True,-126.886299,64.300000,-191.186299
 single_point,k333,GFN2-xTB,pyrazine,Pyrazine,True,-126.682439,64.300000,-190.982439
-cell_opt,k222,GFN2-xTB,pyrazine,Pyrazine,True,58.044864,64.300000,-6.255136
+cell_opt,k222,GFN2-xTB,pyrazine,Pyrazine,True,54.796001,64.300000,-9.503999
+cell_opt_single_point,k333,GFN2-xTB,pyrazine,Pyrazine,True,55.128440,64.300000,-9.171560
+cell_opt_single_point,k444,GFN2-xTB,pyrazine,Pyrazine,True,55.131713,64.300000,-9.168287
 single_point,gamma,GFN1-xTB,pyrazole,Pyrazole,True,-111.764490,78.800000,-190.564490
 single_point,k111,GFN1-xTB,pyrazole,Pyrazole,True,-111.764490,78.800000,-190.564490
 single_point,k222,GFN1-xTB,pyrazole,Pyrazole,True,-111.753849,78.800000,-190.553849
 single_point,k333,GFN1-xTB,pyrazole,Pyrazole,True,-111.753984,78.800000,-190.553984
-cell_opt,k222,GFN1-xTB,pyrazole,Pyrazole,True,60.093792,78.800000,-18.706208
+cell_opt,k222,GFN1-xTB,pyrazole,Pyrazole,True,60.095286,78.800000,-18.704714
+cell_opt_single_point,k333,GFN1-xTB,pyrazole,Pyrazole,True,60.094696,78.800000,-18.705304
+cell_opt_single_point,k444,GFN1-xTB,pyrazole,Pyrazole,True,60.094696,78.800000,-18.705304
 single_point,gamma,GFN2-xTB,pyrazole,Pyrazole,True,-102.360516,78.800000,-181.160516
 single_point,k111,GFN2-xTB,pyrazole,Pyrazole,True,-102.360516,78.800000,-181.160516
 single_point,k222,GFN2-xTB,pyrazole,Pyrazole,True,-102.386149,78.800000,-181.186149
 single_point,k333,GFN2-xTB,pyrazole,Pyrazole,True,-102.386142,78.800000,-181.186142
-cell_opt,k222,GFN2-xTB,pyrazole,Pyrazole,True,60.880768,78.800000,-17.919232
+cell_opt,k222,GFN2-xTB,pyrazole,Pyrazole,True,60.706684,78.800000,-18.093316
+cell_opt_single_point,k333,GFN2-xTB,pyrazole,Pyrazole,True,60.706112,78.800000,-18.093888
+cell_opt_single_point,k444,GFN2-xTB,pyrazole,Pyrazole,True,60.706112,78.800000,-18.093888
 single_point,gamma,GFN1-xTB,succinic_acid,Succinic acid,True,142.493531,130.100000,12.393531
 single_point,k111,GFN1-xTB,succinic_acid,Succinic acid,True,142.493531,130.100000,12.393531
 single_point,k222,GFN1-xTB,succinic_acid,Succinic acid,True,133.223382,130.100000,3.123382
 single_point,k333,GFN1-xTB,succinic_acid,Succinic acid,True,133.198094,130.100000,3.098094
-cell_opt,k222,GFN1-xTB,succinic_acid,Succinic acid,True,150.915379,130.100000,20.815379
+cell_opt,k222,GFN1-xTB,succinic_acid,Succinic acid,True,147.817107,130.100000,17.717107
+cell_opt_single_point,k333,GFN1-xTB,succinic_acid,Succinic acid,True,147.778971,130.100000,17.678971
+cell_opt_single_point,k444,GFN1-xTB,succinic_acid,Succinic acid,True,147.778891,130.100000,17.678891
 single_point,gamma,GFN2-xTB,succinic_acid,Succinic acid,True,133.420386,130.100000,3.320386
 single_point,k111,GFN2-xTB,succinic_acid,Succinic acid,True,133.420386,130.100000,3.320386
 single_point,k222,GFN2-xTB,succinic_acid,Succinic acid,True,119.254838,130.100000,-10.845162
 single_point,k333,GFN2-xTB,succinic_acid,Succinic acid,True,119.247490,130.100000,-10.852510
-cell_opt,k222,GFN2-xTB,succinic_acid,Succinic acid,True,125.652094,130.100000,-4.447906
+cell_opt,k222,GFN2-xTB,succinic_acid,Succinic acid,True,126.812754,130.100000,-3.287246
+cell_opt_single_point,k333,GFN2-xTB,succinic_acid,Succinic acid,True,126.789176,130.100000,-3.310824
+cell_opt_single_point,k444,GFN2-xTB,succinic_acid,Succinic acid,True,126.789383,130.100000,-3.310617
 single_point,gamma,GFN1-xTB,triazine,s-Triazine,True,-118.993462,62.600000,-181.593462
 single_point,k111,GFN1-xTB,triazine,s-Triazine,True,-118.993462,62.600000,-181.593462
 single_point,k222,GFN1-xTB,triazine,s-Triazine,True,-119.170350,62.600000,-181.770350
 single_point,k333,GFN1-xTB,triazine,s-Triazine,True,-119.170244,62.600000,-181.770244
-cell_opt,k222,GFN1-xTB,triazine,s-Triazine,True,67.485900,62.600000,4.885900
+cell_opt,k222,GFN1-xTB,triazine,s-Triazine,True,66.689782,62.600000,4.089782
+cell_opt_single_point,k333,GFN1-xTB,triazine,s-Triazine,True,66.689983,62.600000,4.089983
+cell_opt_single_point,k444,GFN1-xTB,triazine,s-Triazine,True,66.689983,62.600000,4.089983
 single_point,gamma,GFN2-xTB,triazine,s-Triazine,True,-108.341287,62.600000,-170.941287
 single_point,k111,GFN2-xTB,triazine,s-Triazine,True,-108.341287,62.600000,-170.941287
 single_point,k222,GFN2-xTB,triazine,s-Triazine,True,-108.070988,62.600000,-170.670988
 single_point,k333,GFN2-xTB,triazine,s-Triazine,True,-108.071027,62.600000,-170.671027
-cell_opt,k222,GFN2-xTB,triazine,s-Triazine,True,54.360160,62.600000,-8.239840
+cell_opt,k222,GFN2-xTB,triazine,s-Triazine,True,54.133482,62.600000,-8.466518
+cell_opt_single_point,k333,GFN2-xTB,triazine,s-Triazine,True,54.132071,62.600000,-8.467929
+cell_opt_single_point,k444,GFN2-xTB,triazine,s-Triazine,True,54.132068,62.600000,-8.467932
 single_point,gamma,GFN1-xTB,trioxane,s-Trioxane,True,41.288419,64.600000,-23.311581
 single_point,k111,GFN1-xTB,trioxane,s-Trioxane,True,41.288419,64.600000,-23.311581
 single_point,k222,GFN1-xTB,trioxane,s-Trioxane,True,40.587821,64.600000,-24.012179
 single_point,k333,GFN1-xTB,trioxane,s-Trioxane,True,40.588370,64.600000,-24.011630
-cell_opt,k222,GFN1-xTB,trioxane,s-Trioxane,True,76.978259,64.600000,12.378259
+cell_opt,k222,GFN1-xTB,trioxane,s-Trioxane,True,76.744092,64.600000,12.144092
+cell_opt_single_point,k333,GFN1-xTB,trioxane,s-Trioxane,True,76.744180,64.600000,12.144180
+cell_opt_single_point,k444,GFN1-xTB,trioxane,s-Trioxane,True,76.744181,64.600000,12.144181
 single_point,gamma,GFN2-xTB,trioxane,s-Trioxane,True,20.695077,64.600000,-43.904923
 single_point,k111,GFN2-xTB,trioxane,s-Trioxane,True,20.695077,64.600000,-43.904923
 single_point,k222,GFN2-xTB,trioxane,s-Trioxane,True,20.797840,64.600000,-43.802160
 single_point,k333,GFN2-xTB,trioxane,s-Trioxane,True,20.797834,64.600000,-43.802166
-cell_opt,k222,GFN2-xTB,trioxane,s-Trioxane,True,50.044045,64.600000,-14.555955
+cell_opt,k222,GFN2-xTB,trioxane,s-Trioxane,True,49.911467,64.600000,-14.688533
+cell_opt_single_point,k333,GFN2-xTB,trioxane,s-Trioxane,True,49.911246,64.600000,-14.688754
+cell_opt_single_point,k444,GFN2-xTB,trioxane,s-Trioxane,True,49.911246,64.600000,-14.688754
 single_point,gamma,GFN1-xTB,uracil,Uracil,True,-183.801468,136.200000,-320.001468
 single_point,k111,GFN1-xTB,uracil,Uracil,True,-183.801468,136.200000,-320.001468
 single_point,k222,GFN1-xTB,uracil,Uracil,True,-120.698494,136.200000,-256.898494
 single_point,k333,GFN1-xTB,uracil,Uracil,True,-120.182161,136.200000,-256.382161
-cell_opt,k222,GFN1-xTB,uracil,Uracil,True,138.045827,136.200000,1.845827
+cell_opt,k222,GFN1-xTB,uracil,Uracil,True,145.401012,136.200000,9.201012
+cell_opt_single_point,k333,GFN1-xTB,uracil,Uracil,True,147.547766,136.200000,11.347766
+cell_opt_single_point,k444,GFN1-xTB,uracil,Uracil,True,147.575477,136.200000,11.375477
 single_point,gamma,GFN2-xTB,uracil,Uracil,True,-188.299645,136.200000,-324.499645
 single_point,k111,GFN2-xTB,uracil,Uracil,True,-188.299645,136.200000,-324.499645
 single_point,k222,GFN2-xTB,uracil,Uracil,True,-118.221686,136.200000,-254.421686
 single_point,k333,GFN2-xTB,uracil,Uracil,True,-117.726067,136.200000,-253.926067
-cell_opt,k222,GFN2-xTB,uracil,Uracil,True,133.819443,136.200000,-2.380557
+cell_opt,k222,GFN2-xTB,uracil,Uracil,True,132.005877,136.200000,-4.194123
+cell_opt_single_point,k333,GFN2-xTB,uracil,Uracil,True,133.172539,136.200000,-3.027461
+cell_opt_single_point,k444,GFN2-xTB,uracil,Uracil,True,133.194178,136.200000,-3.005822
 single_point,gamma,GFN1-xTB,urea,Urea,True,65.096922,102.100000,-37.003078
 single_point,k111,GFN1-xTB,urea,Urea,True,65.096922,102.100000,-37.003078
 single_point,k222,GFN1-xTB,urea,Urea,True,85.066589,102.100000,-17.033411
 single_point,k333,GFN1-xTB,urea,Urea,True,85.398776,102.100000,-16.701224
-cell_opt,k222,GFN1-xTB,urea,Urea,True,101.608537,102.100000,-0.491463
+cell_opt,k222,GFN1-xTB,urea,Urea,True,101.624590,102.100000,-0.475410
+cell_opt_single_point,k333,GFN1-xTB,urea,Urea,True,101.875129,102.100000,-0.224871
+cell_opt_single_point,k444,GFN1-xTB,urea,Urea,True,101.877879,102.100000,-0.222121
 single_point,gamma,GFN2-xTB,urea,Urea,True,80.642438,102.100000,-21.457562
 single_point,k111,GFN2-xTB,urea,Urea,True,80.642438,102.100000,-21.457562
 single_point,k222,GFN2-xTB,urea,Urea,True,102.241770,102.100000,0.141770
 single_point,k333,GFN2-xTB,urea,Urea,True,103.131650,102.100000,1.031650
-cell_opt,k222,GFN2-xTB,urea,Urea,True,113.196392,102.100000,11.096392
+cell_opt,k222,GFN2-xTB,urea,Urea,True,99.376568,102.100000,-2.723432
+cell_opt_single_point,k333,GFN2-xTB,urea,Urea,True,100.020800,102.100000,-2.079200
+cell_opt_single_point,k444,GFN2-xTB,urea,Urea,True,100.032186,102.100000,-2.067814

@@ -12,15 +12,43 @@ from pathlib import Path
 
 
 FLOAT = r"[-+]?(?:\d+\.\d*|\.\d+|\d+)(?:[Ee][-+]?\d+)?"
+REPOSITORY = Path(__file__).resolve().parents[1]
 
 
 def strip_motion(text: str) -> str:
     return re.sub(r"\n&MOTION\b.*?\n&END\s+MOTION\s*\n?", "\n", text, flags=re.I | re.S)
 
 
-def inject_reference_cli(text: str, tblite: Path, prefix: str, keep_files: bool) -> str:
+def ensure_analytical_stress(text: str) -> str:
+    if re.search(r"^\s*STRESS_TENSOR\b", text, flags=re.I | re.M):
+        return text
+
+    method = re.compile(r"^(?P<indent>\s*)METHOD\s+(?:QS|QUICKSTEP)\s*$", flags=re.I | re.M)
+
+    def add_stress(match: re.Match[str]) -> str:
+        return f"{match.group(0)}\n{match.group('indent')}STRESS_TENSOR ANALYTICAL"
+
+    updated, count = method.subn(add_stress, text, count=1)
+    if count != 1:
+        raise ValueError("Could not locate FORCE_EVAL METHOD line for stress-tensor injection")
+    return updated
+
+
+def prepare_reference_cli_program(run_dir: Path, executable: Path) -> str:
+    target = executable.resolve(strict=True)
+    link = run_dir / "tblite-reference-cli"
+    if link.exists() or link.is_symlink():
+        if link.resolve() != target:
+            link.unlink()
+    if not link.exists():
+        link.symlink_to(target)
+    return f"./{link.name}"
+
+
+def inject_reference_cli(text: str, tblite: Path | str, prefix: str, keep_files: bool) -> str:
     text = re.sub(r"\bRUN_TYPE\s+\S+", "RUN_TYPE ENERGY_FORCE", text, count=1)
     text = strip_motion(text)
+    text = ensure_analytical_stress(text)
     if "REFERENCE_CLI" in text:
         return text
     block = [
@@ -68,14 +96,32 @@ def parse_reference_cli(out_file: Path) -> dict[str, str]:
     return result
 
 
+def x23b_root(root: Path) -> Path:
+    nested = root / "X23b"
+    if nested.is_dir():
+        return nested
+    if (root / "runs").is_dir() and (root / "inputs").is_dir():
+        return root
+    raise ValueError(f"X23b benchmark tree not found below {root}")
+
+
+def portable_source(path: Path, benchmark_root: Path) -> str:
+    root = x23b_root(benchmark_root.resolve()).resolve()
+    try:
+        relative = path.resolve().relative_to(root)
+    except ValueError:
+        return path.name
+    return (Path("X23b") / relative).as_posix()
+
+
 def discover_initial(root: Path, method: str) -> list[tuple[str, str, str, Path]]:
-    base = root / "X23b" / "inputs" / "cellopt_gamma" / method
+    base = x23b_root(root) / "inputs" / "cellopt_gamma" / method
     suffix = f"_{method}_gamma_cellopt.inp"
     return [("initial", method, p.name.removesuffix(suffix), p) for p in sorted(base.glob(f"*{suffix}"))]
 
 
 def discover_restarts(root: Path, method: str) -> list[tuple[str, str, str, Path]]:
-    base = root / "X23b" / "runs" / "cellopt_gamma" / method
+    base = x23b_root(root) / "runs" / "cellopt_gamma" / method
     cases: list[tuple[str, str, str, Path]] = []
     suffix = f"_{method}_gamma_cellopt"
     project_method = method.replace("-", "_")
@@ -120,7 +166,8 @@ def run_case(case: tuple[str, str, str, Path], args: argparse.Namespace) -> dict
     run_dir.mkdir(parents=True, exist_ok=True)
     prefix = f"refcli_{source_kind}_{method}_{system}".replace("-", "_")
     inp = run_dir / f"{system}_{source_kind}_reference_cli.inp"
-    inp.write_text(inject_reference_cli(source.read_text(), args.tblite, prefix, args.keep_files))
+    program = prepare_reference_cli_program(run_dir, args.tblite)
+    inp.write_text(inject_reference_cli(source.read_text(), program, prefix, args.keep_files))
     out_file = run_dir / "cp2k.out"
     env = os.environ.copy()
     env.setdefault("OMP_NUM_THREADS", "1")
@@ -139,8 +186,8 @@ def run_case(case: tuple[str, str, str, Path], args: argparse.Namespace) -> dict
         "source_kind": source_kind,
         "method": method,
         "system": system,
-        "source": str(source),
-        "run_dir": str(run_dir),
+        "source": portable_source(source, args.benchmark_root),
+        "run_dir": run_dir.relative_to(args.out).as_posix(),
         "returncode": str(proc.returncode),
     }
     row.update(parse_reference_cli(out_file))
@@ -171,7 +218,7 @@ def summarize(rows: list[dict[str, str]]) -> list[dict[str, str]]:
 
 def write_csv(path: Path, rows: list[dict[str, str]], columns: list[str]) -> None:
     with path.open("w", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=columns)
+        writer = csv.DictWriter(handle, fieldnames=columns, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 
@@ -180,8 +227,8 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--cp2k", type=Path, required=True)
     parser.add_argument("--tblite", type=Path, required=True)
-    parser.add_argument("--benchmark-root", type=Path, default=Path("/private/tmp/Periodic-GFN2-Benchmarks-x23b-wsc-20260701_175556"))
-    parser.add_argument("--out", type=Path, default=Path("/Users/tkuehne/Documents/g-xTB/reference_cli_x23b_wsc_20260701"))
+    parser.add_argument("--benchmark-root", type=Path, default=REPOSITORY)
+    parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--jobs", type=int, default=6)
     parser.add_argument("--method", choices=["GFN1", "GFN2"], default="GFN2")
     parser.add_argument("--only-initial", action="store_true")
@@ -204,6 +251,8 @@ def main() -> None:
         cases.extend(discover_initial(args.benchmark_root, args.method))
     if not args.source_csv and not args.only_initial:
         cases.extend(discover_restarts(args.benchmark_root, args.method))
+    if args.source_csv:
+        cases = [case for case in cases if case[1] == args.method]
     if args.system:
         wanted = set(args.system)
         cases = [case for case in cases if case[2] in wanted]
@@ -220,6 +269,8 @@ def main() -> None:
                 row["system"],
                 "rc",
                 row["returncode"],
+                "skipped",
+                row["skipped"],
                 "gmax",
                 row["gradient_diff_max"],
                 "vmax",
@@ -249,6 +300,8 @@ def main() -> None:
     summary = summarize(rows)
     write_csv(args.out / "reference_cli_summary.csv", summary, list(summary[0].keys()) if summary else ["source_kind", "method", "n"])
     print(args.out)
+    if rows and all(row["skipped"] == "True" for row in rows):
+        raise SystemExit("all selected REFERENCE_CLI checks were skipped")
 
 
 if __name__ == "__main__":

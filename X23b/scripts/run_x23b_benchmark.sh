@@ -19,7 +19,7 @@ run_input() {
   cp "${input}" "${run_dir}/"
   (
     cd "${run_dir}"
-    if grep -q "ENERGY| Total FORCE_EVAL" "${output}" 2>/dev/null; then
+    if [[ ${FORCE_RERUN:-0} != 1 ]] && grep -q "ENERGY| Total FORCE_EVAL" "${output}" 2>/dev/null; then
       echo "SKIP ${rel}"
     else
       echo "RUN  ${rel}"
@@ -42,4 +42,6 @@ done
 
 xargs -n 1 -P "${CP2K_PARALLEL_JOBS}" bash -c 'run_input "$@"' _ < "${job_file}"
 
-python3 scripts/x23b_pipeline.py analyse > x23b_results.out
+if [[ ${X23B_ANALYSE:-1} == 1 ]]; then
+  python3 scripts/x23b_pipeline.py analyse > x23b_results.out
+fi

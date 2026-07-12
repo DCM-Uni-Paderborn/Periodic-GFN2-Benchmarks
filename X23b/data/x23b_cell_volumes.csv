@@ -1,47 +1,47 @@
 calculation,mesh,method,system,label,complete,volume_A3,x23b_same_cell_ref_volume_A3,x23b_reported_ref_volume_A3,volume_error_percent
-cell_opt,k222,GFN1-xTB,14-cyclohexanedione,"1,4-Cyclohexanedione",True,252.685764,262.500000,262.500000,-3.738757
-cell_opt,k222,GFN2-xTB,14-cyclohexanedione,"1,4-Cyclohexanedione",True,275.246416,262.500000,262.500000,4.855778
-cell_opt,k222,GFN1-xTB,acetic_acid,Acetic acid,True,271.707809,288.800000,288.800000,-5.918349
-cell_opt,k222,GFN2-xTB,acetic_acid,Acetic acid,True,294.033308,288.800000,288.800000,1.812087
-cell_opt,k222,GFN1-xTB,adamantane,Adamantane,True,391.515787,357.600000,357.600000,9.484280
-cell_opt,k222,GFN2-xTB,adamantane,Adamantane,True,423.476979,357.600000,357.600000,18.421974
-cell_opt,k222,GFN1-xTB,ammonia,Ammonia,True,113.068213,121.500000,121.500000,-6.939742
-cell_opt,k222,GFN2-xTB,ammonia,Ammonia,True,117.140883,121.500000,121.500000,-3.587751
-cell_opt,k222,GFN1-xTB,anthracene,Anthracene,True,356.999441,441.200000,441.200000,-19.084442
-cell_opt,k222,GFN2-xTB,anthracene,Anthracene,True,374.225338,441.200000,441.200000,-15.180114
-cell_opt,k222,GFN1-xTB,benzene,Benzene,True,436.564736,444.300000,444.300000,-1.741000
-cell_opt,k222,GFN2-xTB,benzene,Benzene,True,466.646982,444.300000,444.300000,5.029706
-cell_opt,k222,GFN1-xTB,co2,Carbon dioxide,True,188.954687,164.800000,164.800000,14.656970
-cell_opt,k222,GFN2-xTB,co2,Carbon dioxide,True,160.153226,164.800000,164.800000,-2.819644
-cell_opt,k222,GFN1-xTB,cyanamide,Cyanamide,True,356.984897,407.900000,407.900000,-12.482251
-cell_opt,k222,GFN2-xTB,cyanamide,Cyanamide,True,382.373238,407.900000,407.900000,-6.258093
-cell_opt,k222,GFN1-xTB,cytosine,Cytosine,True,419.480758,440.300000,440.300000,-4.728422
-cell_opt,k222,GFN2-xTB,cytosine,Cytosine,True,424.101516,440.300000,440.300000,-3.678965
-cell_opt,k222,GFN1-xTB,ethylcarbamate,Ethyl carbamate,True,211.042173,231.200000,231.200000,-8.718783
-cell_opt,k222,GFN2-xTB,ethylcarbamate,Ethyl carbamate,True,235.399132,231.200000,231.200000,1.816234
-cell_opt,k222,GFN1-xTB,formamide,Formamide,True,191.686713,211.900000,211.900000,-9.539069
-cell_opt,k222,GFN2-xTB,formamide,Formamide,True,204.607003,211.900000,211.900000,-3.441716
-cell_opt,k222,GFN1-xTB,hexamine,Hexamine,True,154.709088,160.800000,321.600000,-3.787881
-cell_opt,k222,GFN2-xTB,hexamine,Hexamine,True,160.791284,160.800000,321.600000,-0.005420
-cell_opt,k222,GFN1-xTB,imidazole,Imidazole,True,273.441207,336.400000,336.400000,-18.715456
-cell_opt,k222,GFN2-xTB,imidazole,Imidazole,True,287.246589,336.400000,336.400000,-14.611597
-cell_opt,k222,GFN1-xTB,naphthalene,Naphthalene,True,273.340302,329.700000,329.700000,-17.094237
-cell_opt,k222,GFN2-xTB,naphthalene,Naphthalene,True,286.534770,329.700000,329.700000,-13.092275
-cell_opt,k222,GFN1-xTB,oxalic_acid_alpha,Oxalic acid alpha,True,281.196456,293.200000,293.200000,-4.093978
-cell_opt,k222,GFN2-xTB,oxalic_acid_alpha,Oxalic acid alpha,True,280.404320,293.200000,293.200000,-4.364147
-cell_opt,k222,GFN1-xTB,oxalic_acid_beta,Oxalic acid beta,True,136.899314,150.500000,150.500000,-9.037001
-cell_opt,k222,GFN2-xTB,oxalic_acid_beta,Oxalic acid beta,True,146.698351,150.500000,150.500000,-2.526013
-cell_opt,k222,GFN1-xTB,pyrazine,Pyrazine,True,182.759418,189.600000,189.600000,-3.607902
-cell_opt,k222,GFN2-xTB,pyrazine,Pyrazine,True,185.992967,189.600000,189.600000,-1.902444
-cell_opt,k222,GFN1-xTB,pyrazole,Pyrazole,True,658.084480,662.500000,662.500000,-0.666494
-cell_opt,k222,GFN2-xTB,pyrazole,Pyrazole,True,701.851260,662.500000,662.500000,5.939813
-cell_opt,k222,GFN1-xTB,succinic_acid,Succinic acid,True,219.721009,233.300000,233.300000,-5.820399
-cell_opt,k222,GFN2-xTB,succinic_acid,Succinic acid,True,240.043357,233.300000,233.300000,2.890423
-cell_opt,k222,GFN1-xTB,triazine,s-Triazine,True,477.258917,528.000000,528.000000,-9.610054
-cell_opt,k222,GFN2-xTB,triazine,s-Triazine,True,505.245089,528.000000,528.000000,-4.309642
-cell_opt,k222,GFN1-xTB,trioxane,s-Trioxane,True,563.384335,580.700000,580.700000,-2.981861
-cell_opt,k222,GFN2-xTB,trioxane,s-Trioxane,True,599.403538,580.700000,580.700000,3.220861
-cell_opt,k222,GFN1-xTB,uracil,Uracil,True,416.180701,442.000000,442.000000,-5.841470
-cell_opt,k222,GFN2-xTB,uracil,Uracil,True,428.500721,442.000000,442.000000,-3.054136
-cell_opt,k222,GFN1-xTB,urea,Urea,True,135.518170,140.800000,140.800000,-3.751300
-cell_opt,k222,GFN2-xTB,urea,Urea,True,131.839755,140.800000,140.800000,-6.363810
+cell_opt,k222,GFN1-xTB,14-cyclohexanedione,"1,4-Cyclohexanedione",True,252.632962,262.500000,262.500000,-3.758872
+cell_opt,k222,GFN2-xTB,14-cyclohexanedione,"1,4-Cyclohexanedione",True,275.763927,262.500000,262.500000,5.052925
+cell_opt,k222,GFN1-xTB,acetic_acid,Acetic acid,True,267.602491,288.800000,288.800000,-7.339858
+cell_opt,k222,GFN2-xTB,acetic_acid,Acetic acid,True,299.000948,288.800000,288.800000,3.532184
+cell_opt,k222,GFN1-xTB,adamantane,Adamantane,True,390.679235,357.600000,357.600000,9.250345
+cell_opt,k222,GFN2-xTB,adamantane,Adamantane,True,428.950459,357.600000,357.600000,19.952589
+cell_opt,k222,GFN1-xTB,ammonia,Ammonia,True,113.093852,121.500000,121.500000,-6.918640
+cell_opt,k222,GFN2-xTB,ammonia,Ammonia,True,122.282497,121.500000,121.500000,0.644030
+cell_opt,k222,GFN1-xTB,anthracene,Anthracene,True,356.327764,441.200000,441.200000,-19.236681
+cell_opt,k222,GFN2-xTB,anthracene,Anthracene,True,376.312608,441.200000,441.200000,-14.707024
+cell_opt,k222,GFN1-xTB,benzene,Benzene,True,436.838159,444.300000,444.300000,-1.679460
+cell_opt,k222,GFN2-xTB,benzene,Benzene,True,466.542657,444.300000,444.300000,5.006225
+cell_opt,k222,GFN1-xTB,co2,Carbon dioxide,True,177.094404,164.800000,164.800000,7.460197
+cell_opt,k222,GFN2-xTB,co2,Carbon dioxide,True,156.796233,164.800000,164.800000,-4.856655
+cell_opt,k222,GFN1-xTB,cyanamide,Cyanamide,True,352.788614,407.900000,407.900000,-13.511004
+cell_opt,k222,GFN2-xTB,cyanamide,Cyanamide,True,382.194375,407.900000,407.900000,-6.301943
+cell_opt,k222,GFN1-xTB,cytosine,Cytosine,True,415.224865,440.300000,440.300000,-5.695011
+cell_opt,k222,GFN2-xTB,cytosine,Cytosine,True,432.465104,440.300000,440.300000,-1.779445
+cell_opt,k222,GFN1-xTB,ethylcarbamate,Ethyl carbamate,True,211.982861,231.200000,231.200000,-8.311911
+cell_opt,k222,GFN2-xTB,ethylcarbamate,Ethyl carbamate,True,236.470045,231.200000,231.200000,2.279431
+cell_opt,k222,GFN1-xTB,formamide,Formamide,True,194.586271,211.900000,211.900000,-8.170707
+cell_opt,k222,GFN2-xTB,formamide,Formamide,True,205.569872,211.900000,211.900000,-2.987319
+cell_opt,k222,GFN1-xTB,hexamine,Hexamine,True,154.339203,160.800000,321.600000,-4.017909
+cell_opt,k222,GFN2-xTB,hexamine,Hexamine,True,164.142794,160.800000,321.600000,2.078852
+cell_opt,k222,GFN1-xTB,imidazole,Imidazole,True,277.051623,336.400000,336.400000,-17.642205
+cell_opt,k222,GFN2-xTB,imidazole,Imidazole,True,293.032016,336.400000,336.400000,-12.891791
+cell_opt,k222,GFN1-xTB,naphthalene,Naphthalene,True,273.502000,329.700000,329.700000,-17.045193
+cell_opt,k222,GFN2-xTB,naphthalene,Naphthalene,True,288.842053,329.700000,329.700000,-12.392462
+cell_opt,k222,GFN1-xTB,oxalic_acid_alpha,Oxalic acid alpha,True,277.555945,293.200000,293.200000,-5.335626
+cell_opt,k222,GFN2-xTB,oxalic_acid_alpha,Oxalic acid alpha,True,278.434828,293.200000,293.200000,-5.035870
+cell_opt,k222,GFN1-xTB,oxalic_acid_beta,Oxalic acid beta,True,137.865169,150.500000,150.500000,-8.395237
+cell_opt,k222,GFN2-xTB,oxalic_acid_beta,Oxalic acid beta,True,136.052122,150.500000,150.500000,-9.599919
+cell_opt,k222,GFN1-xTB,pyrazine,Pyrazine,True,191.801220,189.600000,189.600000,1.160981
+cell_opt,k222,GFN2-xTB,pyrazine,Pyrazine,True,185.623521,189.600000,189.600000,-2.097299
+cell_opt,k222,GFN1-xTB,pyrazole,Pyrazole,True,658.091486,662.500000,662.500000,-0.665436
+cell_opt,k222,GFN2-xTB,pyrazole,Pyrazole,True,704.126952,662.500000,662.500000,6.283314
+cell_opt,k222,GFN1-xTB,succinic_acid,Succinic acid,True,220.376930,233.300000,233.300000,-5.539250
+cell_opt,k222,GFN2-xTB,succinic_acid,Succinic acid,True,226.998552,233.300000,233.300000,-2.701006
+cell_opt,k222,GFN1-xTB,triazine,s-Triazine,True,479.522230,528.000000,528.000000,-9.181396
+cell_opt,k222,GFN2-xTB,triazine,s-Triazine,True,510.207587,528.000000,528.000000,-3.369775
+cell_opt,k222,GFN1-xTB,trioxane,s-Trioxane,True,563.795042,580.700000,580.700000,-2.911134
+cell_opt,k222,GFN2-xTB,trioxane,s-Trioxane,True,599.849294,580.700000,580.700000,3.297623
+cell_opt,k222,GFN1-xTB,uracil,Uracil,True,416.160850,442.000000,442.000000,-5.845962
+cell_opt,k222,GFN2-xTB,uracil,Uracil,True,430.256794,442.000000,442.000000,-2.656834
+cell_opt,k222,GFN1-xTB,urea,Urea,True,135.517663,140.800000,140.800000,-3.751660
+cell_opt,k222,GFN2-xTB,urea,Urea,True,133.945442,140.800000,140.800000,-4.868294

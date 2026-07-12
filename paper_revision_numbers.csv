@@ -1,35 +1,31 @@
 section,quantity,method,value,unit,context,source
-DMC13,gamma MAE,GFN1-xTB,6.696681,kJ mol-1 per H2O,paper 10.893440; delta -4.196759,/Users/tkuehne/Documents/g-xTB/benchmark_delta_reports_wsc3d_final_20260702/dmc13_final_vs_paper.csv
-DMC13,gamma MAE,GFN2-xTB,5.355715,kJ mol-1 per H2O,paper 8.548769; delta -3.193054,/Users/tkuehne/Documents/g-xTB/benchmark_delta_reports_wsc3d_final_20260702/dmc13_final_vs_paper.csv
-DMC13,k333 MAE,GFN1-xTB,8.008187,kJ mol-1 per H2O,paper 13.112632; delta -5.104445,/Users/tkuehne/Documents/g-xTB/benchmark_delta_reports_wsc3d_final_20260702/dmc13_final_vs_paper.csv
-DMC13,k333 ME,GFN1-xTB,-8.008187,kJ mol-1 per H2O,12 non-Ih phases,/Users/tkuehne/Documents/g-xTB/benchmark_delta_reports_wsc3d_final_20260702/dmc13_final_vs_paper.csv
-DMC13,k333 RMSE,GFN1-xTB,8.653532,kJ mol-1 per H2O,12 non-Ih phases,/Users/tkuehne/Documents/g-xTB/benchmark_delta_reports_wsc3d_final_20260702/dmc13_final_vs_paper.csv
-DMC13,k333 MaxAE,GFN1-xTB,13.666572,kJ mol-1 per H2O,12 non-Ih phases,/Users/tkuehne/Documents/g-xTB/benchmark_delta_reports_wsc3d_final_20260702/dmc13_final_vs_paper.csv
-DMC13,k333 MAE,GFN2-xTB,3.185301,kJ mol-1 per H2O,paper 8.877913; delta -5.692612,/Users/tkuehne/Documents/g-xTB/benchmark_delta_reports_wsc3d_final_20260702/dmc13_final_vs_paper.csv
-DMC13,k333 ME,GFN2-xTB,-2.383503,kJ mol-1 per H2O,12 non-Ih phases,/Users/tkuehne/Documents/g-xTB/benchmark_delta_reports_wsc3d_final_20260702/dmc13_final_vs_paper.csv
-DMC13,k333 RMSE,GFN2-xTB,3.648584,kJ mol-1 per H2O,12 non-Ih phases,/Users/tkuehne/Documents/g-xTB/benchmark_delta_reports_wsc3d_final_20260702/dmc13_final_vs_paper.csv
-DMC13,k333 MaxAE,GFN2-xTB,6.792092,kJ mol-1 per H2O,12 non-Ih phases,/Users/tkuehne/Documents/g-xTB/benchmark_delta_reports_wsc3d_final_20260702/dmc13_final_vs_paper.csv
-DMC13,k555 MAE,GFN1-xTB,8.009417,kJ mol-1 per H2O,paper 13.113764; delta -5.104347,/Users/tkuehne/Documents/g-xTB/benchmark_delta_reports_wsc3d_final_20260702/dmc13_final_vs_paper.csv
-DMC13,k555 MAE,GFN2-xTB,3.183706,kJ mol-1 per H2O,paper 8.879573; delta -5.695867,/Users/tkuehne/Documents/g-xTB/benchmark_delta_reports_wsc3d_final_20260702/dmc13_final_vs_paper.csv
-Verification,CP2K-native vs tblite CLI max energy absdiff,GFN1,1.391756754288e-08,Eh,X23b keep_angles final geometries,/Users/tkuehne/Documents/g-xTB/reference_cli_x23b_cg2pnt_keep_angles_wsc3d_20260702/reference_cli_summary.csv
-Verification,CP2K-native vs tblite CLI max gradient component diff,GFN1,2.800121389387e-07,a.u.,X23b keep_angles final geometries,/Users/tkuehne/Documents/g-xTB/reference_cli_x23b_cg2pnt_keep_angles_wsc3d_20260702/reference_cli_summary.csv
-Verification,CP2K-native vs tblite CLI max virial component diff,GFN1,2.680996456038e-06,a.u.,X23b keep_angles final geometries,/Users/tkuehne/Documents/g-xTB/reference_cli_x23b_cg2pnt_keep_angles_wsc3d_20260702/reference_cli_summary.csv
-Verification,CP2K-native vs tblite CLI max energy absdiff,GFN2,1.190298348774e-08,Eh,X23b keep_angles final geometries,/Users/tkuehne/Documents/g-xTB/reference_cli_x23b_cg2pnt_keep_angles_wsc3d_20260702/reference_cli_summary.csv
-Verification,CP2K-native vs tblite CLI max gradient component diff,GFN2,5.615330882880e-07,a.u.,X23b keep_angles final geometries,/Users/tkuehne/Documents/g-xTB/reference_cli_x23b_cg2pnt_keep_angles_wsc3d_20260702/reference_cli_summary.csv
-Verification,CP2K-native vs tblite CLI max virial component diff,GFN2,6.676112438396e-06,a.u.,X23b keep_angles final geometries,/Users/tkuehne/Documents/g-xTB/reference_cli_x23b_cg2pnt_keep_angles_wsc3d_20260702/reference_cli_summary.csv
-X23b cellopt,lattice_energy_kJmol ME,GFN1-xTB,-0.710350,kJ mol-1,native Bloch k222 CELL_OPT; final clean 23/23 per method,/Users/tkuehne/Documents/g-xTB/x23b_k222_cellopt_nativebloch_final_20260705_merged/x23b_k222_nativebloch_final_clean_summary.csv
-X23b cellopt,lattice_energy_kJmol MAE,GFN1-xTB,11.129018,kJ mol-1,native Bloch k222 CELL_OPT; final clean 23/23 per method,/Users/tkuehne/Documents/g-xTB/x23b_k222_cellopt_nativebloch_final_20260705_merged/x23b_k222_nativebloch_final_clean_summary.csv
-X23b cellopt,lattice_energy_kJmol RMSE,GFN1-xTB,14.815022,kJ mol-1,native Bloch k222 CELL_OPT; final clean 23/23 per method,/Users/tkuehne/Documents/g-xTB/x23b_k222_cellopt_nativebloch_final_20260705_merged/x23b_k222_nativebloch_final_clean_summary.csv
-X23b cellopt,lattice_energy_kJmol MaxAE,GFN1-xTB,38.461935,kJ mol-1,native Bloch k222 CELL_OPT; final clean 23/23 per method,/Users/tkuehne/Documents/g-xTB/x23b_k222_cellopt_nativebloch_final_20260705_merged/x23b_k222_nativebloch_final_clean_summary.csv
-X23b cellopt,volume_error_percent ME,GFN1-xTB,-5.815548,percent,native Bloch k222 CELL_OPT; final clean 23/23 per method,/Users/tkuehne/Documents/g-xTB/x23b_k222_cellopt_nativebloch_final_20260705_merged/x23b_k222_nativebloch_final_clean_summary.csv
-X23b cellopt,volume_error_percent MAE,GFN1-xTB,7.914787,percent,native Bloch k222 CELL_OPT; final clean 23/23 per method,/Users/tkuehne/Documents/g-xTB/x23b_k222_cellopt_nativebloch_final_20260705_merged/x23b_k222_nativebloch_final_clean_summary.csv
-X23b cellopt,volume_error_percent RMSE,GFN1-xTB,9.478583,percent,native Bloch k222 CELL_OPT; final clean 23/23 per method,/Users/tkuehne/Documents/g-xTB/x23b_k222_cellopt_nativebloch_final_20260705_merged/x23b_k222_nativebloch_final_clean_summary.csv
-X23b cellopt,volume_error_percent MaxAE,GFN1-xTB,19.084442,percent,native Bloch k222 CELL_OPT; final clean 23/23 per method,/Users/tkuehne/Documents/g-xTB/x23b_k222_cellopt_nativebloch_final_20260705_merged/x23b_k222_nativebloch_final_clean_summary.csv
-X23b cellopt,lattice_energy_kJmol ME,GFN2-xTB,-11.986205,kJ mol-1,native Bloch k222 CELL_OPT; final clean 23/23 per method,/Users/tkuehne/Documents/g-xTB/x23b_k222_cellopt_nativebloch_final_20260705_merged/x23b_k222_nativebloch_final_clean_summary.csv
-X23b cellopt,lattice_energy_kJmol MAE,GFN2-xTB,14.459836,kJ mol-1,native Bloch k222 CELL_OPT; final clean 23/23 per method,/Users/tkuehne/Documents/g-xTB/x23b_k222_cellopt_nativebloch_final_20260705_merged/x23b_k222_nativebloch_final_clean_summary.csv
-X23b cellopt,lattice_energy_kJmol RMSE,GFN2-xTB,23.427726,kJ mol-1,native Bloch k222 CELL_OPT; final clean 23/23 per method,/Users/tkuehne/Documents/g-xTB/x23b_k222_cellopt_nativebloch_final_20260705_merged/x23b_k222_nativebloch_final_clean_summary.csv
-X23b cellopt,lattice_energy_kJmol MaxAE,GFN2-xTB,90.069662,kJ mol-1,native Bloch k222 CELL_OPT; final clean 23/23 per method,/Users/tkuehne/Documents/g-xTB/x23b_k222_cellopt_nativebloch_final_20260705_merged/x23b_k222_nativebloch_final_clean_summary.csv
-X23b cellopt,volume_error_percent ME,GFN2-xTB,-1.791691,percent,native Bloch k222 CELL_OPT; final clean 23/23 per method,/Users/tkuehne/Documents/g-xTB/x23b_k222_cellopt_nativebloch_final_20260705_merged/x23b_k222_nativebloch_final_clean_summary.csv
-X23b cellopt,volume_error_percent MAE,GFN2-xTB,5.616637,percent,native Bloch k222 CELL_OPT; final clean 23/23 per method,/Users/tkuehne/Documents/g-xTB/x23b_k222_cellopt_nativebloch_final_20260705_merged/x23b_k222_nativebloch_final_clean_summary.csv
-X23b cellopt,volume_error_percent RMSE,GFN2-xTB,7.363220,percent,native Bloch k222 CELL_OPT; final clean 23/23 per method,/Users/tkuehne/Documents/g-xTB/x23b_k222_cellopt_nativebloch_final_20260705_merged/x23b_k222_nativebloch_final_clean_summary.csv
-X23b cellopt,volume_error_percent MaxAE,GFN2-xTB,18.421974,percent,native Bloch k222 CELL_OPT; final clean 23/23 per method,/Users/tkuehne/Documents/g-xTB/x23b_k222_cellopt_nativebloch_final_20260705_merged/x23b_k222_nativebloch_final_clean_summary.csv
+DMC13,gamma MAE,GFN1-xTB,6.694624,kJ mol-1 per H2O,13 phases; relative to Ih,DMC-ICE13/data/dmc_ice13_kpoint_stats.csv
+DMC13,gamma MAE,GFN2-xTB,5.578897,kJ mol-1 per H2O,13 phases; relative to Ih,DMC-ICE13/data/dmc_ice13_kpoint_stats.csv
+DMC13,k333 ME,GFN1-xTB,-8.005255,kJ mol-1 per H2O,12 non-Ih phases,DMC-ICE13/data/dmc_ice13_kpoint_stats.csv
+DMC13,k333 MAE,GFN1-xTB,8.005255,kJ mol-1 per H2O,12 non-Ih phases,DMC-ICE13/data/dmc_ice13_kpoint_stats.csv
+DMC13,k333 RMSE,GFN1-xTB,8.650658,kJ mol-1 per H2O,12 non-Ih phases,DMC-ICE13/data/dmc_ice13_kpoint_stats.csv
+DMC13,k333 MaxAE,GFN1-xTB,13.663936,kJ mol-1 per H2O,12 non-Ih phases,DMC-ICE13/data/dmc_ice13_kpoint_stats.csv
+DMC13,k333 ME,GFN2-xTB,-2.837920,kJ mol-1 per H2O,12 non-Ih phases,DMC-ICE13/data/dmc_ice13_kpoint_stats.csv
+DMC13,k333 MAE,GFN2-xTB,3.462919,kJ mol-1 per H2O,12 non-Ih phases,DMC-ICE13/data/dmc_ice13_kpoint_stats.csv
+DMC13,k333 RMSE,GFN2-xTB,3.812981,kJ mol-1 per H2O,12 non-Ih phases,DMC-ICE13/data/dmc_ice13_kpoint_stats.csv
+DMC13,k333 MaxAE,GFN2-xTB,6.346296,kJ mol-1 per H2O,12 non-Ih phases,DMC-ICE13/data/dmc_ice13_kpoint_stats.csv
+X23b,lattice-energy ME,GFN1-xTB,0.258871,kJ mol-1,k333 SP on 23 k222-optimized cells,X23b/data/x23b_summary.csv
+X23b,lattice-energy MAE,GFN1-xTB,11.345702,kJ mol-1,k333 SP on 23 k222-optimized cells,X23b/data/x23b_summary.csv
+X23b,lattice-energy RMSE,GFN1-xTB,14.019344,kJ mol-1,k333 SP on 23 k222-optimized cells,X23b/data/x23b_summary.csv
+X23b,lattice-energy MaxAE,GFN1-xTB,30.935058,kJ mol-1,k333 SP on 23 k222-optimized cells,X23b/data/x23b_summary.csv
+X23b,lattice-energy ME,GFN2-xTB,-12.018989,kJ mol-1,k333 SP on 23 k222-optimized cells,X23b/data/x23b_summary.csv
+X23b,lattice-energy MAE,GFN2-xTB,14.092104,kJ mol-1,k333 SP on 23 k222-optimized cells,X23b/data/x23b_summary.csv
+X23b,lattice-energy RMSE,GFN2-xTB,21.341752,kJ mol-1,k333 SP on 23 k222-optimized cells,X23b/data/x23b_summary.csv
+X23b,lattice-energy MaxAE,GFN2-xTB,77.785392,kJ mol-1,k333 SP on 23 k222-optimized cells,X23b/data/x23b_summary.csv
+X23b,volume ME,GFN1-xTB,-5.960071,percent,23 native Bloch k222 cell optimizations,X23b/data/x23b_summary.csv
+X23b,volume MAE,GFN1-xTB,7.514116,percent,23 native Bloch k222 cell optimizations,X23b/data/x23b_summary.csv
+X23b,volume RMSE,GFN1-xTB,9.019708,percent,23 native Bloch k222 cell optimizations,X23b/data/x23b_summary.csv
+X23b,volume MaxAE,GFN1-xTB,19.236681,percent,23 native Bloch k222 cell optimizations,X23b/data/x23b_summary.csv
+X23b,volume ME,GFN2-xTB,-1.657324,percent,23 native Bloch k222 cell optimizations,X23b/data/x23b_summary.csv
+X23b,volume MAE,GFN2-xTB,5.842296,percent,23 native Bloch k222 cell optimizations,X23b/data/x23b_summary.csv
+X23b,volume RMSE,GFN2-xTB,7.530373,percent,23 native Bloch k222 cell optimizations,X23b/data/x23b_summary.csv
+X23b,volume MaxAE,GFN2-xTB,19.952589,percent,23 native Bloch k222 cell optimizations,X23b/data/x23b_summary.csv
+LC12,lattice-constant MAE,GFN1-xTB,0.13665006,A,12 valid k444 EOS fits,Goldzak12/data/eos_summary.csv
+LC12,cohesive-energy MAE,GFN1-xTB,1.45769443,eV atom-1,k555 energies on 12 k444 EOS minima,Goldzak12/data/eos_summary.csv
+LC12,lattice-constant MAE,GFN2-xTB,0.06240968,A,10 valid k444 EOS fits,Goldzak12/data/eos_summary.csv
+LC12,cohesive-energy MAE,GFN2-xTB,1.29932483,eV atom-1,k555 energies on 10 k444 EOS minima,Goldzak12/data/eos_summary.csv

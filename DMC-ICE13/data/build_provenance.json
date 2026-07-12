@@ -1,0 +1,105 @@
+{
+  "benchmark": "DMC-ICE13",
+  "rerun_date": "2026-07-12",
+  "cp2k": {
+    "source_revision": "faf9aae91266170dfee8a9f7171a5135bc5eb368",
+    "version": "2026.1 (Development Version)",
+    "development_trunk": true,
+    "executable_sha256": "f2b8e6e516b60d49af722997dd0bf06c10b54b2a2a221f786e5eaea38cccd8a5",
+    "library_sha256": "7656b6154614290d3e121f2f7a2d527b5e0e5d128eacf456e3c35e847894741d",
+    "working_tree_patches": [
+      "native Bloch tblite energies, forces, and stress tensors",
+      "full SPGLIB k-point symmetry reduction with nonsymmorphic translations",
+      "CP2K pbc()-consistent atom gauges and overlap-covariant Bloch phases",
+      "dynamic symmetry refresh during cell optimization",
+      "separate Bloch-wavefunction and native tblite SCC restart handling",
+      "tblite mixer propagation and Broyden SCC-history fixes"
+    ],
+    "build_flags": [
+      "omp",
+      "no_statm_access",
+      "spglib",
+      "libdftd4",
+      "dftd4_v4_2",
+      "s_dftd3",
+      "mctc-lib",
+      "tblite"
+    ]
+  },
+  "tblite": {
+    "main_revision": "eb50bbfbe1c0869e2e18c9b7cc13144e5130b6df",
+    "pr350_revision": "8c5e56255dc0f7001615489f24162ed770888d8b",
+    "local_merge_revision": "8a9d09474b93d25c044d6f46ce920750c7fe4cf7",
+    "version": "0.6.0",
+    "executable_sha256": "d50145af569a6ce4ea4e73e68d1cb004c3ca240105deb941c0244b7d431ed47f",
+    "library_sha256": "f7bd2a841543dcbb71da0954f2e2bf016b7a202dace377f26f72ac139035c3e6",
+    "includes_pr343": true,
+    "includes_complete_pr350": true,
+    "working_tree_patches": [
+      "true WSC lattice-translation indices",
+      "smooth normalized WSC image weights",
+      "analytical WSC-weight force and stress derivatives",
+      "corrected damped dipole-dipole radial factor"
+    ]
+  },
+  "repository_patches": {
+    "cp2k": {
+      "path": "../../patches/cp2k_trunk_tblite_full_symmetry_scc.patch",
+      "sha256": "a54705795ea3c5c3ffd6e5e2197e00329e49b5ced05d3945f7ce39e9d84e3a2a"
+    },
+    "tblite": {
+      "path": "../../patches/tblite_main_pr350_wsc_derivatives.patch",
+      "sha256": "1fbc37841a420cb766d3aeafac59fb1479c3bc2874152620356059518d7ff5c7"
+    }
+  },
+  "protocol": {
+    "methods": [
+      "GFN1-xTB",
+      "GFN2-xTB"
+    ],
+    "meshes": [
+      "Gamma",
+      "1x1x1",
+      "2x2x2",
+      "3x3x3",
+      "4x4x4",
+      "5x5x5"
+    ],
+    "kpoint_route": "native Bloch with full SPGLIB symmetry reduction",
+    "cell_canonicalization": true,
+    "tblite_accuracy": 0.1,
+    "eps_scf": 1e-9,
+    "relative_error_statistics": "12 non-reference polymorphs relative to ice Ih"
+  },
+  "validation": {
+    "calculations_expected": 156,
+    "calculations_completed": 156,
+    "zero_return_codes": 156,
+    "cp2k_xtb_regression_matchers": {
+      "correct": 625,
+      "total": 625
+    },
+    "focused_periodic_regression_matchers": {
+      "correct": 131,
+      "total": 131
+    },
+    "tblite_enabled_non_capi_tests": {
+      "correct": 35,
+      "total": 35,
+      "c_api_note": "The aggregate C-API target additionally requests four optional ddX models that are unavailable in this no-ddX build."
+    },
+    "reference_cli": {
+      "calculations_expected": 26,
+      "calculations_completed": 26,
+      "zero_return_codes": 26,
+      "GFN1_max_energy_absdiff_hartree": 1.23494885429e-8,
+      "GFN1_max_gradient_component_au": 3.573672322302e-8,
+      "GFN1_max_virial_component_au": 1.26161704303e-6,
+      "GFN2_max_energy_absdiff_hartree": 8.757837122175e-9,
+      "GFN2_max_gradient_component_au": 1.509978808517e-7,
+      "GFN2_max_virial_component_au": 2.293485652005e-6,
+      "max_relative_gradient_component_percent": 0.0011027917031664637,
+      "max_relative_virial_component_percent": 0.000651430558434632
+    }
+  }
+}

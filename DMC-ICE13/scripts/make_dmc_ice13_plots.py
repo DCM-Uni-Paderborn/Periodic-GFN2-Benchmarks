@@ -416,7 +416,7 @@ set ylabel 'Relative energy to ice Ih / kJ mol^{-1}'
 set xlabel 'Ice polymorph'
 set xrange [0.5:13.5]
 set xtics rotate by -45
-set yrange [-25:25]
+set autoscale y
 set ytics 5
 plot '{rel_dat}' using 1:3:xtic(2) w lp ls 1 title 'DMC', \\
 	     '' using 1:3:4 w yerrorbars ls 9 notitle, \\
@@ -438,7 +438,7 @@ set ylabel 'Relative energy to ice Ih / kJ mol^{-1}'
 set xlabel 'Ice polymorph'
 set xrange [0.5:13.5]
 set xtics rotate by -45
-set yrange [-25:25]
+set autoscale y
 set ytics 5
 plot '{rel_dat}' using 1:3:xtic(2) w lp ls 1 title 'DMC', \\
 	     '' using 1:3:4 w yerrorbars ls 9 notitle, \\
@@ -463,7 +463,7 @@ set ylabel 'Relative-energy error vs DMC / kJ mol^{-1}'
 set xlabel 'Ice polymorph'
 set xrange [0.5:13.5]
 set xtics rotate by -45
-set yrange [-30:22]
+set autoscale y
 set yzeroaxis lw 1.2 lc rgb '#333333'
 plot '{err_dat}' using 1:3:xtic(2) w lp ls 2 title 'GFN1-xTB', \\
 	     '' using 1:4 w lp ls 3 title 'GFN2-xTB', \\
@@ -483,7 +483,7 @@ set ylabel 'Relative-energy error vs DMC / kJ mol^{-1}'
 set xlabel 'Ice polymorph'
 set xrange [0.5:13.5]
 set xtics rotate by -45
-set yrange [-30:22]
+set autoscale y
 set yzeroaxis lw 1.2 lc rgb '#333333'
 plot '{err_dat}' using 1:3:xtic(2) w lp ls 2 title 'GFN1-xTB', \\
 	     '' using 1:4 w lp ls 3 title 'GFN2-xTB', \\

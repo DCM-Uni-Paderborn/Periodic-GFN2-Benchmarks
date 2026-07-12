@@ -15,6 +15,7 @@ from pathlib import Path
 
 HARTREE_TO_KJMOL = 2625.499638
 FLOAT = r"[-+]?(?:\d+\.\d*|\.\d+|\d+)(?:[Ee][-+]?\d+)?"
+REPOSITORY = Path(__file__).resolve().parents[1]
 
 
 @dataclass(frozen=True)
@@ -405,8 +406,8 @@ def parse_variants(args: argparse.Namespace) -> list[Variant]:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--cp2k", type=Path, required=True)
-    parser.add_argument("--benchmark-root", type=Path, default=Path("/private/tmp/Periodic-GFN2-Benchmarks-x23b-wsc-20260701_175556"))
-    parser.add_argument("--out", type=Path, default=Path("/Users/tkuehne/Documents/g-xTB/x23b_cellopt_variant_matrix_20260701"))
+    parser.add_argument("--benchmark-root", type=Path, default=REPOSITORY)
+    parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--jobs", type=int, default=4)
     parser.add_argument("--max-iter", type=int, default=800)
     parser.add_argument("--omp-threads", type=int, default=1)

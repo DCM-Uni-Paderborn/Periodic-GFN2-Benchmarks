@@ -402,9 +402,31 @@
       "system": "14-cyclohexanedione",
       "label": "1,4-Cyclohexanedione",
       "complete": true,
-      "lattice_energy_kJmol": "107.738878",
+      "lattice_energy_kJmol": "108.088009",
       "x23b_ref_lattice_energy_kJmol": "90.000000",
-      "error_kJmol": "17.738878"
+      "error_kJmol": "18.088009"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN1-xTB",
+      "system": "14-cyclohexanedione",
+      "label": "1,4-Cyclohexanedione",
+      "complete": true,
+      "lattice_energy_kJmol": "108.130256",
+      "x23b_ref_lattice_energy_kJmol": "90.000000",
+      "error_kJmol": "18.130256"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN1-xTB",
+      "system": "14-cyclohexanedione",
+      "label": "1,4-Cyclohexanedione",
+      "complete": true,
+      "lattice_energy_kJmol": "108.129875",
+      "x23b_ref_lattice_energy_kJmol": "90.000000",
+      "error_kJmol": "18.129875"
     },
     {
       "calculation": "single_point",
@@ -457,9 +479,31 @@
       "system": "14-cyclohexanedione",
       "label": "1,4-Cyclohexanedione",
       "complete": true,
-      "lattice_energy_kJmol": "77.146801",
+      "lattice_energy_kJmol": "77.636403",
       "x23b_ref_lattice_energy_kJmol": "90.000000",
-      "error_kJmol": "-12.853199"
+      "error_kJmol": "-12.363597"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN2-xTB",
+      "system": "14-cyclohexanedione",
+      "label": "1,4-Cyclohexanedione",
+      "complete": true,
+      "lattice_energy_kJmol": "77.713072",
+      "x23b_ref_lattice_energy_kJmol": "90.000000",
+      "error_kJmol": "-12.286928"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN2-xTB",
+      "system": "14-cyclohexanedione",
+      "label": "1,4-Cyclohexanedione",
+      "complete": true,
+      "lattice_energy_kJmol": "77.712567",
+      "x23b_ref_lattice_energy_kJmol": "90.000000",
+      "error_kJmol": "-12.287433"
     },
     {
       "calculation": "single_point",
@@ -512,9 +556,31 @@
       "system": "acetic_acid",
       "label": "Acetic acid",
       "complete": true,
-      "lattice_energy_kJmol": "80.835860",
+      "lattice_energy_kJmol": "81.874978",
       "x23b_ref_lattice_energy_kJmol": "73.600000",
-      "error_kJmol": "7.235860"
+      "error_kJmol": "8.274978"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN1-xTB",
+      "system": "acetic_acid",
+      "label": "Acetic acid",
+      "complete": true,
+      "lattice_energy_kJmol": "82.268658",
+      "x23b_ref_lattice_energy_kJmol": "73.600000",
+      "error_kJmol": "8.668658"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN1-xTB",
+      "system": "acetic_acid",
+      "label": "Acetic acid",
+      "complete": true,
+      "lattice_energy_kJmol": "82.278828",
+      "x23b_ref_lattice_energy_kJmol": "73.600000",
+      "error_kJmol": "8.678828"
     },
     {
       "calculation": "single_point",
@@ -567,9 +633,31 @@
       "system": "acetic_acid",
       "label": "Acetic acid",
       "complete": true,
-      "lattice_energy_kJmol": "71.104587",
+      "lattice_energy_kJmol": "69.144359",
       "x23b_ref_lattice_energy_kJmol": "73.600000",
-      "error_kJmol": "-2.495413"
+      "error_kJmol": "-4.455641"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN2-xTB",
+      "system": "acetic_acid",
+      "label": "Acetic acid",
+      "complete": true,
+      "lattice_energy_kJmol": "69.242832",
+      "x23b_ref_lattice_energy_kJmol": "73.600000",
+      "error_kJmol": "-4.357168"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN2-xTB",
+      "system": "acetic_acid",
+      "label": "Acetic acid",
+      "complete": true,
+      "lattice_energy_kJmol": "69.244144",
+      "x23b_ref_lattice_energy_kJmol": "73.600000",
+      "error_kJmol": "-4.355856"
     },
     {
       "calculation": "single_point",
@@ -622,9 +710,31 @@
       "system": "adamantane",
       "label": "Adamantane",
       "complete": true,
-      "lattice_energy_kJmol": "63.483900",
+      "lattice_energy_kJmol": "63.547142",
       "x23b_ref_lattice_energy_kJmol": "71.800000",
-      "error_kJmol": "-8.316100"
+      "error_kJmol": "-8.252858"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN1-xTB",
+      "system": "adamantane",
+      "label": "Adamantane",
+      "complete": true,
+      "lattice_energy_kJmol": "63.552237",
+      "x23b_ref_lattice_energy_kJmol": "71.800000",
+      "error_kJmol": "-8.247763"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN1-xTB",
+      "system": "adamantane",
+      "label": "Adamantane",
+      "complete": true,
+      "lattice_energy_kJmol": "63.552227",
+      "x23b_ref_lattice_energy_kJmol": "71.800000",
+      "error_kJmol": "-8.247773"
     },
     {
       "calculation": "single_point",
@@ -677,9 +787,31 @@
       "system": "adamantane",
       "label": "Adamantane",
       "complete": true,
-      "lattice_energy_kJmol": "38.238032",
+      "lattice_energy_kJmol": "38.414397",
       "x23b_ref_lattice_energy_kJmol": "71.800000",
-      "error_kJmol": "-33.561968"
+      "error_kJmol": "-33.385603"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN2-xTB",
+      "system": "adamantane",
+      "label": "Adamantane",
+      "complete": true,
+      "lattice_energy_kJmol": "38.416478",
+      "x23b_ref_lattice_energy_kJmol": "71.800000",
+      "error_kJmol": "-33.383522"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN2-xTB",
+      "system": "adamantane",
+      "label": "Adamantane",
+      "complete": true,
+      "lattice_energy_kJmol": "38.416495",
+      "x23b_ref_lattice_energy_kJmol": "71.800000",
+      "error_kJmol": "-33.383505"
     },
     {
       "calculation": "single_point",
@@ -732,9 +864,31 @@
       "system": "ammonia",
       "label": "Ammonia",
       "complete": true,
-      "lattice_energy_kJmol": "36.265605",
+      "lattice_energy_kJmol": "35.876556",
       "x23b_ref_lattice_energy_kJmol": "38.700000",
-      "error_kJmol": "-2.434395"
+      "error_kJmol": "-2.823444"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN1-xTB",
+      "system": "ammonia",
+      "label": "Ammonia",
+      "complete": true,
+      "lattice_energy_kJmol": "35.928359",
+      "x23b_ref_lattice_energy_kJmol": "38.700000",
+      "error_kJmol": "-2.771641"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN1-xTB",
+      "system": "ammonia",
+      "label": "Ammonia",
+      "complete": true,
+      "lattice_energy_kJmol": "35.928218",
+      "x23b_ref_lattice_energy_kJmol": "38.700000",
+      "error_kJmol": "-2.771782"
     },
     {
       "calculation": "single_point",
@@ -787,9 +941,31 @@
       "system": "ammonia",
       "label": "Ammonia",
       "complete": true,
-      "lattice_energy_kJmol": "24.315960",
+      "lattice_energy_kJmol": "29.358420",
       "x23b_ref_lattice_energy_kJmol": "38.700000",
-      "error_kJmol": "-14.384040"
+      "error_kJmol": "-9.341580"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN2-xTB",
+      "system": "ammonia",
+      "label": "Ammonia",
+      "complete": true,
+      "lattice_energy_kJmol": "29.369541",
+      "x23b_ref_lattice_energy_kJmol": "38.700000",
+      "error_kJmol": "-9.330459"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN2-xTB",
+      "system": "ammonia",
+      "label": "Ammonia",
+      "complete": true,
+      "lattice_energy_kJmol": "29.369647",
+      "x23b_ref_lattice_energy_kJmol": "38.700000",
+      "error_kJmol": "-9.330353"
     },
     {
       "calculation": "single_point",
@@ -842,9 +1018,31 @@
       "system": "anthracene",
       "label": "Anthracene",
       "complete": true,
-      "lattice_energy_kJmol": "114.681300",
+      "lattice_energy_kJmol": "113.599179",
       "x23b_ref_lattice_energy_kJmol": "110.400000",
-      "error_kJmol": "4.281300"
+      "error_kJmol": "3.199179"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN1-xTB",
+      "system": "anthracene",
+      "label": "Anthracene",
+      "complete": true,
+      "lattice_energy_kJmol": "122.258912",
+      "x23b_ref_lattice_energy_kJmol": "110.400000",
+      "error_kJmol": "11.858912"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN1-xTB",
+      "system": "anthracene",
+      "label": "Anthracene",
+      "complete": true,
+      "lattice_energy_kJmol": "121.659796",
+      "x23b_ref_lattice_energy_kJmol": "110.400000",
+      "error_kJmol": "11.259796"
     },
     {
       "calculation": "single_point",
@@ -897,9 +1095,31 @@
       "system": "anthracene",
       "label": "Anthracene",
       "complete": true,
-      "lattice_energy_kJmol": "97.077587",
+      "lattice_energy_kJmol": "95.325277",
       "x23b_ref_lattice_energy_kJmol": "110.400000",
-      "error_kJmol": "-13.322413"
+      "error_kJmol": "-15.074723"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN2-xTB",
+      "system": "anthracene",
+      "label": "Anthracene",
+      "complete": true,
+      "lattice_energy_kJmol": "102.099766",
+      "x23b_ref_lattice_energy_kJmol": "110.400000",
+      "error_kJmol": "-8.300234"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN2-xTB",
+      "system": "anthracene",
+      "label": "Anthracene",
+      "complete": true,
+      "lattice_energy_kJmol": "101.846765",
+      "x23b_ref_lattice_energy_kJmol": "110.400000",
+      "error_kJmol": "-8.553235"
     },
     {
       "calculation": "single_point",
@@ -952,9 +1172,31 @@
       "system": "benzene",
       "label": "Benzene",
       "complete": true,
-      "lattice_energy_kJmol": "46.395681",
+      "lattice_energy_kJmol": "46.427226",
       "x23b_ref_lattice_energy_kJmol": "54.800000",
-      "error_kJmol": "-8.404319"
+      "error_kJmol": "-8.372774"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN1-xTB",
+      "system": "benzene",
+      "label": "Benzene",
+      "complete": true,
+      "lattice_energy_kJmol": "46.426409",
+      "x23b_ref_lattice_energy_kJmol": "54.800000",
+      "error_kJmol": "-8.373591"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN1-xTB",
+      "system": "benzene",
+      "label": "Benzene",
+      "complete": true,
+      "lattice_energy_kJmol": "46.426408",
+      "x23b_ref_lattice_energy_kJmol": "54.800000",
+      "error_kJmol": "-8.373592"
     },
     {
       "calculation": "single_point",
@@ -1007,9 +1249,31 @@
       "system": "benzene",
       "label": "Benzene",
       "complete": true,
-      "lattice_energy_kJmol": "40.458029",
+      "lattice_energy_kJmol": "40.481067",
       "x23b_ref_lattice_energy_kJmol": "54.800000",
-      "error_kJmol": "-14.341971"
+      "error_kJmol": "-14.318933"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN2-xTB",
+      "system": "benzene",
+      "label": "Benzene",
+      "complete": true,
+      "lattice_energy_kJmol": "40.481010",
+      "x23b_ref_lattice_energy_kJmol": "54.800000",
+      "error_kJmol": "-14.318990"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN2-xTB",
+      "system": "benzene",
+      "label": "Benzene",
+      "complete": true,
+      "lattice_energy_kJmol": "40.481010",
+      "x23b_ref_lattice_energy_kJmol": "54.800000",
+      "error_kJmol": "-14.318990"
     },
     {
       "calculation": "single_point",
@@ -1062,9 +1326,31 @@
       "system": "co2",
       "label": "Carbon dioxide",
       "complete": true,
-      "lattice_energy_kJmol": "15.902661",
+      "lattice_energy_kJmol": "12.543700",
       "x23b_ref_lattice_energy_kJmol": "29.400000",
-      "error_kJmol": "-13.497339"
+      "error_kJmol": "-16.856300"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN1-xTB",
+      "system": "co2",
+      "label": "Carbon dioxide",
+      "complete": true,
+      "lattice_energy_kJmol": "12.543736",
+      "x23b_ref_lattice_energy_kJmol": "29.400000",
+      "error_kJmol": "-16.856264"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN1-xTB",
+      "system": "co2",
+      "label": "Carbon dioxide",
+      "complete": true,
+      "lattice_energy_kJmol": "12.543736",
+      "x23b_ref_lattice_energy_kJmol": "29.400000",
+      "error_kJmol": "-16.856264"
     },
     {
       "calculation": "single_point",
@@ -1117,9 +1403,31 @@
       "system": "co2",
       "label": "Carbon dioxide",
       "complete": true,
-      "lattice_energy_kJmol": "21.127373",
+      "lattice_energy_kJmol": "24.230167",
       "x23b_ref_lattice_energy_kJmol": "29.400000",
-      "error_kJmol": "-8.272627"
+      "error_kJmol": "-5.169833"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN2-xTB",
+      "system": "co2",
+      "label": "Carbon dioxide",
+      "complete": true,
+      "lattice_energy_kJmol": "24.230212",
+      "x23b_ref_lattice_energy_kJmol": "29.400000",
+      "error_kJmol": "-5.169788"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN2-xTB",
+      "system": "co2",
+      "label": "Carbon dioxide",
+      "complete": true,
+      "lattice_energy_kJmol": "24.230213",
+      "x23b_ref_lattice_energy_kJmol": "29.400000",
+      "error_kJmol": "-5.169787"
     },
     {
       "calculation": "single_point",
@@ -1172,9 +1480,31 @@
       "system": "cyanamide",
       "label": "Cyanamide",
       "complete": true,
-      "lattice_energy_kJmol": "70.072148",
+      "lattice_energy_kJmol": "68.159872",
       "x23b_ref_lattice_energy_kJmol": "81.500000",
-      "error_kJmol": "-11.427852"
+      "error_kJmol": "-13.340128"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN1-xTB",
+      "system": "cyanamide",
+      "label": "Cyanamide",
+      "complete": true,
+      "lattice_energy_kJmol": "68.160687",
+      "x23b_ref_lattice_energy_kJmol": "81.500000",
+      "error_kJmol": "-13.339313"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN1-xTB",
+      "system": "cyanamide",
+      "label": "Cyanamide",
+      "complete": true,
+      "lattice_energy_kJmol": "68.160692",
+      "x23b_ref_lattice_energy_kJmol": "81.500000",
+      "error_kJmol": "-13.339308"
     },
     {
       "calculation": "single_point",
@@ -1227,9 +1557,31 @@
       "system": "cyanamide",
       "label": "Cyanamide",
       "complete": true,
-      "lattice_energy_kJmol": "79.100832",
+      "lattice_energy_kJmol": "79.330290",
       "x23b_ref_lattice_energy_kJmol": "81.500000",
-      "error_kJmol": "-2.399168"
+      "error_kJmol": "-2.169710"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN2-xTB",
+      "system": "cyanamide",
+      "label": "Cyanamide",
+      "complete": true,
+      "lattice_energy_kJmol": "79.330556",
+      "x23b_ref_lattice_energy_kJmol": "81.500000",
+      "error_kJmol": "-2.169444"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN2-xTB",
+      "system": "cyanamide",
+      "label": "Cyanamide",
+      "complete": true,
+      "lattice_energy_kJmol": "79.330558",
+      "x23b_ref_lattice_energy_kJmol": "81.500000",
+      "error_kJmol": "-2.169442"
     },
     {
       "calculation": "single_point",
@@ -1282,9 +1634,31 @@
       "system": "cytosine",
       "label": "Cytosine",
       "complete": true,
-      "lattice_energy_kJmol": "155.492902",
+      "lattice_energy_kJmol": "156.255847",
       "x23b_ref_lattice_energy_kJmol": "163.500000",
-      "error_kJmol": "-8.007098"
+      "error_kJmol": "-7.244153"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN1-xTB",
+      "system": "cytosine",
+      "label": "Cytosine",
+      "complete": true,
+      "lattice_energy_kJmol": "157.002774",
+      "x23b_ref_lattice_energy_kJmol": "163.500000",
+      "error_kJmol": "-6.497226"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN1-xTB",
+      "system": "cytosine",
+      "label": "Cytosine",
+      "complete": true,
+      "lattice_energy_kJmol": "157.005233",
+      "x23b_ref_lattice_energy_kJmol": "163.500000",
+      "error_kJmol": "-6.494767"
     },
     {
       "calculation": "single_point",
@@ -1337,9 +1711,31 @@
       "system": "cytosine",
       "label": "Cytosine",
       "complete": true,
-      "lattice_energy_kJmol": "156.812039",
+      "lattice_energy_kJmol": "150.819753",
       "x23b_ref_lattice_energy_kJmol": "163.500000",
-      "error_kJmol": "-6.687961"
+      "error_kJmol": "-12.680247"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN2-xTB",
+      "system": "cytosine",
+      "label": "Cytosine",
+      "complete": true,
+      "lattice_energy_kJmol": "151.016983",
+      "x23b_ref_lattice_energy_kJmol": "163.500000",
+      "error_kJmol": "-12.483017"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN2-xTB",
+      "system": "cytosine",
+      "label": "Cytosine",
+      "complete": true,
+      "lattice_energy_kJmol": "151.025903",
+      "x23b_ref_lattice_energy_kJmol": "163.500000",
+      "error_kJmol": "-12.474097"
     },
     {
       "calculation": "single_point",
@@ -1392,9 +1788,31 @@
       "system": "ethylcarbamate",
       "label": "Ethyl carbamate",
       "complete": true,
-      "lattice_energy_kJmol": "87.245753",
+      "lattice_energy_kJmol": "87.473780",
       "x23b_ref_lattice_energy_kJmol": "88.200000",
-      "error_kJmol": "-0.954247"
+      "error_kJmol": "-0.726220"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN1-xTB",
+      "system": "ethylcarbamate",
+      "label": "Ethyl carbamate",
+      "complete": true,
+      "lattice_energy_kJmol": "87.548093",
+      "x23b_ref_lattice_energy_kJmol": "88.200000",
+      "error_kJmol": "-0.651907"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN1-xTB",
+      "system": "ethylcarbamate",
+      "label": "Ethyl carbamate",
+      "complete": true,
+      "lattice_energy_kJmol": "87.547979",
+      "x23b_ref_lattice_energy_kJmol": "88.200000",
+      "error_kJmol": "-0.652021"
     },
     {
       "calculation": "single_point",
@@ -1447,9 +1865,31 @@
       "system": "ethylcarbamate",
       "label": "Ethyl carbamate",
       "complete": true,
-      "lattice_energy_kJmol": "87.358615",
+      "lattice_energy_kJmol": "80.539239",
       "x23b_ref_lattice_energy_kJmol": "88.200000",
-      "error_kJmol": "-0.841385"
+      "error_kJmol": "-7.660761"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN2-xTB",
+      "system": "ethylcarbamate",
+      "label": "Ethyl carbamate",
+      "complete": true,
+      "lattice_energy_kJmol": "80.710739",
+      "x23b_ref_lattice_energy_kJmol": "88.200000",
+      "error_kJmol": "-7.489261"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN2-xTB",
+      "system": "ethylcarbamate",
+      "label": "Ethyl carbamate",
+      "complete": true,
+      "lattice_energy_kJmol": "80.711634",
+      "x23b_ref_lattice_energy_kJmol": "88.200000",
+      "error_kJmol": "-7.488366"
     },
     {
       "calculation": "single_point",
@@ -1502,9 +1942,31 @@
       "system": "formamide",
       "label": "Formamide",
       "complete": true,
-      "lattice_energy_kJmol": "86.501132",
+      "lattice_energy_kJmol": "86.023171",
       "x23b_ref_lattice_energy_kJmol": "81.100000",
-      "error_kJmol": "5.401132"
+      "error_kJmol": "4.923171"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN1-xTB",
+      "system": "formamide",
+      "label": "Formamide",
+      "complete": true,
+      "lattice_energy_kJmol": "87.199327",
+      "x23b_ref_lattice_energy_kJmol": "81.100000",
+      "error_kJmol": "6.099327"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN1-xTB",
+      "system": "formamide",
+      "label": "Formamide",
+      "complete": true,
+      "lattice_energy_kJmol": "87.206519",
+      "x23b_ref_lattice_energy_kJmol": "81.100000",
+      "error_kJmol": "6.106519"
     },
     {
       "calculation": "single_point",
@@ -1557,9 +2019,31 @@
       "system": "formamide",
       "label": "Formamide",
       "complete": true,
-      "lattice_energy_kJmol": "81.401049",
+      "lattice_energy_kJmol": "79.331672",
       "x23b_ref_lattice_energy_kJmol": "81.100000",
-      "error_kJmol": "0.301049"
+      "error_kJmol": "-1.768328"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN2-xTB",
+      "system": "formamide",
+      "label": "Formamide",
+      "complete": true,
+      "lattice_energy_kJmol": "79.991572",
+      "x23b_ref_lattice_energy_kJmol": "81.100000",
+      "error_kJmol": "-1.108428"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN2-xTB",
+      "system": "formamide",
+      "label": "Formamide",
+      "complete": true,
+      "lattice_energy_kJmol": "80.001823",
+      "x23b_ref_lattice_energy_kJmol": "81.100000",
+      "error_kJmol": "-1.098177"
     },
     {
       "calculation": "single_point",
@@ -1612,9 +2096,31 @@
       "system": "hexamine",
       "label": "Hexamine",
       "complete": true,
-      "lattice_energy_kJmol": "83.976600",
+      "lattice_energy_kJmol": "83.954604",
       "x23b_ref_lattice_energy_kJmol": "84.100000",
-      "error_kJmol": "-0.123400"
+      "error_kJmol": "-0.145396"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN1-xTB",
+      "system": "hexamine",
+      "label": "Hexamine",
+      "complete": true,
+      "lattice_energy_kJmol": "84.209290",
+      "x23b_ref_lattice_energy_kJmol": "84.100000",
+      "error_kJmol": "0.109290"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN1-xTB",
+      "system": "hexamine",
+      "label": "Hexamine",
+      "complete": true,
+      "lattice_energy_kJmol": "84.213437",
+      "x23b_ref_lattice_energy_kJmol": "84.100000",
+      "error_kJmol": "0.113437"
     },
     {
       "calculation": "single_point",
@@ -1667,9 +2173,31 @@
       "system": "hexamine",
       "label": "Hexamine",
       "complete": true,
-      "lattice_energy_kJmol": "93.304089",
+      "lattice_energy_kJmol": "64.558637",
       "x23b_ref_lattice_energy_kJmol": "84.100000",
-      "error_kJmol": "9.204089"
+      "error_kJmol": "-19.541363"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN2-xTB",
+      "system": "hexamine",
+      "label": "Hexamine",
+      "complete": true,
+      "lattice_energy_kJmol": "64.497001",
+      "x23b_ref_lattice_energy_kJmol": "84.100000",
+      "error_kJmol": "-19.602999"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN2-xTB",
+      "system": "hexamine",
+      "label": "Hexamine",
+      "complete": true,
+      "lattice_energy_kJmol": "64.496433",
+      "x23b_ref_lattice_energy_kJmol": "84.100000",
+      "error_kJmol": "-19.603567"
     },
     {
       "calculation": "single_point",
@@ -1722,9 +2250,31 @@
       "system": "imidazole",
       "label": "Imidazole",
       "complete": true,
-      "lattice_energy_kJmol": "51.938065",
+      "lattice_energy_kJmol": "53.844092",
       "x23b_ref_lattice_energy_kJmol": "90.400000",
-      "error_kJmol": "-38.461935"
+      "error_kJmol": "-36.555908"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN1-xTB",
+      "system": "imidazole",
+      "label": "Imidazole",
+      "complete": true,
+      "lattice_energy_kJmol": "59.464942",
+      "x23b_ref_lattice_energy_kJmol": "90.400000",
+      "error_kJmol": "-30.935058"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN1-xTB",
+      "system": "imidazole",
+      "label": "Imidazole",
+      "complete": true,
+      "lattice_energy_kJmol": "58.818520",
+      "x23b_ref_lattice_energy_kJmol": "90.400000",
+      "error_kJmol": "-31.581480"
     },
     {
       "calculation": "single_point",
@@ -1777,9 +2327,31 @@
       "system": "imidazole",
       "label": "Imidazole",
       "complete": true,
-      "lattice_energy_kJmol": "0.330338",
+      "lattice_energy_kJmol": "3.576464",
       "x23b_ref_lattice_energy_kJmol": "90.400000",
-      "error_kJmol": "-90.069662"
+      "error_kJmol": "-86.823536"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN2-xTB",
+      "system": "imidazole",
+      "label": "Imidazole",
+      "complete": true,
+      "lattice_energy_kJmol": "12.614608",
+      "x23b_ref_lattice_energy_kJmol": "90.400000",
+      "error_kJmol": "-77.785392"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN2-xTB",
+      "system": "imidazole",
+      "label": "Imidazole",
+      "complete": true,
+      "lattice_energy_kJmol": "11.214104",
+      "x23b_ref_lattice_energy_kJmol": "90.400000",
+      "error_kJmol": "-79.185896"
     },
     {
       "calculation": "single_point",
@@ -1832,9 +2404,31 @@
       "system": "naphthalene",
       "label": "Naphthalene",
       "complete": true,
-      "lattice_energy_kJmol": "57.050329",
+      "lattice_energy_kJmol": "56.602992",
       "x23b_ref_lattice_energy_kJmol": "81.300000",
-      "error_kJmol": "-24.249671"
+      "error_kJmol": "-24.697008"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN1-xTB",
+      "system": "naphthalene",
+      "label": "Naphthalene",
+      "complete": true,
+      "lattice_energy_kJmol": "62.762366",
+      "x23b_ref_lattice_energy_kJmol": "81.300000",
+      "error_kJmol": "-18.537634"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN1-xTB",
+      "system": "naphthalene",
+      "label": "Naphthalene",
+      "complete": true,
+      "lattice_energy_kJmol": "62.321880",
+      "x23b_ref_lattice_energy_kJmol": "81.300000",
+      "error_kJmol": "-18.978120"
     },
     {
       "calculation": "single_point",
@@ -1887,9 +2481,31 @@
       "system": "naphthalene",
       "label": "Naphthalene",
       "complete": true,
-      "lattice_energy_kJmol": "44.280761",
+      "lattice_energy_kJmol": "42.734312",
       "x23b_ref_lattice_energy_kJmol": "81.300000",
-      "error_kJmol": "-37.019239"
+      "error_kJmol": "-38.565688"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN2-xTB",
+      "system": "naphthalene",
+      "label": "Naphthalene",
+      "complete": true,
+      "lattice_energy_kJmol": "47.647674",
+      "x23b_ref_lattice_energy_kJmol": "81.300000",
+      "error_kJmol": "-33.652326"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN2-xTB",
+      "system": "naphthalene",
+      "label": "Naphthalene",
+      "complete": true,
+      "lattice_energy_kJmol": "47.472284",
+      "x23b_ref_lattice_energy_kJmol": "81.300000",
+      "error_kJmol": "-33.827716"
     },
     {
       "calculation": "single_point",
@@ -1942,9 +2558,31 @@
       "system": "oxalic_acid_alpha",
       "label": "Oxalic acid alpha",
       "complete": true,
-      "lattice_energy_kJmol": "116.188908",
+      "lattice_energy_kJmol": "113.817766",
       "x23b_ref_lattice_energy_kJmol": "98.800000",
-      "error_kJmol": "17.388908"
+      "error_kJmol": "15.017766"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN1-xTB",
+      "system": "oxalic_acid_alpha",
+      "label": "Oxalic acid alpha",
+      "complete": true,
+      "lattice_energy_kJmol": "113.827633",
+      "x23b_ref_lattice_energy_kJmol": "98.800000",
+      "error_kJmol": "15.027633"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN1-xTB",
+      "system": "oxalic_acid_alpha",
+      "label": "Oxalic acid alpha",
+      "complete": true,
+      "lattice_energy_kJmol": "113.827747",
+      "x23b_ref_lattice_energy_kJmol": "98.800000",
+      "error_kJmol": "15.027747"
     },
     {
       "calculation": "single_point",
@@ -1997,9 +2635,31 @@
       "system": "oxalic_acid_alpha",
       "label": "Oxalic acid alpha",
       "complete": true,
-      "lattice_energy_kJmol": "106.645222",
+      "lattice_energy_kJmol": "108.362761",
       "x23b_ref_lattice_energy_kJmol": "98.800000",
-      "error_kJmol": "7.845222"
+      "error_kJmol": "9.562761"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN2-xTB",
+      "system": "oxalic_acid_alpha",
+      "label": "Oxalic acid alpha",
+      "complete": true,
+      "lattice_energy_kJmol": "108.385247",
+      "x23b_ref_lattice_energy_kJmol": "98.800000",
+      "error_kJmol": "9.585247"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN2-xTB",
+      "system": "oxalic_acid_alpha",
+      "label": "Oxalic acid alpha",
+      "complete": true,
+      "lattice_energy_kJmol": "108.385560",
+      "x23b_ref_lattice_energy_kJmol": "98.800000",
+      "error_kJmol": "9.585560"
     },
     {
       "calculation": "single_point",
@@ -2052,9 +2712,31 @@
       "system": "oxalic_acid_beta",
       "label": "Oxalic acid beta",
       "complete": true,
-      "lattice_energy_kJmol": "124.643243",
+      "lattice_energy_kJmol": "123.891012",
       "x23b_ref_lattice_energy_kJmol": "96.800000",
-      "error_kJmol": "27.843243"
+      "error_kJmol": "27.091012"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN1-xTB",
+      "system": "oxalic_acid_beta",
+      "label": "Oxalic acid beta",
+      "complete": true,
+      "lattice_energy_kJmol": "125.097609",
+      "x23b_ref_lattice_energy_kJmol": "96.800000",
+      "error_kJmol": "28.297609"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN1-xTB",
+      "system": "oxalic_acid_beta",
+      "label": "Oxalic acid beta",
+      "complete": true,
+      "lattice_energy_kJmol": "125.024901",
+      "x23b_ref_lattice_energy_kJmol": "96.800000",
+      "error_kJmol": "28.224901"
     },
     {
       "calculation": "single_point",
@@ -2107,9 +2789,31 @@
       "system": "oxalic_acid_beta",
       "label": "Oxalic acid beta",
       "complete": true,
-      "lattice_energy_kJmol": "82.718195",
+      "lattice_energy_kJmol": "109.486271",
       "x23b_ref_lattice_energy_kJmol": "96.800000",
-      "error_kJmol": "-14.081805"
+      "error_kJmol": "12.686271"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN2-xTB",
+      "system": "oxalic_acid_beta",
+      "label": "Oxalic acid beta",
+      "complete": true,
+      "lattice_energy_kJmol": "111.055570",
+      "x23b_ref_lattice_energy_kJmol": "96.800000",
+      "error_kJmol": "14.255570"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN2-xTB",
+      "system": "oxalic_acid_beta",
+      "label": "Oxalic acid beta",
+      "complete": true,
+      "lattice_energy_kJmol": "111.005774",
+      "x23b_ref_lattice_energy_kJmol": "96.800000",
+      "error_kJmol": "14.205774"
     },
     {
       "calculation": "single_point",
@@ -2162,9 +2866,31 @@
       "system": "pyrazine",
       "label": "Pyrazine",
       "complete": true,
-      "lattice_energy_kJmol": "63.221297",
+      "lattice_energy_kJmol": "61.364869",
       "x23b_ref_lattice_energy_kJmol": "64.300000",
-      "error_kJmol": "-1.078703"
+      "error_kJmol": "-2.935131"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN1-xTB",
+      "system": "pyrazine",
+      "label": "Pyrazine",
+      "complete": true,
+      "lattice_energy_kJmol": "61.942014",
+      "x23b_ref_lattice_energy_kJmol": "64.300000",
+      "error_kJmol": "-2.357986"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN1-xTB",
+      "system": "pyrazine",
+      "label": "Pyrazine",
+      "complete": true,
+      "lattice_energy_kJmol": "61.931457",
+      "x23b_ref_lattice_energy_kJmol": "64.300000",
+      "error_kJmol": "-2.368543"
     },
     {
       "calculation": "single_point",
@@ -2217,9 +2943,31 @@
       "system": "pyrazine",
       "label": "Pyrazine",
       "complete": true,
-      "lattice_energy_kJmol": "58.044864",
+      "lattice_energy_kJmol": "54.796001",
       "x23b_ref_lattice_energy_kJmol": "64.300000",
-      "error_kJmol": "-6.255136"
+      "error_kJmol": "-9.503999"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN2-xTB",
+      "system": "pyrazine",
+      "label": "Pyrazine",
+      "complete": true,
+      "lattice_energy_kJmol": "55.128440",
+      "x23b_ref_lattice_energy_kJmol": "64.300000",
+      "error_kJmol": "-9.171560"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN2-xTB",
+      "system": "pyrazine",
+      "label": "Pyrazine",
+      "complete": true,
+      "lattice_energy_kJmol": "55.131713",
+      "x23b_ref_lattice_energy_kJmol": "64.300000",
+      "error_kJmol": "-9.168287"
     },
     {
       "calculation": "single_point",
@@ -2272,9 +3020,31 @@
       "system": "pyrazole",
       "label": "Pyrazole",
       "complete": true,
-      "lattice_energy_kJmol": "60.093792",
+      "lattice_energy_kJmol": "60.095286",
       "x23b_ref_lattice_energy_kJmol": "78.800000",
-      "error_kJmol": "-18.706208"
+      "error_kJmol": "-18.704714"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN1-xTB",
+      "system": "pyrazole",
+      "label": "Pyrazole",
+      "complete": true,
+      "lattice_energy_kJmol": "60.094696",
+      "x23b_ref_lattice_energy_kJmol": "78.800000",
+      "error_kJmol": "-18.705304"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN1-xTB",
+      "system": "pyrazole",
+      "label": "Pyrazole",
+      "complete": true,
+      "lattice_energy_kJmol": "60.094696",
+      "x23b_ref_lattice_energy_kJmol": "78.800000",
+      "error_kJmol": "-18.705304"
     },
     {
       "calculation": "single_point",
@@ -2327,9 +3097,31 @@
       "system": "pyrazole",
       "label": "Pyrazole",
       "complete": true,
-      "lattice_energy_kJmol": "60.880768",
+      "lattice_energy_kJmol": "60.706684",
       "x23b_ref_lattice_energy_kJmol": "78.800000",
-      "error_kJmol": "-17.919232"
+      "error_kJmol": "-18.093316"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN2-xTB",
+      "system": "pyrazole",
+      "label": "Pyrazole",
+      "complete": true,
+      "lattice_energy_kJmol": "60.706112",
+      "x23b_ref_lattice_energy_kJmol": "78.800000",
+      "error_kJmol": "-18.093888"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN2-xTB",
+      "system": "pyrazole",
+      "label": "Pyrazole",
+      "complete": true,
+      "lattice_energy_kJmol": "60.706112",
+      "x23b_ref_lattice_energy_kJmol": "78.800000",
+      "error_kJmol": "-18.093888"
     },
     {
       "calculation": "single_point",
@@ -2382,9 +3174,31 @@
       "system": "succinic_acid",
       "label": "Succinic acid",
       "complete": true,
-      "lattice_energy_kJmol": "150.915379",
+      "lattice_energy_kJmol": "147.817107",
       "x23b_ref_lattice_energy_kJmol": "130.100000",
-      "error_kJmol": "20.815379"
+      "error_kJmol": "17.717107"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN1-xTB",
+      "system": "succinic_acid",
+      "label": "Succinic acid",
+      "complete": true,
+      "lattice_energy_kJmol": "147.778971",
+      "x23b_ref_lattice_energy_kJmol": "130.100000",
+      "error_kJmol": "17.678971"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN1-xTB",
+      "system": "succinic_acid",
+      "label": "Succinic acid",
+      "complete": true,
+      "lattice_energy_kJmol": "147.778891",
+      "x23b_ref_lattice_energy_kJmol": "130.100000",
+      "error_kJmol": "17.678891"
     },
     {
       "calculation": "single_point",
@@ -2437,9 +3251,31 @@
       "system": "succinic_acid",
       "label": "Succinic acid",
       "complete": true,
-      "lattice_energy_kJmol": "125.652094",
+      "lattice_energy_kJmol": "126.812754",
       "x23b_ref_lattice_energy_kJmol": "130.100000",
-      "error_kJmol": "-4.447906"
+      "error_kJmol": "-3.287246"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN2-xTB",
+      "system": "succinic_acid",
+      "label": "Succinic acid",
+      "complete": true,
+      "lattice_energy_kJmol": "126.789176",
+      "x23b_ref_lattice_energy_kJmol": "130.100000",
+      "error_kJmol": "-3.310824"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN2-xTB",
+      "system": "succinic_acid",
+      "label": "Succinic acid",
+      "complete": true,
+      "lattice_energy_kJmol": "126.789383",
+      "x23b_ref_lattice_energy_kJmol": "130.100000",
+      "error_kJmol": "-3.310617"
     },
     {
       "calculation": "single_point",
@@ -2492,9 +3328,31 @@
       "system": "triazine",
       "label": "s-Triazine",
       "complete": true,
-      "lattice_energy_kJmol": "67.485900",
+      "lattice_energy_kJmol": "66.689782",
       "x23b_ref_lattice_energy_kJmol": "62.600000",
-      "error_kJmol": "4.885900"
+      "error_kJmol": "4.089782"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN1-xTB",
+      "system": "triazine",
+      "label": "s-Triazine",
+      "complete": true,
+      "lattice_energy_kJmol": "66.689983",
+      "x23b_ref_lattice_energy_kJmol": "62.600000",
+      "error_kJmol": "4.089983"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN1-xTB",
+      "system": "triazine",
+      "label": "s-Triazine",
+      "complete": true,
+      "lattice_energy_kJmol": "66.689983",
+      "x23b_ref_lattice_energy_kJmol": "62.600000",
+      "error_kJmol": "4.089983"
     },
     {
       "calculation": "single_point",
@@ -2547,9 +3405,31 @@
       "system": "triazine",
       "label": "s-Triazine",
       "complete": true,
-      "lattice_energy_kJmol": "54.360160",
+      "lattice_energy_kJmol": "54.133482",
       "x23b_ref_lattice_energy_kJmol": "62.600000",
-      "error_kJmol": "-8.239840"
+      "error_kJmol": "-8.466518"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN2-xTB",
+      "system": "triazine",
+      "label": "s-Triazine",
+      "complete": true,
+      "lattice_energy_kJmol": "54.132071",
+      "x23b_ref_lattice_energy_kJmol": "62.600000",
+      "error_kJmol": "-8.467929"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN2-xTB",
+      "system": "triazine",
+      "label": "s-Triazine",
+      "complete": true,
+      "lattice_energy_kJmol": "54.132068",
+      "x23b_ref_lattice_energy_kJmol": "62.600000",
+      "error_kJmol": "-8.467932"
     },
     {
       "calculation": "single_point",
@@ -2602,9 +3482,31 @@
       "system": "trioxane",
       "label": "s-Trioxane",
       "complete": true,
-      "lattice_energy_kJmol": "76.978259",
+      "lattice_energy_kJmol": "76.744092",
       "x23b_ref_lattice_energy_kJmol": "64.600000",
-      "error_kJmol": "12.378259"
+      "error_kJmol": "12.144092"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN1-xTB",
+      "system": "trioxane",
+      "label": "s-Trioxane",
+      "complete": true,
+      "lattice_energy_kJmol": "76.744180",
+      "x23b_ref_lattice_energy_kJmol": "64.600000",
+      "error_kJmol": "12.144180"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN1-xTB",
+      "system": "trioxane",
+      "label": "s-Trioxane",
+      "complete": true,
+      "lattice_energy_kJmol": "76.744181",
+      "x23b_ref_lattice_energy_kJmol": "64.600000",
+      "error_kJmol": "12.144181"
     },
     {
       "calculation": "single_point",
@@ -2657,9 +3559,31 @@
       "system": "trioxane",
       "label": "s-Trioxane",
       "complete": true,
-      "lattice_energy_kJmol": "50.044045",
+      "lattice_energy_kJmol": "49.911467",
       "x23b_ref_lattice_energy_kJmol": "64.600000",
-      "error_kJmol": "-14.555955"
+      "error_kJmol": "-14.688533"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN2-xTB",
+      "system": "trioxane",
+      "label": "s-Trioxane",
+      "complete": true,
+      "lattice_energy_kJmol": "49.911246",
+      "x23b_ref_lattice_energy_kJmol": "64.600000",
+      "error_kJmol": "-14.688754"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN2-xTB",
+      "system": "trioxane",
+      "label": "s-Trioxane",
+      "complete": true,
+      "lattice_energy_kJmol": "49.911246",
+      "x23b_ref_lattice_energy_kJmol": "64.600000",
+      "error_kJmol": "-14.688754"
     },
     {
       "calculation": "single_point",
@@ -2712,9 +3636,31 @@
       "system": "uracil",
       "label": "Uracil",
       "complete": true,
-      "lattice_energy_kJmol": "138.045827",
+      "lattice_energy_kJmol": "145.401012",
       "x23b_ref_lattice_energy_kJmol": "136.200000",
-      "error_kJmol": "1.845827"
+      "error_kJmol": "9.201012"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN1-xTB",
+      "system": "uracil",
+      "label": "Uracil",
+      "complete": true,
+      "lattice_energy_kJmol": "147.547766",
+      "x23b_ref_lattice_energy_kJmol": "136.200000",
+      "error_kJmol": "11.347766"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN1-xTB",
+      "system": "uracil",
+      "label": "Uracil",
+      "complete": true,
+      "lattice_energy_kJmol": "147.575477",
+      "x23b_ref_lattice_energy_kJmol": "136.200000",
+      "error_kJmol": "11.375477"
     },
     {
       "calculation": "single_point",
@@ -2767,9 +3713,31 @@
       "system": "uracil",
       "label": "Uracil",
       "complete": true,
-      "lattice_energy_kJmol": "133.819443",
+      "lattice_energy_kJmol": "132.005877",
       "x23b_ref_lattice_energy_kJmol": "136.200000",
-      "error_kJmol": "-2.380557"
+      "error_kJmol": "-4.194123"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN2-xTB",
+      "system": "uracil",
+      "label": "Uracil",
+      "complete": true,
+      "lattice_energy_kJmol": "133.172539",
+      "x23b_ref_lattice_energy_kJmol": "136.200000",
+      "error_kJmol": "-3.027461"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN2-xTB",
+      "system": "uracil",
+      "label": "Uracil",
+      "complete": true,
+      "lattice_energy_kJmol": "133.194178",
+      "x23b_ref_lattice_energy_kJmol": "136.200000",
+      "error_kJmol": "-3.005822"
     },
     {
       "calculation": "single_point",
@@ -2822,9 +3790,31 @@
       "system": "urea",
       "label": "Urea",
       "complete": true,
-      "lattice_energy_kJmol": "101.608537",
+      "lattice_energy_kJmol": "101.624590",
       "x23b_ref_lattice_energy_kJmol": "102.100000",
-      "error_kJmol": "-0.491463"
+      "error_kJmol": "-0.475410"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN1-xTB",
+      "system": "urea",
+      "label": "Urea",
+      "complete": true,
+      "lattice_energy_kJmol": "101.875129",
+      "x23b_ref_lattice_energy_kJmol": "102.100000",
+      "error_kJmol": "-0.224871"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN1-xTB",
+      "system": "urea",
+      "label": "Urea",
+      "complete": true,
+      "lattice_energy_kJmol": "101.877879",
+      "x23b_ref_lattice_energy_kJmol": "102.100000",
+      "error_kJmol": "-0.222121"
     },
     {
       "calculation": "single_point",
@@ -2877,9 +3867,31 @@
       "system": "urea",
       "label": "Urea",
       "complete": true,
-      "lattice_energy_kJmol": "113.196392",
+      "lattice_energy_kJmol": "99.376568",
       "x23b_ref_lattice_energy_kJmol": "102.100000",
-      "error_kJmol": "11.096392"
+      "error_kJmol": "-2.723432"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN2-xTB",
+      "system": "urea",
+      "label": "Urea",
+      "complete": true,
+      "lattice_energy_kJmol": "100.020800",
+      "x23b_ref_lattice_energy_kJmol": "102.100000",
+      "error_kJmol": "-2.079200"
+    },
+    {
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN2-xTB",
+      "system": "urea",
+      "label": "Urea",
+      "complete": true,
+      "lattice_energy_kJmol": "100.032186",
+      "x23b_ref_lattice_energy_kJmol": "102.100000",
+      "error_kJmol": "-2.067814"
     }
   ],
   "volume_rows": [
@@ -2890,10 +3902,10 @@
       "system": "14-cyclohexanedione",
       "label": "1,4-Cyclohexanedione",
       "complete": true,
-      "volume_A3": "252.685764",
+      "volume_A3": "252.632962",
       "x23b_same_cell_ref_volume_A3": "262.500000",
       "x23b_reported_ref_volume_A3": "262.500000",
-      "volume_error_percent": "-3.738757"
+      "volume_error_percent": "-3.758872"
     },
     {
       "calculation": "cell_opt",
@@ -2902,10 +3914,10 @@
       "system": "14-cyclohexanedione",
       "label": "1,4-Cyclohexanedione",
       "complete": true,
-      "volume_A3": "275.246416",
+      "volume_A3": "275.763927",
       "x23b_same_cell_ref_volume_A3": "262.500000",
       "x23b_reported_ref_volume_A3": "262.500000",
-      "volume_error_percent": "4.855778"
+      "volume_error_percent": "5.052925"
     },
     {
       "calculation": "cell_opt",
@@ -2914,10 +3926,10 @@
       "system": "acetic_acid",
       "label": "Acetic acid",
       "complete": true,
-      "volume_A3": "271.707809",
+      "volume_A3": "267.602491",
       "x23b_same_cell_ref_volume_A3": "288.800000",
       "x23b_reported_ref_volume_A3": "288.800000",
-      "volume_error_percent": "-5.918349"
+      "volume_error_percent": "-7.339858"
     },
     {
       "calculation": "cell_opt",
@@ -2926,10 +3938,10 @@
       "system": "acetic_acid",
       "label": "Acetic acid",
       "complete": true,
-      "volume_A3": "294.033308",
+      "volume_A3": "299.000948",
       "x23b_same_cell_ref_volume_A3": "288.800000",
       "x23b_reported_ref_volume_A3": "288.800000",
-      "volume_error_percent": "1.812087"
+      "volume_error_percent": "3.532184"
     },
     {
       "calculation": "cell_opt",
@@ -2938,10 +3950,10 @@
       "system": "adamantane",
       "label": "Adamantane",
       "complete": true,
-      "volume_A3": "391.515787",
+      "volume_A3": "390.679235",
       "x23b_same_cell_ref_volume_A3": "357.600000",
       "x23b_reported_ref_volume_A3": "357.600000",
-      "volume_error_percent": "9.484280"
+      "volume_error_percent": "9.250345"
     },
     {
       "calculation": "cell_opt",
@@ -2950,10 +3962,10 @@
       "system": "adamantane",
       "label": "Adamantane",
       "complete": true,
-      "volume_A3": "423.476979",
+      "volume_A3": "428.950459",
       "x23b_same_cell_ref_volume_A3": "357.600000",
       "x23b_reported_ref_volume_A3": "357.600000",
-      "volume_error_percent": "18.421974"
+      "volume_error_percent": "19.952589"
     },
     {
       "calculation": "cell_opt",
@@ -2962,10 +3974,10 @@
       "system": "ammonia",
       "label": "Ammonia",
       "complete": true,
-      "volume_A3": "113.068213",
+      "volume_A3": "113.093852",
       "x23b_same_cell_ref_volume_A3": "121.500000",
       "x23b_reported_ref_volume_A3": "121.500000",
-      "volume_error_percent": "-6.939742"
+      "volume_error_percent": "-6.918640"
     },
     {
       "calculation": "cell_opt",
@@ -2974,10 +3986,10 @@
       "system": "ammonia",
       "label": "Ammonia",
       "complete": true,
-      "volume_A3": "117.140883",
+      "volume_A3": "122.282497",
       "x23b_same_cell_ref_volume_A3": "121.500000",
       "x23b_reported_ref_volume_A3": "121.500000",
-      "volume_error_percent": "-3.587751"
+      "volume_error_percent": "0.644030"
     },
     {
       "calculation": "cell_opt",
@@ -2986,10 +3998,10 @@
       "system": "anthracene",
       "label": "Anthracene",
       "complete": true,
-      "volume_A3": "356.999441",
+      "volume_A3": "356.327764",
       "x23b_same_cell_ref_volume_A3": "441.200000",
       "x23b_reported_ref_volume_A3": "441.200000",
-      "volume_error_percent": "-19.084442"
+      "volume_error_percent": "-19.236681"
     },
     {
       "calculation": "cell_opt",
@@ -2998,10 +4010,10 @@
       "system": "anthracene",
       "label": "Anthracene",
       "complete": true,
-      "volume_A3": "374.225338",
+      "volume_A3": "376.312608",
       "x23b_same_cell_ref_volume_A3": "441.200000",
       "x23b_reported_ref_volume_A3": "441.200000",
-      "volume_error_percent": "-15.180114"
+      "volume_error_percent": "-14.707024"
     },
     {
       "calculation": "cell_opt",
@@ -3010,10 +4022,10 @@
       "system": "benzene",
       "label": "Benzene",
       "complete": true,
-      "volume_A3": "436.564736",
+      "volume_A3": "436.838159",
       "x23b_same_cell_ref_volume_A3": "444.300000",
       "x23b_reported_ref_volume_A3": "444.300000",
-      "volume_error_percent": "-1.741000"
+      "volume_error_percent": "-1.679460"
     },
     {
       "calculation": "cell_opt",
@@ -3022,10 +4034,10 @@
       "system": "benzene",
       "label": "Benzene",
       "complete": true,
-      "volume_A3": "466.646982",
+      "volume_A3": "466.542657",
       "x23b_same_cell_ref_volume_A3": "444.300000",
       "x23b_reported_ref_volume_A3": "444.300000",
-      "volume_error_percent": "5.029706"
+      "volume_error_percent": "5.006225"
     },
     {
       "calculation": "cell_opt",
@@ -3034,10 +4046,10 @@
       "system": "co2",
       "label": "Carbon dioxide",
       "complete": true,
-      "volume_A3": "188.954687",
+      "volume_A3": "177.094404",
       "x23b_same_cell_ref_volume_A3": "164.800000",
       "x23b_reported_ref_volume_A3": "164.800000",
-      "volume_error_percent": "14.656970"
+      "volume_error_percent": "7.460197"
     },
     {
       "calculation": "cell_opt",
@@ -3046,10 +4058,10 @@
       "system": "co2",
       "label": "Carbon dioxide",
       "complete": true,
-      "volume_A3": "160.153226",
+      "volume_A3": "156.796233",
       "x23b_same_cell_ref_volume_A3": "164.800000",
       "x23b_reported_ref_volume_A3": "164.800000",
-      "volume_error_percent": "-2.819644"
+      "volume_error_percent": "-4.856655"
     },
     {
       "calculation": "cell_opt",
@@ -3058,10 +4070,10 @@
       "system": "cyanamide",
       "label": "Cyanamide",
       "complete": true,
-      "volume_A3": "356.984897",
+      "volume_A3": "352.788614",
       "x23b_same_cell_ref_volume_A3": "407.900000",
       "x23b_reported_ref_volume_A3": "407.900000",
-      "volume_error_percent": "-12.482251"
+      "volume_error_percent": "-13.511004"
     },
     {
       "calculation": "cell_opt",
@@ -3070,10 +4082,10 @@
       "system": "cyanamide",
       "label": "Cyanamide",
       "complete": true,
-      "volume_A3": "382.373238",
+      "volume_A3": "382.194375",
       "x23b_same_cell_ref_volume_A3": "407.900000",
       "x23b_reported_ref_volume_A3": "407.900000",
-      "volume_error_percent": "-6.258093"
+      "volume_error_percent": "-6.301943"
     },
     {
       "calculation": "cell_opt",
@@ -3082,10 +4094,10 @@
       "system": "cytosine",
       "label": "Cytosine",
       "complete": true,
-      "volume_A3": "419.480758",
+      "volume_A3": "415.224865",
       "x23b_same_cell_ref_volume_A3": "440.300000",
       "x23b_reported_ref_volume_A3": "440.300000",
-      "volume_error_percent": "-4.728422"
+      "volume_error_percent": "-5.695011"
     },
     {
       "calculation": "cell_opt",
@@ -3094,10 +4106,10 @@
       "system": "cytosine",
       "label": "Cytosine",
       "complete": true,
-      "volume_A3": "424.101516",
+      "volume_A3": "432.465104",
       "x23b_same_cell_ref_volume_A3": "440.300000",
       "x23b_reported_ref_volume_A3": "440.300000",
-      "volume_error_percent": "-3.678965"
+      "volume_error_percent": "-1.779445"
     },
     {
       "calculation": "cell_opt",
@@ -3106,10 +4118,10 @@
       "system": "ethylcarbamate",
       "label": "Ethyl carbamate",
       "complete": true,
-      "volume_A3": "211.042173",
+      "volume_A3": "211.982861",
       "x23b_same_cell_ref_volume_A3": "231.200000",
       "x23b_reported_ref_volume_A3": "231.200000",
-      "volume_error_percent": "-8.718783"
+      "volume_error_percent": "-8.311911"
     },
     {
       "calculation": "cell_opt",
@@ -3118,10 +4130,10 @@
       "system": "ethylcarbamate",
       "label": "Ethyl carbamate",
       "complete": true,
-      "volume_A3": "235.399132",
+      "volume_A3": "236.470045",
       "x23b_same_cell_ref_volume_A3": "231.200000",
       "x23b_reported_ref_volume_A3": "231.200000",
-      "volume_error_percent": "1.816234"
+      "volume_error_percent": "2.279431"
     },
     {
       "calculation": "cell_opt",
@@ -3130,10 +4142,10 @@
       "system": "formamide",
       "label": "Formamide",
       "complete": true,
-      "volume_A3": "191.686713",
+      "volume_A3": "194.586271",
       "x23b_same_cell_ref_volume_A3": "211.900000",
       "x23b_reported_ref_volume_A3": "211.900000",
-      "volume_error_percent": "-9.539069"
+      "volume_error_percent": "-8.170707"
     },
     {
       "calculation": "cell_opt",
@@ -3142,10 +4154,10 @@
       "system": "formamide",
       "label": "Formamide",
       "complete": true,
-      "volume_A3": "204.607003",
+      "volume_A3": "205.569872",
       "x23b_same_cell_ref_volume_A3": "211.900000",
       "x23b_reported_ref_volume_A3": "211.900000",
-      "volume_error_percent": "-3.441716"
+      "volume_error_percent": "-2.987319"
     },
     {
       "calculation": "cell_opt",
@@ -3154,10 +4166,10 @@
       "system": "hexamine",
       "label": "Hexamine",
       "complete": true,
-      "volume_A3": "154.709088",
+      "volume_A3": "154.339203",
       "x23b_same_cell_ref_volume_A3": "160.800000",
       "x23b_reported_ref_volume_A3": "321.600000",
-      "volume_error_percent": "-3.787881"
+      "volume_error_percent": "-4.017909"
     },
     {
       "calculation": "cell_opt",
@@ -3166,10 +4178,10 @@
       "system": "hexamine",
       "label": "Hexamine",
       "complete": true,
-      "volume_A3": "160.791284",
+      "volume_A3": "164.142794",
       "x23b_same_cell_ref_volume_A3": "160.800000",
       "x23b_reported_ref_volume_A3": "321.600000",
-      "volume_error_percent": "-0.005420"
+      "volume_error_percent": "2.078852"
     },
     {
       "calculation": "cell_opt",
@@ -3178,10 +4190,10 @@
       "system": "imidazole",
       "label": "Imidazole",
       "complete": true,
-      "volume_A3": "273.441207",
+      "volume_A3": "277.051623",
       "x23b_same_cell_ref_volume_A3": "336.400000",
       "x23b_reported_ref_volume_A3": "336.400000",
-      "volume_error_percent": "-18.715456"
+      "volume_error_percent": "-17.642205"
     },
     {
       "calculation": "cell_opt",
@@ -3190,10 +4202,10 @@
       "system": "imidazole",
       "label": "Imidazole",
       "complete": true,
-      "volume_A3": "287.246589",
+      "volume_A3": "293.032016",
       "x23b_same_cell_ref_volume_A3": "336.400000",
       "x23b_reported_ref_volume_A3": "336.400000",
-      "volume_error_percent": "-14.611597"
+      "volume_error_percent": "-12.891791"
     },
     {
       "calculation": "cell_opt",
@@ -3202,10 +4214,10 @@
       "system": "naphthalene",
       "label": "Naphthalene",
       "complete": true,
-      "volume_A3": "273.340302",
+      "volume_A3": "273.502000",
       "x23b_same_cell_ref_volume_A3": "329.700000",
       "x23b_reported_ref_volume_A3": "329.700000",
-      "volume_error_percent": "-17.094237"
+      "volume_error_percent": "-17.045193"
     },
     {
       "calculation": "cell_opt",
@@ -3214,10 +4226,10 @@
       "system": "naphthalene",
       "label": "Naphthalene",
       "complete": true,
-      "volume_A3": "286.534770",
+      "volume_A3": "288.842053",
       "x23b_same_cell_ref_volume_A3": "329.700000",
       "x23b_reported_ref_volume_A3": "329.700000",
-      "volume_error_percent": "-13.092275"
+      "volume_error_percent": "-12.392462"
     },
     {
       "calculation": "cell_opt",
@@ -3226,10 +4238,10 @@
       "system": "oxalic_acid_alpha",
       "label": "Oxalic acid alpha",
       "complete": true,
-      "volume_A3": "281.196456",
+      "volume_A3": "277.555945",
       "x23b_same_cell_ref_volume_A3": "293.200000",
       "x23b_reported_ref_volume_A3": "293.200000",
-      "volume_error_percent": "-4.093978"
+      "volume_error_percent": "-5.335626"
     },
     {
       "calculation": "cell_opt",
@@ -3238,10 +4250,10 @@
       "system": "oxalic_acid_alpha",
       "label": "Oxalic acid alpha",
       "complete": true,
-      "volume_A3": "280.404320",
+      "volume_A3": "278.434828",
       "x23b_same_cell_ref_volume_A3": "293.200000",
       "x23b_reported_ref_volume_A3": "293.200000",
-      "volume_error_percent": "-4.364147"
+      "volume_error_percent": "-5.035870"
     },
     {
       "calculation": "cell_opt",
@@ -3250,10 +4262,10 @@
       "system": "oxalic_acid_beta",
       "label": "Oxalic acid beta",
       "complete": true,
-      "volume_A3": "136.899314",
+      "volume_A3": "137.865169",
       "x23b_same_cell_ref_volume_A3": "150.500000",
       "x23b_reported_ref_volume_A3": "150.500000",
-      "volume_error_percent": "-9.037001"
+      "volume_error_percent": "-8.395237"
     },
     {
       "calculation": "cell_opt",
@@ -3262,10 +4274,10 @@
       "system": "oxalic_acid_beta",
       "label": "Oxalic acid beta",
       "complete": true,
-      "volume_A3": "146.698351",
+      "volume_A3": "136.052122",
       "x23b_same_cell_ref_volume_A3": "150.500000",
       "x23b_reported_ref_volume_A3": "150.500000",
-      "volume_error_percent": "-2.526013"
+      "volume_error_percent": "-9.599919"
     },
     {
       "calculation": "cell_opt",
@@ -3274,10 +4286,10 @@
       "system": "pyrazine",
       "label": "Pyrazine",
       "complete": true,
-      "volume_A3": "182.759418",
+      "volume_A3": "191.801220",
       "x23b_same_cell_ref_volume_A3": "189.600000",
       "x23b_reported_ref_volume_A3": "189.600000",
-      "volume_error_percent": "-3.607902"
+      "volume_error_percent": "1.160981"
     },
     {
       "calculation": "cell_opt",
@@ -3286,10 +4298,10 @@
       "system": "pyrazine",
       "label": "Pyrazine",
       "complete": true,
-      "volume_A3": "185.992967",
+      "volume_A3": "185.623521",
       "x23b_same_cell_ref_volume_A3": "189.600000",
       "x23b_reported_ref_volume_A3": "189.600000",
-      "volume_error_percent": "-1.902444"
+      "volume_error_percent": "-2.097299"
     },
     {
       "calculation": "cell_opt",
@@ -3298,10 +4310,10 @@
       "system": "pyrazole",
       "label": "Pyrazole",
       "complete": true,
-      "volume_A3": "658.084480",
+      "volume_A3": "658.091486",
       "x23b_same_cell_ref_volume_A3": "662.500000",
       "x23b_reported_ref_volume_A3": "662.500000",
-      "volume_error_percent": "-0.666494"
+      "volume_error_percent": "-0.665436"
     },
     {
       "calculation": "cell_opt",
@@ -3310,10 +4322,10 @@
       "system": "pyrazole",
       "label": "Pyrazole",
       "complete": true,
-      "volume_A3": "701.851260",
+      "volume_A3": "704.126952",
       "x23b_same_cell_ref_volume_A3": "662.500000",
       "x23b_reported_ref_volume_A3": "662.500000",
-      "volume_error_percent": "5.939813"
+      "volume_error_percent": "6.283314"
     },
     {
       "calculation": "cell_opt",
@@ -3322,10 +4334,10 @@
       "system": "succinic_acid",
       "label": "Succinic acid",
       "complete": true,
-      "volume_A3": "219.721009",
+      "volume_A3": "220.376930",
       "x23b_same_cell_ref_volume_A3": "233.300000",
       "x23b_reported_ref_volume_A3": "233.300000",
-      "volume_error_percent": "-5.820399"
+      "volume_error_percent": "-5.539250"
     },
     {
       "calculation": "cell_opt",
@@ -3334,10 +4346,10 @@
       "system": "succinic_acid",
       "label": "Succinic acid",
       "complete": true,
-      "volume_A3": "240.043357",
+      "volume_A3": "226.998552",
       "x23b_same_cell_ref_volume_A3": "233.300000",
       "x23b_reported_ref_volume_A3": "233.300000",
-      "volume_error_percent": "2.890423"
+      "volume_error_percent": "-2.701006"
     },
     {
       "calculation": "cell_opt",
@@ -3346,10 +4358,10 @@
       "system": "triazine",
       "label": "s-Triazine",
       "complete": true,
-      "volume_A3": "477.258917",
+      "volume_A3": "479.522230",
       "x23b_same_cell_ref_volume_A3": "528.000000",
       "x23b_reported_ref_volume_A3": "528.000000",
-      "volume_error_percent": "-9.610054"
+      "volume_error_percent": "-9.181396"
     },
     {
       "calculation": "cell_opt",
@@ -3358,10 +4370,10 @@
       "system": "triazine",
       "label": "s-Triazine",
       "complete": true,
-      "volume_A3": "505.245089",
+      "volume_A3": "510.207587",
       "x23b_same_cell_ref_volume_A3": "528.000000",
       "x23b_reported_ref_volume_A3": "528.000000",
-      "volume_error_percent": "-4.309642"
+      "volume_error_percent": "-3.369775"
     },
     {
       "calculation": "cell_opt",
@@ -3370,10 +4382,10 @@
       "system": "trioxane",
       "label": "s-Trioxane",
       "complete": true,
-      "volume_A3": "563.384335",
+      "volume_A3": "563.795042",
       "x23b_same_cell_ref_volume_A3": "580.700000",
       "x23b_reported_ref_volume_A3": "580.700000",
-      "volume_error_percent": "-2.981861"
+      "volume_error_percent": "-2.911134"
     },
     {
       "calculation": "cell_opt",
@@ -3382,10 +4394,10 @@
       "system": "trioxane",
       "label": "s-Trioxane",
       "complete": true,
-      "volume_A3": "599.403538",
+      "volume_A3": "599.849294",
       "x23b_same_cell_ref_volume_A3": "580.700000",
       "x23b_reported_ref_volume_A3": "580.700000",
-      "volume_error_percent": "3.220861"
+      "volume_error_percent": "3.297623"
     },
     {
       "calculation": "cell_opt",
@@ -3394,10 +4406,10 @@
       "system": "uracil",
       "label": "Uracil",
       "complete": true,
-      "volume_A3": "416.180701",
+      "volume_A3": "416.160850",
       "x23b_same_cell_ref_volume_A3": "442.000000",
       "x23b_reported_ref_volume_A3": "442.000000",
-      "volume_error_percent": "-5.841470"
+      "volume_error_percent": "-5.845962"
     },
     {
       "calculation": "cell_opt",
@@ -3406,10 +4418,10 @@
       "system": "uracil",
       "label": "Uracil",
       "complete": true,
-      "volume_A3": "428.500721",
+      "volume_A3": "430.256794",
       "x23b_same_cell_ref_volume_A3": "442.000000",
       "x23b_reported_ref_volume_A3": "442.000000",
-      "volume_error_percent": "-3.054136"
+      "volume_error_percent": "-2.656834"
     },
     {
       "calculation": "cell_opt",
@@ -3418,10 +4430,10 @@
       "system": "urea",
       "label": "Urea",
       "complete": true,
-      "volume_A3": "135.518170",
+      "volume_A3": "135.517663",
       "x23b_same_cell_ref_volume_A3": "140.800000",
       "x23b_reported_ref_volume_A3": "140.800000",
-      "volume_error_percent": "-3.751300"
+      "volume_error_percent": "-3.751660"
     },
     {
       "calculation": "cell_opt",
@@ -3430,13 +4442,73 @@
       "system": "urea",
       "label": "Urea",
       "complete": true,
-      "volume_A3": "131.839755",
+      "volume_A3": "133.945442",
       "x23b_same_cell_ref_volume_A3": "140.800000",
       "x23b_reported_ref_volume_A3": "140.800000",
-      "volume_error_percent": "-6.363810"
+      "volume_error_percent": "-4.868294"
     }
   ],
   "summary": [
+    {
+      "quantity": "lattice_energy_kJmol",
+      "calculation": "cell_opt",
+      "mesh": "k222",
+      "method": "GFN1-xTB",
+      "ME": "-0.929710",
+      "MAE": "11.342415",
+      "RMSE": "14.623728",
+      "MaxAE": "36.555908"
+    },
+    {
+      "quantity": "lattice_energy_kJmol",
+      "calculation": "cell_opt",
+      "mesh": "k222",
+      "method": "GFN2-xTB",
+      "ME": "-13.131638",
+      "MAE": "15.066337",
+      "RMSE": "23.276902",
+      "MaxAE": "86.823536"
+    },
+    {
+      "quantity": "lattice_energy_kJmol",
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN1-xTB",
+      "ME": "0.258871",
+      "MAE": "11.345702",
+      "RMSE": "14.019344",
+      "MaxAE": "30.935058"
+    },
+    {
+      "quantity": "lattice_energy_kJmol",
+      "calculation": "cell_opt_single_point",
+      "mesh": "k333",
+      "method": "GFN2-xTB",
+      "ME": "-12.018989",
+      "MAE": "14.092104",
+      "RMSE": "21.341752",
+      "MaxAE": "77.785392"
+    },
+    {
+      "quantity": "lattice_energy_kJmol",
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN1-xTB",
+      "ME": "0.184285",
+      "MAE": "11.366118",
+      "RMSE": "14.081042",
+      "MaxAE": "31.581480"
+    },
+    {
+      "quantity": "lattice_energy_kJmol",
+      "calculation": "cell_opt_single_point",
+      "mesh": "k444",
+      "method": "GFN2-xTB",
+      "ME": "-12.098183",
+      "MAE": "14.166994",
+      "RMSE": "21.578842",
+      "MaxAE": "79.185896"
+    },
     {
       "quantity": "lattice_energy_kJmol",
       "calculation": "single_point",
@@ -3518,44 +4590,24 @@
       "MaxAE": "642.852689"
     },
     {
-      "quantity": "lattice_energy_kJmol",
-      "calculation": "cell_opt",
-      "mesh": "k222",
-      "method": "GFN1-xTB",
-      "ME": "-0.710350",
-      "MAE": "11.129018",
-      "RMSE": "14.815022",
-      "MaxAE": "38.461935"
-    },
-    {
-      "quantity": "lattice_energy_kJmol",
-      "calculation": "cell_opt",
-      "mesh": "k222",
-      "method": "GFN2-xTB",
-      "ME": "-11.986205",
-      "MAE": "14.459836",
-      "RMSE": "23.427726",
-      "MaxAE": "90.069662"
-    },
-    {
       "quantity": "volume_error_percent",
       "calculation": "cell_opt",
       "mesh": "k222",
       "method": "GFN1-xTB",
-      "ME": "-5.815548",
-      "MAE": "7.914787",
-      "RMSE": "9.478583",
-      "MaxAE": "19.084442"
+      "ME": "-5.960071",
+      "MAE": "7.514116",
+      "RMSE": "9.019708",
+      "MaxAE": "19.236681"
     },
     {
       "quantity": "volume_error_percent",
       "calculation": "cell_opt",
       "mesh": "k222",
       "method": "GFN2-xTB",
-      "ME": "-1.791691",
-      "MAE": "5.616637",
-      "RMSE": "7.363220",
-      "MaxAE": "18.421974"
+      "ME": "-1.657324",
+      "MAE": "5.842296",
+      "RMSE": "7.530373",
+      "MaxAE": "19.952589"
     }
   ]
 }

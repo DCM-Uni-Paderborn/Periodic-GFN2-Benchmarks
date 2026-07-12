@@ -16,6 +16,7 @@ from pathlib import Path
 
 HARTREE_TO_KJMOL = 2625.499638
 FLOAT = r"[-+]?(?:\d+\.\d*|\.\d+|\d+)(?:[Ee][-+]?\d+)?"
+REPOSITORY = Path(__file__).resolve().parents[1]
 
 
 KPOINTS = {
@@ -24,7 +25,10 @@ KPOINTS = {
         [
             "    &KPOINTS",
             "      SCHEME MACDONALD 2 2 2 0.25 0.25 0.25",
-            "      FULL_GRID T",
+            "      SYMMETRY T",
+            "      FULL_GRID F",
+            "      SYMMETRY_BACKEND SPGLIB",
+            "      SYMMETRY_REDUCTION_METHOD SPGLIB",
             "    &END KPOINTS",
         ]
     ),
@@ -32,7 +36,10 @@ KPOINTS = {
         [
             "    &KPOINTS",
             "      SCHEME MACDONALD 3 3 3 0.0 0.0 0.0",
-            "      FULL_GRID T",
+            "      SYMMETRY T",
+            "      FULL_GRID F",
+            "      SYMMETRY_BACKEND SPGLIB",
+            "      SYMMETRY_REDUCTION_METHOD SPGLIB",
             "    &END KPOINTS",
         ]
     ),
@@ -308,7 +315,7 @@ def mesh_deltas(rows: list[dict[str, str]]) -> list[dict[str, str]]:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--cp2k", type=Path, required=True)
-    parser.add_argument("--benchmark-root", type=Path, default=Path("/private/tmp/Periodic-GFN2-Benchmarks-x23b-wsc-20260701_175556"))
+    parser.add_argument("--benchmark-root", type=Path, default=REPOSITORY)
     parser.add_argument("--source-csv", type=Path, required=True)
     parser.add_argument("--variant", default="cg_2pnt_keep_angles")
     parser.add_argument("--out", type=Path, required=True)

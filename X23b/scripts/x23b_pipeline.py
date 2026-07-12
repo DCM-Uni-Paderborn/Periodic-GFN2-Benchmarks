@@ -11,6 +11,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 
@@ -449,7 +450,11 @@ def cp2k_dft(method: str, mesh: dict[str, object] | None = None, periodic: bool 
         lines += [
             "    &KPOINTS",
             f"      SCHEME {mesh['scheme']}",
-            "      FULL_GRID T",
+            "      EPS_SYMMETRY 1.0E-8",
+            "      SYMMETRY T",
+            "      FULL_GRID F",
+            "      SYMMETRY_BACKEND SPGLIB",
+            "      SYMMETRY_REDUCTION_METHOD SPGLIB",
             "    &END KPOINTS",
         ]
     if not periodic:
@@ -485,6 +490,7 @@ def crystal_input(system: dict[str, object], geom: dict[str, object], method: st
     lines += [
         "  &SUBSYS",
         "    &CELL",
+        "      CANONICALIZE TRUE",
         "      PERIODIC XYZ",
     ]
     for name, vec in zip(("A", "B", "C"), geom["cell"]):
@@ -506,11 +512,17 @@ def crystal_input(system: dict[str, object], geom: dict[str, object], method: st
         lines += [
             "",
             "&MOTION",
-        "  &CELL_OPT",
-        "    OPTIMIZER BFGS",
-        "    MAX_ITER 800",
-        "    EXTERNAL_PRESSURE 0.0",
-        "  &END CELL_OPT",
+            "  &CELL_OPT",
+            "    OPTIMIZER CG",
+            "    MAX_ITER 800",
+            "    EXTERNAL_PRESSURE 0.0",
+            "    KEEP_ANGLES T",
+            "    &CG",
+            "      &LINE_SEARCH",
+            "        TYPE 2PNT",
+            "      &END LINE_SEARCH",
+            "    &END CG",
+            "  &END CELL_OPT",
             "&END MOTION",
         ]
     return "\n".join(lines) + "\n"
@@ -624,7 +636,7 @@ def write_reference_csv(metadata: dict[str, object]) -> None:
             "x23b_ref_lattice_energy_kJmol",
             "structure_source",
         ]
-        writer = csv.DictWriter(handle, fieldnames=fields)
+        writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         for system in metadata["systems"]:
             writer.writerow(
@@ -693,9 +705,88 @@ def stats(errors: list[float]) -> dict[str, float]:
     }
 
 
-def analyse() -> dict[str, object]:
+def load_cellopt_rows(path: Path) -> dict[tuple[str, str], dict[str, str]]:
+    rows: dict[tuple[str, str], dict[str, str]] = {}
+    with path.open(newline="") as handle:
+        for row in csv.DictReader(handle):
+            method = row.get("method", "").removesuffix("-xTB")
+            system = row.get("system", "")
+            if method not in METHODS or not system:
+                continue
+            if row.get("opt_completed", "True").lower() != "true":
+                continue
+            key = (method, system)
+            if key in rows:
+                raise ValueError(f"duplicate cell-optimization row for {method}/{system}")
+            rows[key] = row
+
+    expected = {(method, str(system["id"])) for method in METHODS for system in SYSTEMS}
+    missing = sorted(expected - set(rows))
+    extra = sorted(set(rows) - expected)
+    if missing or extra:
+        details = []
+        if missing:
+            details.append("missing " + ", ".join(f"{method}/{system}" for method, system in missing))
+        if extra:
+            details.append("unexpected " + ", ".join(f"{method}/{system}" for method, system in extra))
+        raise ValueError("cell-optimization CSV is not a complete X23b set: " + "; ".join(details))
+    meshes = {row.get("mesh", "") for row in rows.values()}
+    if meshes != {"k222"}:
+        raise ValueError(f"the manuscript X23b cell-optimization CSV must use only k222, found {sorted(meshes)}")
+    return rows
+
+
+def load_final_kpoint_rows(path: Path) -> dict[tuple[str, str], dict[str, str]]:
+    rows: dict[tuple[str, str], dict[str, str]] = {}
+    with path.open(newline="") as handle:
+        for row in csv.DictReader(handle):
+            method = row.get("method", "").removesuffix("-xTB")
+            system = row.get("system", "")
+            if method not in METHODS or not system:
+                continue
+            key = (method, system)
+            if key in rows:
+                raise ValueError(f"duplicate final-geometry k-point row for {method}/{system}")
+            for mesh in ("k222", "k333", "k444"):
+                for field in (f"{mesh}_lattice_energy_kJmol", f"{mesh}_error_kJmol"):
+                    value = row_float(row, field)
+                    if value is None:
+                        raise ValueError(f"missing finite {field} for {method}/{system}")
+            rows[key] = row
+
+    expected = {(method, str(system["id"])) for method in METHODS for system in SYSTEMS}
+    missing = sorted(expected - set(rows))
+    extra = sorted(set(rows) - expected)
+    if missing or extra:
+        raise ValueError(
+            "final-geometry k-point CSV is not a complete 46-case X23b set: "
+            f"missing={missing}; unexpected={extra}"
+        )
+    return rows
+
+
+def row_float(row: dict[str, str], key: str) -> float | None:
+    value = row.get(key, "")
+    if not value:
+        return None
+    try:
+        number = float(value)
+    except ValueError:
+        return None
+    return number if math.isfinite(number) else None
+
+
+def analyse(
+    make_figures: bool = True,
+    cellopt_csv: Path | None = None,
+    final_kpoint_csv: Path | None = None,
+) -> dict[str, object]:
     metadata = json.loads((DATA / "metadata.json").read_text())
     systems = metadata["systems"]
+    external_cellopt = load_cellopt_rows(cellopt_csv) if cellopt_csv is not None else None
+    final_kpoints = load_final_kpoint_rows(final_kpoint_csv) if final_kpoint_csv is not None else None
+    if final_kpoints is not None and external_cellopt is None:
+        raise ValueError("final-geometry k-point energies require --cellopt-csv")
     rows_energy: list[dict[str, object]] = []
     rows_volume: list[dict[str, object]] = []
     results: dict[str, object] = {"methods": METHODS, "meshes": MESHES, "systems": systems, "energy_rows": [], "volume_rows": []}
@@ -735,14 +826,22 @@ def analyse() -> dict[str, object]:
                         "error_kJmol": "" if error is None else f"{error:.6f}",
                     }
                 )
-            stem = f"{system['id']}_{method}_gamma_cellopt"
-            output = ROOT / "runs" / "cellopt_gamma" / method / stem / f"{stem}.out"
-            continuation = output.parent / "continue_800.out"
-            if completed_optimization(continuation):
-                output = continuation
-            crystal_energy = parse_energy(output)
-            volume = parse_last_volume(output)
-            complete = completed_optimization(output) and crystal_energy is not None and gas_energy is not None and volume is not None
+            if external_cellopt is not None:
+                cellopt_row = external_cellopt[(method, str(system["id"]))]
+                cellopt_mesh = cellopt_row.get("mesh", "k222") or "k222"
+                crystal_energy = row_float(cellopt_row, "energy_hartree")
+                volume = row_float(cellopt_row, "volume_A3")
+                complete = crystal_energy is not None and gas_energy is not None and volume is not None
+            else:
+                cellopt_mesh = "gamma"
+                stem = f"{system['id']}_{method}_gamma_cellopt"
+                output = ROOT / "runs" / "cellopt_gamma" / method / stem / f"{stem}.out"
+                continuation = output.parent / "continue_800.out"
+                if completed_optimization(continuation):
+                    output = continuation
+                crystal_energy = parse_energy(output)
+                volume = parse_last_volume(output)
+                complete = completed_optimization(output) and crystal_energy is not None and gas_energy is not None and volume is not None
             lattice = None
             energy_error = None
             volume_error = None
@@ -754,7 +853,7 @@ def analyse() -> dict[str, object]:
             rows_energy.append(
                 {
                     "calculation": "cell_opt",
-                    "mesh": "gamma",
+                    "mesh": cellopt_mesh,
                     "method": f"{method}-xTB",
                     "system": system["id"],
                     "label": system["label"],
@@ -767,7 +866,7 @@ def analyse() -> dict[str, object]:
             rows_volume.append(
                 {
                     "calculation": "cell_opt",
-                    "mesh": "gamma",
+                    "mesh": cellopt_mesh,
                     "method": f"{method}-xTB",
                     "system": system["id"],
                     "label": system["label"],
@@ -778,6 +877,33 @@ def analyse() -> dict[str, object]:
                     "volume_error_percent": "" if volume_error is None else f"{volume_error:.6f}",
                 }
             )
+
+            if final_kpoints is not None:
+                final_row = final_kpoints[(method, str(system["id"]))]
+                if lattice is None:
+                    raise ValueError(f"missing k222 cell-optimization energy for {method}/{system['id']}")
+                final_k222 = row_float(final_row, "k222_lattice_energy_kJmol")
+                if final_k222 is None or abs(final_k222 - lattice) > 2.0e-5:
+                    raise ValueError(
+                        f"k222 lattice-energy mismatch for {method}/{system['id']}: "
+                        f"cellopt={lattice:.12f}, final-kpoint source={final_k222}"
+                    )
+                for mesh in ("k333", "k444"):
+                    final_lattice = row_float(final_row, f"{mesh}_lattice_energy_kJmol")
+                    final_error = row_float(final_row, f"{mesh}_error_kJmol")
+                    rows_energy.append(
+                        {
+                            "calculation": "cell_opt_single_point",
+                            "mesh": mesh,
+                            "method": f"{method}-xTB",
+                            "system": system["id"],
+                            "label": system["label"],
+                            "complete": True,
+                            "lattice_energy_kJmol": f"{final_lattice:.6f}",
+                            "x23b_ref_lattice_energy_kJmol": f"{ref_energy:.6f}",
+                            "error_kJmol": f"{final_error:.6f}",
+                        }
+                    )
 
     write_csv(
         DATA / "x23b_lattice_energies.csv",
@@ -815,21 +941,27 @@ def analyse() -> dict[str, object]:
     results["energy_rows"] = rows_energy
     results["volume_rows"] = rows_volume
     results["summary"] = summaries
-    (DATA / "x23b_results.json").write_text(json.dumps(results, indent=2))
-    make_plots(summaries, rows_energy, rows_volume)
+    (DATA / "x23b_results.json").write_text(json.dumps(results, indent=2) + "\n")
+    if make_figures:
+        publication_plotter = ROOT.parent / "scripts" / "update_x23b_k222_figures.py"
+        if external_cellopt is not None and publication_plotter.exists():
+            subprocess.run([sys.executable, str(publication_plotter)], cwd=ROOT.parent, check=True)
+        else:
+            make_plots(summaries, rows_energy, rows_volume)
     return results
 
 
 def write_csv(path: Path, rows: list[dict[str, object]], fieldnames: list[str]) -> None:
     with path.open("w", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer = csv.DictWriter(handle, fieldnames=fieldnames, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 
 
 def summarize(rows_energy: list[dict[str, object]], rows_volume: list[dict[str, object]]) -> list[dict[str, object]]:
     summaries: list[dict[str, object]] = []
-    for calculation in ["single_point", "cell_opt"]:
+    calculations = sorted({str(row["calculation"]) for row in rows_energy})
+    for calculation in calculations:
         meshes = sorted({str(row["mesh"]) for row in rows_energy if row["calculation"] == calculation})
         for mesh in meshes:
             for method in [f"{name}-xTB" for name in METHODS]:
@@ -851,22 +983,24 @@ def summarize(rows_energy: list[dict[str, object]], rows_volume: list[dict[str, 
                             **{key: f"{value:.6f}" for key, value in stats(errors).items()},
                         }
                     )
-    for method in [f"{name}-xTB" for name in METHODS]:
-        errors = [
-            float(row["volume_error_percent"])
-            for row in rows_volume
-            if row["method"] == method and row["volume_error_percent"] != ""
-        ]
-        if errors:
-            summaries.append(
-                {
-                    "quantity": "volume_error_percent",
-                    "calculation": "cell_opt",
-                    "mesh": "gamma",
-                    "method": method,
-                    **{key: f"{value:.6f}" for key, value in stats(errors).items()},
-                }
-            )
+    volume_meshes = sorted({str(row["mesh"]) for row in rows_volume})
+    for mesh in volume_meshes:
+        for method in [f"{name}-xTB" for name in METHODS]:
+            errors = [
+                float(row["volume_error_percent"])
+                for row in rows_volume
+                if row["mesh"] == mesh and row["method"] == method and row["volume_error_percent"] != ""
+            ]
+            if errors:
+                summaries.append(
+                    {
+                        "quantity": "volume_error_percent",
+                        "calculation": "cell_opt",
+                        "mesh": mesh,
+                        "method": method,
+                        **{key: f"{value:.6f}" for key, value in stats(errors).items()},
+                    }
+                )
     return summaries
 
 
@@ -879,6 +1013,16 @@ def make_plots(
         return
     FIGURES.mkdir(exist_ok=True)
     dat = DATA / "x23b_summary_for_plot.dat"
+    cellopt_meshes = sorted(
+        {
+            str(row["mesh"])
+            for row in rows_energy
+            if row["calculation"] == "cell_opt" and str(row["complete"]) == "True"
+        }
+    )
+    if len(cellopt_meshes) > 1:
+        raise ValueError("plots require one common X23b cell-optimization mesh")
+    cellopt_mesh = cellopt_meshes[0] if cellopt_meshes else "gamma"
     order = [
         ("single_point", "gamma", "GFN1-xTB"),
         ("single_point", "gamma", "GFN2-xTB"),
@@ -888,8 +1032,8 @@ def make_plots(
         ("single_point", "k222", "GFN2-xTB"),
         ("single_point", "k333", "GFN1-xTB"),
         ("single_point", "k333", "GFN2-xTB"),
-        ("cell_opt", "gamma", "GFN1-xTB"),
-        ("cell_opt", "gamma", "GFN2-xTB"),
+        ("cell_opt", cellopt_mesh, "GFN1-xTB"),
+        ("cell_opt", cellopt_mesh, "GFN2-xTB"),
     ]
     lookup = {
         (row["quantity"], row["calculation"], row["mesh"], row["method"]): row
@@ -900,7 +1044,7 @@ def make_plots(
         for index, (calc, mesh, method) in enumerate(order, start=1):
             energy = lookup.get(("lattice_energy_kJmol", calc, mesh, method))
             volume = lookup.get(("volume_error_percent", calc, mesh, method))
-            label = f"{method.replace('-xTB','')} {mesh}" if calc == "single_point" else f"{method.replace('-xTB','')} opt"
+            label = f"{method.replace('-xTB','')} {mesh}" if calc == "single_point" else f"{method.replace('-xTB','')} {mesh} opt"
             handle.write(f'{index} "{label}" {energy["MAE"] if energy else "NaN"} {volume["MAE"] if volume else "NaN"}\n')
     script = f"""
 set terminal svg enhanced font 'Helvetica,12' size 920,520
@@ -931,11 +1075,16 @@ plot '{dat}' using 3:xtic(2) lc rgb '#4c72b0' title 'Lattice energy / kJ mol^{{-
 
 
 def make_prl_style_plot(rows_energy: list[dict[str, object]]) -> None:
+    cellopt_meshes = sorted(
+        {str(row["mesh"]) for row in rows_energy if row["calculation"] == "cell_opt" and str(row["complete"]) == "True"}
+    )
+    if len(cellopt_meshes) != 1:
+        raise ValueError("the X23b lattice-energy plot requires one complete cell-optimization mesh")
+    cellopt_mesh = cellopt_meshes[0]
     lookup = {
         (row["system"], row["method"]): float(row["error_kJmol"])
         for row in rows_energy
         if row["calculation"] == "cell_opt"
-        and row["mesh"] == "gamma"
         and str(row["complete"]) == "True"
         and row["error_kJmol"] != ""
     }
@@ -991,8 +1140,8 @@ set object 1 rectangle from graph 0, first -4.184 to graph 1, first 4.184 fillco
 set key top left Left reverse spacing 1.1 samplen 1.8
 plot '{dat}' using 1:7:5 with yerrorbars pt 7 ps 0.75 lw 1.1 lc rgb '#4C78A8' title 'DMC X23 - X23b', \\
      '' using 1:8 with linespoints lt 1 lw 1.2 pt 11 ps 0.75 lc rgb '#7E57C2' title 'ML-CCSD(T)/RPA+ph - X23b', \\
-     '' using 1:9:xtic(2) with linespoints lt 1 lw 1.4 pt 5 ps 0.8 lc rgb '#E45756' title 'GFN1-xTB opt - X23b', \\
-     '' using 1:10 with linespoints lt 1 lw 1.4 pt 9 ps 0.8 lc rgb '#54A24B' title 'GFN2-xTB opt - X23b'
+     '' using 1:9:xtic(2) with linespoints lt 1 lw 1.4 pt 5 ps 0.8 lc rgb '#E45756' title 'GFN1-xTB {cellopt_mesh} opt - X23b', \\
+     '' using 1:10 with linespoints lt 1 lw 1.4 pt 9 ps 0.8 lc rgb '#54A24B' title 'GFN2-xTB {cellopt_mesh} opt - X23b'
 unset multiplot
 """
     subprocess.run(["gnuplot"], input=script.encode(), check=True)
@@ -1013,20 +1162,25 @@ def percentile(values: list[float], fraction: float) -> float:
 
 
 def make_error_range_plot(rows_energy: list[dict[str, object]]) -> None:
-    def errors_for(calculation: str, mesh: str, method: str) -> list[float]:
+    def errors_for(calculation: str, method: str) -> list[float]:
         return [
             float(row["error_kJmol"])
             for row in rows_energy
             if row["calculation"] == calculation
-            and row["mesh"] == mesh
             and row["method"] == method
             and str(row["complete"]) == "True"
             and row["error_kJmol"] != ""
         ]
 
+    cellopt_meshes = sorted(
+        {str(row["mesh"]) for row in rows_energy if row["calculation"] == "cell_opt" and str(row["complete"]) == "True"}
+    )
+    if len(cellopt_meshes) != 1:
+        raise ValueError("the X23b error-range plot requires one complete cell-optimization mesh")
+    cellopt_mesh = cellopt_meshes[0]
     methods = [
-        ("GFN1-xTB opt", errors_for("cell_opt", "gamma", "GFN1-xTB")),
-        ("GFN2-xTB opt", errors_for("cell_opt", "gamma", "GFN2-xTB")),
+        (f"GFN1-xTB {cellopt_mesh} opt", errors_for("cell_opt", "GFN1-xTB")),
+        (f"GFN2-xTB {cellopt_mesh} opt", errors_for("cell_opt", "GFN2-xTB")),
         ("ML-CCSD(T)/RPA+ph", [MULTILEVEL_CC_X23[str(system["id"])] - float(system["ref_energy"]) for system in SYSTEMS]),
         ("DMC-X23", [DMC_X23[str(system["id"])][0] - float(system["ref_energy"]) for system in SYSTEMS]),
     ]
@@ -1057,7 +1211,7 @@ set rmargin 4
 set tmargin 2
 set bmargin 4
 set xlabel 'Deviation from X23b / kJ mol^{-1}'
-set ytics ('GFN1-xTB opt' 1, 'GFN2-xTB opt' 2, 'ML-CCSD(T)/RPA+ph' 3, 'DMC-X23' 4)
+set ytics ('GFN1-xTB {cellopt_mesh} opt' 1, 'GFN2-xTB {cellopt_mesh} opt' 2, 'ML-CCSD(T)/RPA+ph' 3, 'DMC-X23' 4)
 set key top right box spacing 1.15 samplen 1.8
 set bars 0.45
 set arrow 1 from 0,0.45 to 0,4.55 nohead lw 1.3 lc rgb '#555555'
@@ -1077,6 +1231,10 @@ plot '{dat}' using 5:1:3:7 with xerrorbars pt 0 lw 1.6 lc rgb '#9c9c9c' title 'm
 def make_volume_comparison_plot(rows_volume: list[dict[str, object]]) -> None:
     rows: list[dict[str, object]] = []
     system_lookup = {str(system["id"]): system for system in SYSTEMS}
+    cellopt_meshes = sorted({str(row["mesh"]) for row in rows_volume if str(row["complete"]) == "True"})
+    if len(cellopt_meshes) != 1:
+        raise ValueError("the X23b volume plot requires one complete cell-optimization mesh")
+    cellopt_mesh = cellopt_meshes[0]
 
     for method, volumes in BOESE_DFT_D3_VOLUMES.items():
         for system_id, volume in volumes.items():
@@ -1100,7 +1258,7 @@ def make_volume_comparison_plot(rows_volume: list[dict[str, object]]) -> None:
         rows.append(
             {
                 "source": "this work",
-                "method": f"{row['method']} opt",
+                "method": f"{row['method']} {row['mesh']} opt",
                 "system": row["system"],
                 "label": row["label"],
                 "volume_A3": row["volume_A3"],
@@ -1123,7 +1281,7 @@ def make_volume_comparison_plot(rows_volume: list[dict[str, object]]) -> None:
         ],
     )
 
-    methods = ["BLYP+D3", "PBE+D3", "RPBE+D3", "GFN2-xTB opt", "GFN1-xTB opt"]
+    methods = ["BLYP+D3", "PBE+D3", "RPBE+D3", f"GFN2-xTB {cellopt_mesh} opt", f"GFN1-xTB {cellopt_mesh} opt"]
     dat = DATA / "x23b_volume_error_ranges_boese.dat"
     with dat.open("w") as handle:
         handle.write("# index label min q1 median q3 max mean mae\n")
@@ -1155,7 +1313,7 @@ set rmargin 4
 set tmargin 2
 set bmargin 4
 set xlabel 'Relative cell-volume error / %'
-set ytics ('BLYP+D3' 1, 'PBE+D3' 2, 'RPBE+D3' 3, 'GFN2-xTB opt' 4, 'GFN1-xTB opt' 5)
+set ytics ('BLYP+D3' 1, 'PBE+D3' 2, 'RPBE+D3' 3, 'GFN2-xTB {cellopt_mesh} opt' 4, 'GFN1-xTB {cellopt_mesh} opt' 5)
 set key bottom right box spacing 1.15 samplen 1.8
 set bars 0.45
 set arrow 1 from 0,0.45 to 0,5.55 nohead lw 1.3 lc rgb '#555555'
@@ -1177,11 +1335,22 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("command", choices=["prepare", "analyse", "all"], nargs="?", default="all")
     parser.add_argument("--refdata", type=Path, default=Path(os.environ.get("REFDATA_X23", "../refdata")))
+    parser.add_argument("--cellopt-csv", type=Path, help="complete 46-row native-Bloch k222 cell-optimization result table")
+    parser.add_argument(
+        "--final-kpoint-csv",
+        type=Path,
+        help="complete k222/k333/k444 energy table on the final k222 geometries",
+    )
+    parser.add_argument("--skip-plots", action="store_true")
     args = parser.parse_args()
     if args.command in {"prepare", "all"}:
         prepare(args.refdata)
     if args.command in {"analyse", "all"}:
-        analyse()
+        analyse(
+            make_figures=not args.skip_plots,
+            cellopt_csv=args.cellopt_csv,
+            final_kpoint_csv=args.final_kpoint_csv,
+        )
 
 
 if __name__ == "__main__":

@@ -20,7 +20,36 @@ import run_goldzak12_benchmark as base  # noqa: E402
 
 ROOT = base.ROOT
 DEFAULT_SCALES = (0.82, 0.88, 0.94, 0.98, 1.00, 1.02, 1.06, 1.12, 1.20, 1.30, 1.45)
-ADAPTIVE_SCALES = {("MgO", "GFN2"): (0.90, 0.92)}
+# Physical LC12 EOS curves vary by less than 2 Eh over the sampled interval.
+# A much lower total energy is the numerical signature of the SCC charge collapse.
+CHARGE_COLLAPSE_ENERGY_DROP_HARTREE = 25.0
+CATASTROPHIC_CHARGE_COLLAPSE_ENERGY_HARTREE = -50.0
+ADAPTIVE_SCALES = {
+    ("MgO", "GFN2"): (0.90, 0.92, 0.926, 0.927, 0.928, 0.93),
+    ("LiH", "GFN2"): (
+        0.71,
+        0.72,
+        0.73,
+        0.74,
+        0.75,
+        0.76,
+        0.77,
+        0.78,
+        0.79,
+        0.80,
+        0.81,
+        0.83,
+        0.84,
+        0.85,
+        0.86,
+        0.87,
+        0.89,
+        0.90,
+        0.91,
+        0.92,
+        0.93,
+    ),
+}
 
 
 def scale_tag(scale: float) -> str:
@@ -67,6 +96,19 @@ def read_strategy(output: Path) -> str:
     path = strategy_path(output)
     if not path.exists():
         return "unknown"
+    try:
+        return str(json.loads(path.read_text())["strategy"])
+    except (json.JSONDecodeError, KeyError):
+        return "unknown"
+
+
+def output_charge_collapsed(output: Path) -> bool:
+    energy = base.parse_energy(output)
+    return energy is not None and energy < CATASTROPHIC_CHARGE_COLLAPSE_ENERGY_HARTREE
+
+
+def usable_output_ok(output: Path, require_opt: bool = False) -> bool:
+    return base.output_ok(output, require_opt=require_opt) and not output_charge_collapsed(output)
 
 
 def retries_exhausted(output: Path) -> bool:
@@ -78,10 +120,6 @@ def retries_exhausted(output: Path) -> bool:
     except json.JSONDecodeError:
         return False
     return data.get("strategy") == "retry_m1_d001" and not bool(data.get("completed"))
-    try:
-        return str(json.loads(path.read_text())["strategy"])
-    except (json.JSONDecodeError, KeyError):
-        return "unknown"
 
 
 def retry_input(inp: Path, iterations: int, memory: int, damping: float, label: str) -> Path:
@@ -119,7 +157,7 @@ def run_jobs(
         for spec in specs
         if force
         or (
-            not base.output_ok(spec[2], require_opt=spec[3])
+            not usable_output_ok(spec[2], require_opt=spec[3])
             and not retries_exhausted(spec[2])
         )
     ]
@@ -130,7 +168,7 @@ def run_jobs(
     def worker(spec: tuple[str, Path, Path, bool]) -> tuple[str, int, bool, tuple[str, Path, Path, bool]]:
         label, inp, out, require_opt = spec
         code = base.run_cp2k(cp2k, inp, out, threads)
-        ok = base.output_ok(out, require_opt=require_opt)
+        ok = usable_output_ok(out, require_opt=require_opt)
         write_strategy(out, "default_tblite_mixer", ok)
         return label, code, ok, spec
 
@@ -166,7 +204,7 @@ def run_jobs(
             label, inp, out, require_opt = spec
             robust_inp = retry_input(inp, iterations, memory, damping, profile)
             code = base.run_cp2k(cp2k, robust_inp, out, threads)
-            ok = base.output_ok(out, require_opt=require_opt)
+            ok = usable_output_ok(out, require_opt=require_opt)
             write_strategy(out, profile, ok)
             return label, code, ok, spec
 
@@ -201,6 +239,18 @@ def load_eos_points(
         ok = base.output_ok(out)
         points.append((ref.a_exp * scale, scale, energy, ok))
     return sorted(points)
+
+
+def charge_collapsed_scales(points: list[tuple[float, float, float | None, bool]]) -> set[float]:
+    converged = [energy for _, _, energy, ok in points if ok and energy is not None]
+    if len(converged) < 3:
+        return set()
+    reference = float(np.median(converged))
+    return {
+        scale
+        for _, scale, energy, ok in points
+        if ok and energy is not None and energy < reference - CHARGE_COLLAPSE_ENERGY_DROP_HARTREE
+    }
 
 
 def fit_eos(points: list[tuple[float, float, float, bool]]) -> dict[str, object]:
@@ -279,7 +329,12 @@ def make_eos_table(mesh: str, scales: tuple[float, ...]) -> list[dict[str, objec
         for method in base.METHODS:
             requested_scales = scales_for(ref.solid, method, scales)
             all_points = load_eos_points(ref, method, mesh, requested_scales)
-            points = [(a, scale, energy, ok) for a, scale, energy, ok in all_points if energy is not None and ok]
+            collapsed_scales = charge_collapsed_scales(all_points)
+            points = [
+                (a, scale, energy, ok)
+                for a, scale, energy, ok in all_points
+                if energy is not None and ok and scale not in collapsed_scales
+            ]
             fit = fit_eos(points)
             rows.append(
                 {
@@ -290,12 +345,15 @@ def make_eos_table(mesh: str, scales: tuple[float, ...]) -> list[dict[str, objec
                     "a_exp_A": ref.a_exp,
                     "n_requested": len(requested_scales),
                     "n_completed": len(points),
+                    "n_converged_raw": sum(ok and energy is not None for _, _, energy, ok in all_points),
+                    "n_charge_collapsed": len(collapsed_scales),
                     **fit,
                 }
             )
             for a, scale, energy, ok in all_points:
                 project = eos_project(ref.solid, method, mesh, scale)
                 output = ROOT / "runs" / "eos" / method / ref.solid / mesh / scale_tag(scale) / f"{project}.out"
+                charge_collapsed = scale in collapsed_scales
                 point_rows.append(
                     {
                         "solid": ref.solid,
@@ -305,6 +363,8 @@ def make_eos_table(mesh: str, scales: tuple[float, ...]) -> list[dict[str, objec
                         "a_A": f"{a:.10f}",
                         "energy_hartree": f"{energy:.12f}" if energy is not None else "",
                         "completed": ok,
+                        "valid_for_eos": ok and not charge_collapsed,
+                        "diagnostic": "charge_collapse" if charge_collapsed else "",
                         "scf_strategy": read_strategy(output),
                     }
                 )
@@ -641,8 +701,17 @@ def plot_eos_diagnostics(fits: list[dict[str, object]]) -> None:
             (row for row in points if row["solid"] == solid and row["method"] == "GFN2"),
             key=lambda row: float(row["scale"]),
         )
-        completed = [row for row in selected if row["completed"] == "True" and row["energy_hartree"] != ""]
-        failed = [row for row in selected if row["completed"] != "True"]
+        completed = [
+            row
+            for row in selected
+            if row.get("valid_for_eos", row["completed"]) == "True" and row["energy_hartree"] != ""
+        ]
+        charge_collapsed = [row for row in selected if row.get("diagnostic") == "charge_collapse"]
+        unstable = [
+            row
+            for row in selected
+            if row["completed"] != "True" and row.get("diagnostic") != "charge_collapse"
+        ]
         energy_min = min(float(row["energy_hartree"]) for row in completed)
         scales = [float(row["scale"]) for row in completed]
         relative = [
@@ -651,10 +720,14 @@ def plot_eos_diagnostics(fits: list[dict[str, object]]) -> None:
         ax.plot(scales, relative, color="#D97706", linewidth=1.2, alpha=0.75)
         ax.scatter(scales, relative, color="#D97706", s=38, label="converged")
         marker_height = max(relative) * 1.08 if max(relative) > 0 else 1.0
-        for row in failed:
+        for row in unstable:
             scale = float(row["scale"])
             ax.axvline(scale, color="#888888", linewidth=0.8, linestyle="--", alpha=0.6)
-            ax.scatter(scale, marker_height, color="#666666", marker="x", s=42, label="SCF failed")
+            ax.scatter(scale, marker_height, color="#666666", marker="x", s=42, label="unstable SCC branch")
+        for row in charge_collapsed:
+            scale = float(row["scale"])
+            ax.axvline(scale, color="#B91C1C", linewidth=0.8, linestyle=":", alpha=0.7)
+            ax.scatter(scale, marker_height, color="#B91C1C", marker="x", s=48, label="charge-collapsed SCC solution")
         fit = fit_by_key[(solid, "GFN2")]
         label = "no bracketed minimum" if fit["fit_status"] == "no_local_minimum" else "discontinuous EOS"
         ax.set_title(f"{solid}: {label}")
@@ -704,10 +777,12 @@ def main() -> int:
             "result_mesh": args.result_mesh,
             "scales": scales,
             "adaptive_scales": {f"{solid}/{method}": values for (solid, method), values in ADAPTIVE_SCALES.items()},
-            "kpoint_scheme": "CP2K native Bloch MACDONALD FULL_GRID",
+            "kpoint_scheme": "CP2K native Bloch MACDONALD with full SPGLIB symmetry reduction",
             "smearing_temperature_K": 300.0,
             "reported_energy": "Total energy extrapolated to T->0",
             "tblite_accuracy": 0.05,
+            "charge_collapse_filter_hartree_below_curve_median": CHARGE_COLLAPSE_ENERGY_DROP_HARTREE,
+            "catastrophic_charge_collapse_energy_hartree": CATASTROPHIC_CHARGE_COLLAPSE_ENERGY_HARTREE,
             "default_scf_strategy": "tblite modified-Broyden defaults",
             "scf_retry_strategies": [
                 "TBLITE_MIXER ITERATIONS 1200 MEMORY 1 DAMPING 0.05",

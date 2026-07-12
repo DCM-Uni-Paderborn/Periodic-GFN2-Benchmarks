@@ -92,10 +92,20 @@ def insert_kpoints(input_text: str, mesh: dict[str, object]) -> str:
     block = [
         "    &KPOINTS",
         f"      SCHEME {mesh['scheme']}",
-        "      FULL_GRID T",
-        "    &END KPOINTS",
     ]
+    if mesh["id"] != "gamma":
+        block += [
+            "      SYMMETRY T",
+            "      FULL_GRID F",
+            "      SYMMETRY_BACKEND SPGLIB",
+            "      SYMMETRY_REDUCTION_METHOD SPGLIB",
+        ]
+    block.append("    &END KPOINTS")
     return input_text.replace("    &END QS\n", "    &END QS\n" + "\n".join(block) + "\n", 1)
+
+
+def enable_cell_canonicalization(input_text: str) -> str:
+    return input_text.replace("    &CELL\n", "    &CELL\n      CANONICALIZE TRUE\n", 1)
 
 
 def prepare_inputs() -> None:
@@ -107,6 +117,7 @@ def prepare_inputs() -> None:
             for phase in PHASES:
                 base_path = ROOT / "inputs" / f"ice_{phase}_{method}.inp"
                 text = base_path.read_text()
+                text = enable_cell_canonicalization(text)
                 project = f"ice_{phase}_{method}_{mesh_id}"
                 text = text.replace(f"PROJECT ice_{phase}_{method}", f"PROJECT {project}")
                 if mesh_id != "gamma":
@@ -215,7 +226,7 @@ def analyse() -> dict[str, object]:
 
 def write_csv(path: Path, rows: list[dict[str, object]], fieldnames: list[str]) -> None:
     with path.open("w", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer = csv.DictWriter(handle, fieldnames=fieldnames, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 
@@ -263,6 +274,9 @@ plot '{dat}' using 1:3 with linespoints ls 1 title 'GFN1-xTB MAE', \\
 """
     subprocess.run(["gnuplot"], input=script.encode(), check=True)
     svg = FIGURES / "dmc_ice13_kpoint_mae.svg"
+    svg.write_text(
+        "\n".join(line.rstrip() for line in svg.read_text().splitlines()) + "\n"
+    )
     subprocess.run(["rsvg-convert", str(svg), "-o", str(svg.with_suffix(".png"))], check=True)
     subprocess.run(["rsvg-convert", "-f", "pdf", str(svg), "-o", str(svg.with_suffix(".pdf"))], check=True)
 

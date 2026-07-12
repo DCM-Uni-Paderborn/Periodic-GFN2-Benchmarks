@@ -59,7 +59,11 @@ def main() -> int:
     expected_results = {(solid, method, mesh) for solid, method in valid_pairs for mesh in energy_meshes}
     result_keys = {(row["solid"], row["method"], row["energy_mesh"]) for row in results}
     if result_keys != expected_results:
-        problems.append(f"Final result coverage differs: missing {sorted(expected_results - result_keys)}")
+        problems.append(
+            "Final result coverage differs: "
+            f"missing {sorted(expected_results - result_keys)}, "
+            f"unexpected {sorted(result_keys - expected_results)}"
+        )
     failed_sp = [row for row in results if not truth(row["sp_completed"])]
     if failed_sp:
         labels = ", ".join(f"{row['method']}/{row['solid']}/{row['energy_mesh']}" for row in failed_sp)

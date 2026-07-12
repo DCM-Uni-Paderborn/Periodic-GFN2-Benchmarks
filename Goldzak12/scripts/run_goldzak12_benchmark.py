@@ -17,10 +17,10 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_CP2K = Path("/Users/tkuehne/gxtb-local-build/install/cp2k/bin/cp2k.ssmp")
-DEFAULT_TBLITE = Path("/Users/tkuehne/gxtb-local-build/install/tblite/bin/tblite")
-DEFAULT_CP2K_SOURCE = Path("/Users/tkuehne/gxtb-local-build/cp2k")
-DEFAULT_TBLITE_SOURCE = Path("/Users/tkuehne/gxtb-local-build/tblite")
+DEFAULT_CP2K = Path(os.environ.get("CP2K", "cp2k.ssmp"))
+DEFAULT_TBLITE = Path(os.environ.get("TBLITE", "tblite"))
+DEFAULT_CP2K_SOURCE = Path(os.environ.get("CP2K_SOURCE", "../cp2k"))
+DEFAULT_TBLITE_SOURCE = Path(os.environ.get("TBLITE_SOURCE", "../tblite"))
 HARTREE_TO_EV = 27.211386245988
 FLOAT = r"[-+]?(?:\d+\.\d*|\.\d+|\d+)(?:[Ee][-+]?\d+)?"
 
@@ -121,7 +121,10 @@ def kpoint_block(mesh: str) -> list[str]:
     return [
         "    &KPOINTS",
         f"      SCHEME MACDONALD {n} {n} {n} {shift:.10g} {shift:.10g} {shift:.10g}",
-        "      FULL_GRID T",
+        "      SYMMETRY T",
+        "      FULL_GRID F",
+        "      SYMMETRY_BACKEND SPGLIB",
+        "      SYMMETRY_REDUCTION_METHOD SPGLIB",
         "    &END KPOINTS",
     ]
 
@@ -208,6 +211,7 @@ def solid_input(ref: Reference, method: str, run_type: str, mesh: str, lattice_a
     lines += [
         "  &SUBSYS",
         "    &CELL",
+        "      CANONICALIZE TRUE",
         f"      ABC {lattice_a:.12f} {lattice_a:.12f} {lattice_a:.12f}",
         "      PERIODIC XYZ",
         "      SYMMETRY CUBIC",
@@ -354,20 +358,59 @@ def command_output(command: list[str], allow_empty: bool = False) -> str:
     return text if text else f"exit status {proc.returncode}"
 
 
+def shared_library_hashes(executable: Path) -> dict[str, str]:
+    roots = (executable.resolve().parent, executable.resolve().parent.parent / "lib")
+    patterns = ("libcp2k*.dylib", "libcp2k*.so*", "libtblite*.dylib", "libtblite*.so*")
+    libraries: dict[str, str] = {}
+    seen: set[Path] = set()
+    for root in roots:
+        if not root.is_dir():
+            continue
+        for pattern in patterns:
+            for candidate in sorted(root.glob(pattern)):
+                resolved = candidate.resolve()
+                if not resolved.is_file() or resolved in seen:
+                    continue
+                seen.add(resolved)
+                libraries[resolved.name] = sha256(resolved)
+    return libraries
+
+
+def version_summary(executable: Path) -> str:
+    lines = command_output([str(executable), "--version"]).splitlines()
+    summary = []
+    for line in lines:
+        if line.strip().lower().startswith("compiler options:"):
+            break
+        summary.append(line.rstrip())
+    return "\n".join(summary)
+
+
 def git_metadata(source: Path) -> dict[str, object]:
     if not source.exists():
-        return {"source_path": str(source), "available": False}
+        return {"available": False}
     revision = command_output(["git", "-C", str(source), "rev-parse", "HEAD"])
     branch = command_output(["git", "-C", str(source), "branch", "--show-current"])
     status = command_output(["git", "-C", str(source), "status", "--short"], allow_empty=True)
     diff = command_output(["git", "-C", str(source), "diff", "--binary"], allow_empty=True)
     return {
-        "source_path": str(source.resolve()),
         "available": True,
         "revision": revision,
         "branch": branch,
-        "status": status,
+        "dirty": bool(status),
         "working_tree_diff_sha256": hashlib.sha256(diff.encode()).hexdigest(),
+    }
+
+
+def repository_patch_metadata() -> dict[str, dict[str, str]]:
+    patches = {
+        "cp2k": ROOT.parent / "patches" / "cp2k_trunk_tblite_full_symmetry_scc.patch",
+        "tblite": ROOT.parent / "patches" / "tblite_main_pr350_wsc_derivatives.patch",
+    }
+    return {
+        name: {"path": f"../../patches/{path.name}", "sha256": sha256(path)}
+        for name, path in patches.items()
+        if path.is_file()
     }
 
 
@@ -380,17 +423,20 @@ def write_build_provenance(
 ) -> None:
     payload = {
         "cp2k": {
-            "executable": str(cp2k.resolve()),
+            "executable": cp2k.name,
             "sha256": sha256(cp2k),
-            "version": command_output([str(cp2k), "--version"]),
+            "shared_library_sha256": shared_library_hashes(cp2k),
+            "version": version_summary(cp2k),
             "source": git_metadata(cp2k_source),
         },
         "tblite": {
-            "executable": str(tblite.resolve()),
+            "executable": tblite.name,
             "sha256": sha256(tblite),
-            "version": command_output([str(tblite), "--version"]),
+            "shared_library_sha256": shared_library_hashes(tblite),
+            "version": version_summary(tblite),
             "source": git_metadata(tblite_source),
         },
+        "repository_patches": repository_patch_metadata(),
         "protocol": protocol,
     }
     path = ROOT / "data" / "build_provenance.json"
@@ -408,10 +454,10 @@ def parse_cell_from_restart(path: Path) -> tuple[list[float], list[float], list[
     for line in lines:
         stripped = line.strip()
         upper = stripped.upper()
-        if upper.startswith("&CELL"):
+        if upper.split()[0] == "&CELL":
             in_cell = True
             continue
-        if in_cell and upper.startswith("&END CELL"):
+        if in_cell and upper in {"&END CELL", "&END"}:
             break
         if not in_cell:
             continue
@@ -633,6 +679,10 @@ def generate_final_sp_inputs(cell_mesh: str, energy_meshes: list[str]) -> None:
         for method in METHODS:
             cell_project = project_name(ref.solid, method, "cellopt", cell_mesh)
             run_dir = ROOT / "runs" / "cellopt" / method / ref.solid / cell_mesh
+            opt_output = run_dir / f"{cell_project}.out"
+            if not output_ok(opt_output, require_opt=True):
+                missing.append(f"{method} {ref.solid}")
+                continue
             a_opt = optimized_lattice(run_dir, cell_project)
             if a_opt is None:
                 missing.append(f"{method} {ref.solid}")
@@ -689,8 +739,9 @@ def analyse(cell_mesh: str, energy_meshes: list[str], result_mesh: str) -> None:
         for method in METHODS:
             cell_project = project_name(ref.solid, method, "cellopt", cell_mesh)
             cell_run = ROOT / "runs" / "cellopt" / method / ref.solid / cell_mesh
-            a_opt = optimized_lattice(cell_run, cell_project)
             opt_out = cell_run / f"{cell_project}.out"
+            cellopt_completed = output_ok(opt_out, require_opt=True)
+            a_opt = optimized_lattice(cell_run, cell_project) if cellopt_completed else None
             opt_energy = parse_energy(opt_out)
             atom_sum = None
             if all((method, el) in atom_e for el in counts):
@@ -709,7 +760,7 @@ def analyse(cell_mesh: str, energy_meshes: list[str], result_mesh: str) -> None:
                         "method": method,
                         "cell_mesh": cell_mesh,
                         "energy_mesh": mesh,
-                        "cellopt_completed": output_ok(opt_out, require_opt=True),
+                        "cellopt_completed": cellopt_completed,
                         "sp_completed": output_ok(sp_out, require_opt=False),
                         "a_calc_A": f"{a_opt:.8f}" if a_opt is not None else "",
                         "a_ref_exp_A": ref.a_exp,
@@ -902,6 +953,13 @@ def main() -> int:
     p_run.add_argument("--threads", type=int, default=1)
     p_run.add_argument("--force", action="store_true")
 
+    p_sp = sub.add_parser("single-points")
+    common(p_sp)
+    p_sp.add_argument("--cp2k", type=Path, default=DEFAULT_CP2K)
+    p_sp.add_argument("--jobs", type=int, default=4)
+    p_sp.add_argument("--threads", type=int, default=1)
+    p_sp.add_argument("--force", action="store_true")
+
     p_analyse = sub.add_parser("analyse")
     common(p_analyse)
     p_analyse.add_argument("--result-mesh", default="")
@@ -917,6 +975,12 @@ def main() -> int:
         setup_inputs(args.cell_mesh, energy_meshes)
         run_tblite_atom_jobs(args.tblite, args.jobs, args.force)
         run_jobs(cellopt_job_specs(args.cell_mesh), args.cp2k, args.jobs, args.threads, args.force)
+        generate_final_sp_inputs(args.cell_mesh, energy_meshes)
+        run_jobs(sp_job_specs(energy_meshes), args.cp2k, args.jobs, args.threads, args.force)
+        analyse(args.cell_mesh, energy_meshes, energy_meshes[-1])
+        return 0
+
+    if args.command == "single-points":
         generate_final_sp_inputs(args.cell_mesh, energy_meshes)
         run_jobs(sp_job_specs(energy_meshes), args.cp2k, args.jobs, args.threads, args.force)
         analyse(args.cell_mesh, energy_meshes, energy_meshes[-1])
