@@ -17,6 +17,10 @@ LATTICE_CSV = DATA / "x23b_lattice_energies.csv"
 VOLUME_CSV = DATA / "x23b_cell_volumes.csv"
 SUMMARY_CSV = DATA / "x23b_summary.csv"
 PIPELINE = X23B / "scripts" / "x23b_pipeline.py"
+ENERGY_CALCULATION = "cell_opt_single_point"
+ENERGY_MESH = "k333"
+GEOMETRY_MESH = "k222"
+ENERGY_LABEL = "k222 opt + k333 SP"
 
 
 def load_pipeline_constants():
@@ -32,14 +36,22 @@ def read_rows() -> list[dict[str, str]]:
         lattice_rows = [
             row
             for row in csv.DictReader(handle)
-            if row["calculation"] == "cell_opt" and row["mesh"] == "k222"
+            if row["calculation"] == ENERGY_CALCULATION and row["mesh"] == ENERGY_MESH
         ]
     with VOLUME_CSV.open(newline="") as handle:
         volumes = {
             (row["system"], row["method"]): row
             for row in csv.DictReader(handle)
-            if row["calculation"] == "cell_opt" and row["mesh"] == "k222"
+            if row["calculation"] == "cell_opt" and row["mesh"] == GEOMETRY_MESH
         }
+    if len(lattice_rows) != 46 or len(volumes) != 46:
+        raise ValueError(
+            "publication plots require 46 final-geometry energy rows and 46 k222 volume rows; "
+            f"found {len(lattice_rows)} and {len(volumes)}"
+        )
+    lattice_keys = {(row["system"], row["method"]) for row in lattice_rows}
+    if lattice_keys != set(volumes):
+        raise ValueError("final-geometry energy and k222 volume rows do not cover identical systems")
     rows = []
     for row in lattice_rows:
         volume = volumes[(row["system"], row["method"])]
@@ -53,13 +65,33 @@ def read_summary() -> dict[str, dict[str, float]]:
     out: dict[str, dict[str, float]] = {}
     with SUMMARY_CSV.open(newline="") as handle:
         for row in csv.DictReader(handle):
-            if row["calculation"] != "cell_opt" or row["mesh"] != "k222":
-                continue
             method = row["method"]
+            if (
+                row["quantity"] == "lattice_energy_kJmol"
+                and row["calculation"] == ENERGY_CALCULATION
+                and row["mesh"] == ENERGY_MESH
+            ):
+                prefix = "lattice_energy"
+            elif (
+                row["quantity"] == "volume_error_percent"
+                and row["calculation"] == "cell_opt"
+                and row["mesh"] == GEOMETRY_MESH
+            ):
+                prefix = "volume"
+            else:
+                continue
             out.setdefault(method, {})
-            prefix = "lattice_energy" if row["quantity"] == "lattice_energy_kJmol" else "volume"
             for key in ("ME", "MAE", "RMSE", "MaxAE"):
                 out[method][f"{prefix}_{key}"] = float(row[key])
+    required = {
+        f"{prefix}_{key}"
+        for prefix in ("lattice_energy", "volume")
+        for key in ("ME", "MAE", "RMSE", "MaxAE")
+    }
+    for method in ("GFN1-xTB", "GFN2-xTB"):
+        missing = sorted(required - set(out.get(method, {})))
+        if missing:
+            raise ValueError(f"incomplete publication summary for {method}: {', '.join(missing)}")
     return out
 
 
@@ -99,8 +131,8 @@ def make_lattice_profile(rows: list[dict[str, str]], constants) -> None:
     ax.axhline(0.0, color="#555555", linewidth=1.0)
     ax.errorbar(x, dmc - refs, yerr=dmc_err, fmt="o", color="#4C78A8", markersize=4.5, linewidth=1.1, capsize=2, label="DMC X23 - X23b")
     ax.plot(x, mlcc - refs, "-s", color="#7E57C2", linewidth=1.2, markersize=4.2, label="ML-CCSD(T)/RPA+ph - X23b")
-    ax.plot(x, gfn1, "-D", color="#E45756", linewidth=1.4, markersize=4.3, label="GFN1-xTB k222 opt - X23b")
-    ax.plot(x, gfn2, "-^", color="#54A24B", linewidth=1.4, markersize=4.5, label="GFN2-xTB k222 opt - X23b")
+    ax.plot(x, gfn1, "-D", color="#E45756", linewidth=1.4, markersize=4.3, label=f"GFN1-xTB {ENERGY_LABEL} - X23b")
+    ax.plot(x, gfn2, "-^", color="#54A24B", linewidth=1.4, markersize=4.5, label=f"GFN2-xTB {ENERGY_LABEL} - X23b")
     ax.set_ylabel("Deviation from X23b / kJ mol$^{-1}$")
     ax.set_xticks(x)
     ax.set_xticklabels(labels, rotation=55, ha="right", fontsize=9)
@@ -121,8 +153,8 @@ def make_error_ranges(rows: list[dict[str, str]], constants) -> None:
     mlcc = [constants.MULTILEVEL_CC_X23[str(system["id"])] - float(system["ref_energy"]) for system in constants.SYSTEMS]
     dmc = [constants.DMC_X23[str(system["id"])][0] - float(system["ref_energy"]) for system in constants.SYSTEMS]
     series = [
-        ("GFN1-xTB k222 opt", gfn1),
-        ("GFN2-xTB k222 opt", gfn2),
+        (f"GFN1-xTB {ENERGY_LABEL}", gfn1),
+        (f"GFN2-xTB {ENERGY_LABEL}", gfn2),
         ("ML-CCSD(T)/RPA+ph", mlcc),
         ("DMC-X23", dmc),
     ]
@@ -171,13 +203,20 @@ def make_mae_summary(summary: dict[str, dict[str, float]]) -> None:
     ax1.set_xticklabels(methods)
     ax1.set_ylabel("Lattice-energy MAE / kJ mol$^{-1}$")
     ax2.set_ylabel("Volume MAE / %")
-    ax1.set_title("X23b native Bloch k222 cell optimization")
+    fig.suptitle("X23b native Bloch k222 optimization; k333 energy", y=0.99)
     ax1.grid(axis="y", color="#e2e2e2", linewidth=0.7)
     for bars, axis in [(b1, ax1), (b2, ax2)]:
         for bar in bars:
             axis.text(bar.get_x() + bar.get_width() / 2, bar.get_height(), f"{bar.get_height():.2f}", ha="center", va="bottom", fontsize=9)
-    ax1.legend([b1, b2], ["Lattice-energy MAE", "Volume MAE"], frameon=False, loc="upper left")
-    fig.tight_layout()
+    fig.legend(
+        [b1, b2],
+        ["Lattice-energy MAE", "Volume MAE"],
+        frameon=False,
+        loc="upper center",
+        bbox_to_anchor=(0.5, 0.92),
+        ncol=2,
+    )
+    fig.tight_layout(rect=(0.0, 0.0, 1.0, 0.83))
     save_all(fig, "x23b_mae_summary")
     plt.close(fig)
 

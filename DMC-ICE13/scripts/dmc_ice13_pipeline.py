@@ -217,8 +217,9 @@ def analyse(root: Path) -> dict:
         ih = per_h2o["Ih"]
         rel = {phase: (per_h2o[phase] - ih) * HARTREE_TO_KJMOL for phase in PHASES}
         errors = {phase: rel[phase] - (DMC_ABS_KJMOL[phase] - DMC_ABS_KJMOL["Ih"]) for phase in PHASES}
-        abs_errors = [abs(errors[p]) for p in PHASES]
-        signed_errors = [errors[p] for p in PHASES]
+        benchmark_phases = [phase for phase in PHASES if phase != "Ih"]
+        abs_errors = [abs(errors[phase]) for phase in benchmark_phases]
+        signed_errors = [errors[phase] for phase in benchmark_phases]
         results[method] = {
             "complete": True,
             "energies_hartree": values,

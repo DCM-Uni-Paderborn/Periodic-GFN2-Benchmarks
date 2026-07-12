@@ -22,7 +22,7 @@ run_one() {
   cp "inputs/${input}" "${run_dir}/"
   (
     cd "${run_dir}"
-    if grep -q "ENERGY| Total FORCE_EVAL" "${output}" 2>/dev/null; then
+    if [[ ${FORCE_RERUN:-0} != 1 ]] && grep -q "ENERGY| Total FORCE_EVAL" "${output}" 2>/dev/null; then
       echo "SKIP ${method} ${phase}"
     else
       echo "RUN  ${method} ${phase}"

@@ -1,0 +1,53 @@
+{
+  "benchmark": "X23b",
+  "rerun_date": "2026-07-12",
+  "cp2k": {
+    "source_revision": "faf9aae91266170dfee8a9f7171a5135bc5eb368",
+    "version": "2026.1 (Development Version)",
+    "development_trunk": true,
+    "executable_sha256": "f2b8e6e516b60d49af722997dd0bf06c10b54b2a2a221f786e5eaea38cccd8a5",
+    "library_sha256": "7656b6154614290d3e121f2f7a2d527b5e0e5d128eacf456e3c35e847894741d"
+  },
+  "tblite": {
+    "main_revision": "eb50bbfbe1c0869e2e18c9b7cc13144e5130b6df",
+    "pr350_revision": "8c5e56255dc0f7001615489f24162ed770888d8b",
+    "local_merge_revision": "8a9d09474b93d25c044d6f46ce920750c7fe4cf7",
+    "includes_pr343": true,
+    "includes_complete_pr350": true,
+    "version": "0.6.0",
+    "executable_sha256": "d50145af569a6ce4ea4e73e68d1cb004c3ca240105deb941c0244b7d431ed47f",
+    "library_sha256": "f7bd2a841543dcbb71da0954f2e2bf016b7a202dace377f26f72ac139035c3e6"
+  },
+  "repository_patches": {
+    "cp2k": {
+      "path": "../../patches/cp2k_trunk_tblite_full_symmetry_scc.patch",
+      "sha256": "a54705795ea3c5c3ffd6e5e2197e00329e49b5ced05d3945f7ce39e9d84e3a2a"
+    },
+    "tblite": {
+      "path": "../../patches/tblite_main_pr350_wsc_derivatives.patch",
+      "sha256": "1fbc37841a420cb766d3aeafac59fb1479c3bc2874152620356059518d7ff5c7"
+    }
+  },
+  "protocol": {
+    "cell_optimization": "native Bloch k222 KEEP_ANGLES with full SPGLIB symmetry reduction",
+    "reported_lattice_energy": "native Bloch k333 single point on final k222 geometry",
+    "energy_convergence_check": "native Bloch k444 single point on final k222 geometry",
+    "monomer_reference": "optimized gas-phase molecule",
+    "k222_shift": [0.25, 0.25, 0.25],
+    "k333_shift": [0.0, 0.0, 0.0],
+    "k444_shift": [0.375, 0.375, 0.375]
+  },
+  "validation": {
+    "cell_optimizations_expected": 46,
+    "cell_optimizations_completed": 46,
+    "k333_single_points_expected": 46,
+    "k333_single_points_completed": 46,
+    "k444_single_points_expected": 46,
+    "k444_single_points_completed": 46,
+    "k333_to_k444_mean_abs_change_kJmol": {
+      "GFN1-xTB": 0.079328969552,
+      "GFN2-xTB": 0.084264691802
+    },
+    "native_bloch_fd_force_stress_relative_error_percent_max": 0.01
+  }
+}

@@ -1,0 +1,3248 @@
+diff --git a/src/cp_control_types.F b/src/cp_control_types.F
+index b1145463..d8bbd749 100644
+--- a/src/cp_control_types.F
++++ b/src/cp_control_types.F
+@@ -274,6 +274,8 @@ MODULE cp_control_types
+       REAL(KIND=dp)                        :: tblite_mixer_omega0 = tblite_mixer_omega0_default
+       REAL(KIND=dp)                        :: tblite_mixer_weight_factor = tblite_mixer_weight_factor_default
+       CHARACTER(LEN=default_path_length)   :: tblite_param_file = ""
++      CHARACTER(LEN=default_path_length)   :: tblite_scc_restart_file = ""
++      CHARACTER(LEN=default_path_length)   :: tblite_scc_restart_write_file = ""
+       !
+       INTEGER                              :: vdw_type = -1
+       CHARACTER(LEN=default_path_length)   :: parameter_file_path = ""
+diff --git a/src/cp_control_utils.F b/src/cp_control_utils.F
+index c90741ff..1b60684b 100644
+--- a/src/cp_control_utils.F
++++ b/src/cp_control_utils.F
+@@ -1821,6 +1821,10 @@ CONTAINS
+                                    c_val=qs_control%xtb_control%tblite_param_file)
+          CALL section_vals_val_get(xtb_tblite, "ACCURACY", &
+                                    r_val=qs_control%xtb_control%tblite_accuracy)
++         CALL section_vals_val_get(xtb_tblite, "SCC_RESTART_FILE_NAME", &
++                                   c_val=qs_control%xtb_control%tblite_scc_restart_file)
++         CALL section_vals_val_get(xtb_tblite, "SCC_RESTART_WRITE_FILE_NAME", &
++                                   c_val=qs_control%xtb_control%tblite_scc_restart_write_file)
+          IF (qs_control%xtb_control%tblite_accuracy <= 0.0_dp) &
+             CPABORT("XTB/TBLITE/ACCURACY must be positive")
+          IF (qs_control%xtb_control%tblite_mixer_damping <= 0.0_dp) &
+diff --git a/src/cryssym.F b/src/cryssym.F
+index 9dd7b203..4c28f5b5 100644
+--- a/src/cryssym.F
++++ b/src/cryssym.F
+@@ -898,9 +898,7 @@ CONTAINS
+ 
+             duplicate = .FALSE.
+             DO jop = 1, nrot
+-               IF (ALL(frot == srot(:, :, jop)) .AND. &
+-                   ALL(ABS(csym%translations(1:3, iop) - csym%vt(1:3, jop) - &
+-                           ANINT(csym%translations(1:3, iop) - csym%vt(1:3, jop))) <= eps)) THEN
++               IF (ALL(frot == srot(:, :, jop))) THEN
+                   duplicate = .TRUE.
+                   EXIT
+                END IF
+@@ -1716,12 +1714,14 @@ CONTAINS
+       REAL(KIND=dp), DIMENSION(3), INTENT(IN)            :: a1, a2, a3, b1, b2, b3
+       REAL(KIND=dp), INTENT(IN)                          :: alat
+ 
+-      INTEGER                                            :: i, ibsign, iop, j, kr, nkpts
++      INTEGER                                            :: i, ibsign, iop, j, kr, nkpts, &
++                                                            nskipped_overlaps
+       REAL(KIND=dp)                                      :: eps
+       REAL(KIND=dp), DIMENSION(3)                        :: diff, rr, wcart
+ 
+       nkpts = SIZE(wkp)
+       eps = MAX(1.e-12_dp, 10.0_dp*csym%delta)
++      nskipped_overlaps = 0
+ 
+       wkp = 0.0_dp
+       kpop = 0
+@@ -1755,8 +1755,11 @@ CONTAINS
+                         csym%kplink(1, j) = i
+                         wkp(i) = wkp(i) + 1.0_dp
+                         kpop(j) = kr
+-                     ELSE
+-                        CPASSERT(csym%kplink(1, j) == i)
++                     ELSEIF (csym%kplink(1, j) /= i) THEN
++                        ! Approximate K290 operation sets need not be closed for structures whose
++                        ! coordinates lie close to several symmetry tolerances. Keep the existing
++                        ! disjoint orbit instead of aborting or double-counting this mesh point.
++                        nskipped_overlaps = nskipped_overlaps + 1
+                      END IF
+                      EXIT
+                   END IF
+@@ -1767,10 +1770,28 @@ CONTAINS
+          END DO
+       END DO
+ 
+-      DO i = 1, nkpts
+-         CPASSERT(csym%kplink(1, i) /= 0)
+-         CPASSERT(kpop(i) /= 0)
+-      END DO
++      IF (nskipped_overlaps > 0) THEN
++         wkp = 1.0_dp
++         CALL inversion_symm(xkp, wkp, csym%kplink(1, :))
++         DO i = 1, nkpts
++            IF (wkp(i) > 0.0_dp) THEN
++               kpop(i) = 1
++            ELSE
++               kpop(i) = 2
++            END IF
++         END DO
++         csym%nrtot = 0
++         csym%inversion_only = .TRUE.
++         CALL cp_warn(__LOCATION__, &
++                      "The K290 k-point operations produced overlapping, non-closed mesh orbits; "// &
++                      "falling back to inversion/time-reversal symmetry. Use SYMMETRY_BACKEND SPGLIB "// &
++                      "for full reduction by a closed crystallographic symmetry group.")
++      ELSE
++         DO i = 1, nkpts
++            CPASSERT(csym%kplink(1, i) /= 0)
++            CPASSERT(kpop(i) /= 0)
++         END DO
++      END IF
+ 
+    END SUBROUTINE reduce_kpoint_mesh
+ 
+diff --git a/src/force_env_methods.F b/src/force_env_methods.F
+index b9bc561f..c42551ff 100644
+--- a/src/force_env_methods.F
++++ b/src/force_env_methods.F
+@@ -545,9 +545,13 @@ CONTAINS
+ 
+       CHARACTER(LEN=default_string_length)               :: kp_scheme
+       INTEGER                                            :: run_type_id
+-      LOGICAL :: debug_full_kpoint_symmetry, debug_inversion_only, do_kpoints, dynamic_symmetry, &
++      REAL(KIND=dp), PARAMETER                           :: eps_cell = 1.0E-14_dp
++
++      LOGICAL :: debug_full_kpoint_symmetry, debug_full_kpoint_symmetry_explicit, &
++         debug_inversion_only, do_kpoints, dynamic_symmetry, force_full_debug_symmetry, &
+          full_grid, input_full_grid, input_inversion_symmetry_only, inversion_symmetry_only, &
+-         kpoint_symmetry, moving_geometry, use_full_grid, use_inversion_symmetry_only
++         kpoint_symmetry, moving_geometry, non_lower_triangular_cell, &
++         use_full_grid, use_inversion_symmetry_only
+       TYPE(cell_type), POINTER                           :: cell
+       TYPE(cp_blacs_env_type), POINTER                   :: blacs_env
+       TYPE(dft_control_type), POINTER                    :: dft_control
+@@ -599,23 +603,36 @@ CONTAINS
+       input_full_grid = full_grid
+       input_inversion_symmetry_only = inversion_symmetry_only
+       debug_full_kpoint_symmetry = .FALSE.
++      debug_full_kpoint_symmetry_explicit = .FALSE.
+       IF (ASSOCIATED(input)) THEN
+          kpoint_section => section_vals_get_subs_vals(input, "DFT%KPOINTS")
+          CALL section_vals_val_get(kpoint_section, "FULL_GRID", l_val=input_full_grid)
+          CALL section_vals_val_get(kpoint_section, "INVERSION_SYMMETRY_ONLY", &
+                                    l_val=input_inversion_symmetry_only)
+          CALL section_vals_val_get(kpoint_section, "DEBUG_FULL_KPOINT_SYMMETRY", &
+-                                   l_val=debug_full_kpoint_symmetry)
++                                   l_val=debug_full_kpoint_symmetry, &
++                                   explicit=debug_full_kpoint_symmetry_explicit)
+       END IF
+       ! Moving geometries and DEBUG finite differences must not reuse atomic symmetry from
+       ! another geometry. Rebuild the k-point symmetry from the current cell and positions.
+-      ! Keep numerical finite-difference energies and DFTB DEBUG checks on the established
+-      ! inversion/time-reversal reduction.
++      ! An explicit DEBUG_FULL_KPOINT_SYMMETRY OFF keeps numerical finite-difference
++      ! energies and DFTB DEBUG checks on inversion/time-reversal reduction.
+       debug_inversion_only = run_type_id == debug_run .AND. .NOT. debug_full_kpoint_symmetry .AND. &
+                              (fd_energy .OR. dft_control%qs_control%dftb)
++      force_full_debug_symmetry = run_type_id == debug_run .AND. debug_full_kpoint_symmetry_explicit .AND. &
++                                  debug_full_kpoint_symmetry
+       use_full_grid = input_full_grid
+       use_inversion_symmetry_only = (input_inversion_symmetry_only .OR. debug_inversion_only) .AND. &
+                                     (.NOT. use_full_grid)
++      ! Preserve restrictions selected during initial setup. The explicit DEBUG expert option
++      ! remains available for symmetry diagnostics on otherwise unsupported cell matrices.
++      IF (inversion_symmetry_only .AND. .NOT. force_full_debug_symmetry .AND. .NOT. use_full_grid) &
++         use_inversion_symmetry_only = .TRUE.
++      non_lower_triangular_cell = (ABS(cell%hmat(2, 1)) > eps_cell) .OR. &
++                                  (ABS(cell%hmat(3, 1)) > eps_cell) .OR. &
++                                  (ABS(cell%hmat(3, 2)) > eps_cell)
++      IF (non_lower_triangular_cell .AND. .NOT. force_full_debug_symmetry .AND. .NOT. use_full_grid) &
++         use_inversion_symmetry_only = .TRUE.
+       dynamic_symmetry = kpoint_symmetry .AND. .NOT. use_full_grid .AND. &
+                          .NOT. use_inversion_symmetry_only
+       IF (run_type_id == debug_run .AND. .NOT. fd_energy .AND. .NOT. dynamic_symmetry .AND. &
+diff --git a/src/input_cp2k_kpoints.F b/src/input_cp2k_kpoints.F
+index 583306a3..29c032fe 100644
+--- a/src/input_cp2k_kpoints.F
++++ b/src/input_cp2k_kpoints.F
+@@ -152,11 +152,11 @@ CONTAINS
+ 
+       CALL keyword_create(keyword, __LOCATION__, name="DEBUG_FULL_KPOINT_SYMMETRY", &
+                           description="Use full atomic k-point symmetry also for DEBUG finite-difference "// &
+-                          "points. This is an expert option: the default keeps finite-difference energies "// &
+-                          "on inversion/time-reversal symmetry to avoid comparing slightly different "// &
+-                          "irreducible k-point sets.", &
++                          "points. This is enabled by default so analytical and finite-difference "// &
++                          "evaluations use the symmetry of their current geometry. Disable it to restrict "// &
++                          "DEBUG finite-difference energies to inversion/time-reversal symmetry.", &
+                           usage="DEBUG_FULL_KPOINT_SYMMETRY <LOGICAL>", &
+-                          default_l_val=.FALSE., lone_keyword_l_val=.TRUE.)
++                          default_l_val=.TRUE., lone_keyword_l_val=.TRUE.)
+       CALL section_add_keyword(section, keyword)
+       CALL keyword_release(keyword)
+ 
+diff --git a/src/input_cp2k_tb.F b/src/input_cp2k_tb.F
+index ba3342df..8495ca1a 100644
+--- a/src/input_cp2k_tb.F
++++ b/src/input_cp2k_tb.F
+@@ -43,6 +43,7 @@ MODULE input_cp2k_tb
+                                               section_release,&
+                                               section_type
+    USE input_val_types,                 ONLY: char_t,&
++                                              lchar_t,&
+                                               real_t
+    USE kinds,                           ONLY: dp
+    USE string_utilities,                ONLY: s2a
+@@ -674,6 +675,28 @@ CONTAINS
+       CALL section_add_keyword(section, keyword)
+       CALL keyword_release(keyword)
+ 
++      CALL keyword_create(keyword, __LOCATION__, name="SCC_RESTART_FILE_NAME", &
++                          description="Read the initial tblite SCC variables from a native tblite wavefunction "// &
++                          "restart file. CP2K imports shell populations and atomic dipole and quadrupole moments; "// &
++                          "the orbital density and Bloch coefficients remain controlled by DFT/SCF/SCF_GUESS and "// &
++                          "DFT/WFN_RESTART_FILE_NAME. This is useful for continuing a converged SCC branch across "// &
++                          "nearby cells or geometries.", &
++                          usage="SCC_RESTART_FILE_NAME tblite-scc-in.npz", n_var=1, type_of_var=lchar_t, &
++                          default_lc_val="")
++      CALL section_add_keyword(section, keyword)
++      CALL keyword_release(keyword)
++
++      CALL keyword_create(keyword, __LOCATION__, name="SCC_RESTART_WRITE_FILE_NAME", &
++                          description="Write the current tblite SCC variables in a native tblite wavefunction "// &
++                          "container after each electronic update. The file is intended as input to "// &
++                          "SCC_RESTART_FILE_NAME; CP2K guarantees the SCC populations and multipoles stored in it. "// &
++                          "Use a distinct output file when continuing between separate calculations so a failed run "// &
++                          "cannot overwrite its good seed.", &
++                          usage="SCC_RESTART_WRITE_FILE_NAME tblite-scc-out.npz", n_var=1, type_of_var=lchar_t, &
++                          default_lc_val="")
++      CALL section_add_keyword(section, keyword)
++      CALL keyword_release(keyword)
++
+       NULLIFY (keyword)
+       CALL keyword_create(keyword, __LOCATION__, name="REFERENCE_CLI", &
+                           description="Enable an optional diagnostic comparison against an external native tblite "// &
+diff --git a/src/kpoint_methods.F b/src/kpoint_methods.F
+index dde3c497..f0a0fe1e 100644
+--- a/src/kpoint_methods.F
++++ b/src/kpoint_methods.F
+@@ -15,6 +15,7 @@
+ MODULE kpoint_methods
+    USE atomic_kind_types,               ONLY: get_atomic_kind
+    USE cell_types,                      ONLY: cell_type,&
++                                              pbc,&
+                                               real_to_scaled
+    USE cp_blacs_env,                    ONLY: cp_blacs_env_create,&
+                                               cp_blacs_env_type
+@@ -33,6 +34,7 @@ MODULE kpoint_methods
+         dbcsr_replicate_all, dbcsr_set, dbcsr_type, dbcsr_type_antisymmetric, &
+         dbcsr_type_no_symmetry, dbcsr_type_symmetric
+    USE cp_dbcsr_cp2k_link,              ONLY: cp_dbcsr_alloc_block_from_nbl
++   USE cp_dbcsr_contrib,                ONLY: dbcsr_dot
+    USE cp_dbcsr_operations,             ONLY: copy_fm_to_dbcsr
+    USE cp_fm_basic_linalg,              ONLY: cp_fm_column_scale
+    USE cp_fm_pool_types,                ONLY: cp_fm_pool_p_type,&
+@@ -133,7 +135,7 @@ CONTAINS
+       LOGICAL                                            :: spez
+       REAL(KIND=dp)                                      :: eps_kpoint, wsum
+       REAL(KIND=dp), ALLOCATABLE, DIMENSION(:, :)        :: coord, scoord
+-      REAL(KIND=dp), DIMENSION(3)                        :: diff, kgvec, srot
++      REAL(KIND=dp), DIMENSION(3)                        :: diff, kgvec, r_pbc, scoord_pbc, srot
+       REAL(KIND=dp), DIMENSION(3, 3)                     :: srotmat
+       REAL(KIND=dp), DIMENSION(:), POINTER               :: wkp_full
+       REAL(KIND=dp), DIMENSION(:, :), POINTER            :: xkp_full
+@@ -184,11 +186,16 @@ CONTAINS
+          ! kind type list
+          ALLOCATE (kpoint%atype(natom))
+          kpoint%atype = atype
+-         ! Match the periodic gauge used by the k-space matrices.
++         ! Match the atom images used by CP2K's periodic neighbor lists.
+          ALLOCATE (agauge(3, natom))
+-         DO i = 1, natom
+-            agauge(1:3, i) = -FLOOR(scoord(1:3, i) + 0.5_dp - kpoint%eps_geo)
+-         END DO
++         agauge = 0
++         IF (kpoint%symmetry) THEN
++            DO i = 1, natom
++               r_pbc(1:3) = pbc(particle_set(i)%r(1:3), cell)
++               CALL real_to_scaled(scoord_pbc, r_pbc, cell)
++               agauge(1:3, i) = NINT(scoord_pbc(1:3) - scoord(1:3, i))
++            END DO
++         END IF
+ 
+          CALL crys_sym_gen(crys_sym, scoord, atype, cell%hmat, delta=kpoint%eps_geo, iounit=iounit, &
+                            use_spglib=kpoint%symmetry)
+@@ -198,6 +205,7 @@ CONTAINS
+                          use_spglib_reduction= &
+                          kpoint%symmetry_reduction_method == use_spglib_kpoint_symmetry, &
+                          use_spglib_backend=kpoint%symmetry_backend == use_spglib_kpoint_backend)
++         IF (crys_sym%inversion_only) kpoint%inversion_symmetry_only = .TRUE.
+          kpoint%nkp = crys_sym%nkpoint
+          ALLOCATE (kpoint%xkp(3, kpoint%nkp), kpoint%wkp(kpoint%nkp))
+          wsum = SUM(crys_sym%wkpoint)
+@@ -250,6 +258,9 @@ CONTAINS
+                   ALLOCATE (kpsym%rotp(ns))
+                   ALLOCATE (kpsym%f0(natom, ns))
+                   ALLOCATE (kpsym%fcell(3, natom, ns))
++                  ALLOCATE (kpsym%fcell_gauge(3, natom, ns))
++                  ALLOCATE (kpsym%phase_mode(ns))
++                  kpsym%phase_mode = 0
+                   ALLOCATE (kpsym%kgphase(natom, ns))
+                   nr = 0
+                   DO is = 1, SIZE(crys_sym%kplink, 2)
+@@ -274,6 +285,8 @@ CONTAINS
+                               DO j = 1, natom
+                                  srot(1:3) = MATMUL(srotmat, scoord(1:3, j)) + crys_sym%vt(1:3, ic)
+                                  kpsym%fcell(1:3, j, nr) = &
++                                    NINT(srot(1:3) - scoord(1:3, kpsym%f0(j, nr)))
++                                 kpsym%fcell_gauge(1:3, j, nr) = &
+                                     NINT(srot(1:3) - scoord(1:3, kpsym%f0(j, nr))) + &
+                                     MATMUL(frot(1:3, 1:3), agauge(1:3, j)) - &
+                                     agauge(1:3, kpsym%f0(j, nr))
+@@ -311,6 +324,8 @@ CONTAINS
+                                  DO j = 1, natom
+                                     srot(1:3) = MATMUL(srotmat, scoord(1:3, j)) + crys_sym%vt(1:3, ic)
+                                     kpsym%fcell(1:3, j, nr) = &
++                                       NINT(srot(1:3) - scoord(1:3, kpsym%f0(j, nr)))
++                                    kpsym%fcell_gauge(1:3, j, nr) = &
+                                        NINT(srot(1:3) - scoord(1:3, kpsym%f0(j, nr))) + &
+                                        MATMUL(frot(1:3, 1:3), agauge(1:3, j)) - &
+                                        agauge(1:3, kpsym%f0(j, nr))
+@@ -391,7 +406,9 @@ CONTAINS
+             kpoint%atype = atype
+             ALLOCATE (agauge(3, natom))
+             DO i = 1, natom
+-               agauge(1:3, i) = -FLOOR(scoord(1:3, i) + 0.5_dp - kpoint%eps_geo)
++               r_pbc(1:3) = pbc(particle_set(i)%r(1:3), cell)
++               CALL real_to_scaled(scoord_pbc, r_pbc, cell)
++               agauge(1:3, i) = NINT(scoord_pbc(1:3) - scoord(1:3, i))
+             END DO
+ 
+             CALL crys_sym_gen(crys_sym, scoord, atype, cell%hmat, delta=kpoint%eps_geo, iounit=iounit, &
+@@ -403,6 +420,7 @@ CONTAINS
+                                     use_spglib_reduction= &
+                                     kpoint%symmetry_reduction_method == use_spglib_kpoint_symmetry, &
+                                     use_spglib_backend=kpoint%symmetry_backend == use_spglib_kpoint_backend)
++            IF (crys_sym%inversion_only) kpoint%inversion_symmetry_only = .TRUE.
+             IF (ASSOCIATED(kpoint%xkp)) THEN
+                DEALLOCATE (kpoint%xkp)
+                NULLIFY (kpoint%xkp)
+@@ -458,6 +476,9 @@ CONTAINS
+                      ALLOCATE (kpsym%rotp(ns))
+                      ALLOCATE (kpsym%f0(natom, ns))
+                      ALLOCATE (kpsym%fcell(3, natom, ns))
++                     ALLOCATE (kpsym%fcell_gauge(3, natom, ns))
++                     ALLOCATE (kpsym%phase_mode(ns))
++                     kpsym%phase_mode = 0
+                      ALLOCATE (kpsym%kgphase(natom, ns))
+                      nr = 0
+                      DO is = 1, SIZE(crys_sym%kplink, 2)
+@@ -482,6 +503,8 @@ CONTAINS
+                                  DO j = 1, natom
+                                     srot(1:3) = MATMUL(srotmat, scoord(1:3, j)) + crys_sym%vt(1:3, ic)
+                                     kpsym%fcell(1:3, j, nr) = &
++                                       NINT(srot(1:3) - scoord(1:3, kpsym%f0(j, nr)))
++                                    kpsym%fcell_gauge(1:3, j, nr) = &
+                                        NINT(srot(1:3) - scoord(1:3, kpsym%f0(j, nr))) + &
+                                        MATMUL(frot(1:3, 1:3), agauge(1:3, j)) - &
+                                        agauge(1:3, kpsym%f0(j, nr))
+@@ -519,6 +542,8 @@ CONTAINS
+                                     DO j = 1, natom
+                                        srot(1:3) = MATMUL(srotmat, scoord(1:3, j)) + crys_sym%vt(1:3, ic)
+                                        kpsym%fcell(1:3, j, nr) = &
++                                          NINT(srot(1:3) - scoord(1:3, kpsym%f0(j, nr)))
++                                       kpsym%fcell_gauge(1:3, j, nr) = &
+                                           NINT(srot(1:3) - scoord(1:3, kpsym%f0(j, nr))) + &
+                                           MATMUL(frot(1:3, 1:3), agauge(1:3, j)) - &
+                                           agauge(1:3, kpsym%f0(j, nr))
+@@ -1737,7 +1762,8 @@ CONTAINS
+ !> \param for_aux_fit ...
+ !> \param pmat_ext ...
+ ! **************************************************************************************************
+-   SUBROUTINE kpoint_density_transform(kpoint, denmat, wtype, tempmat, sab_nl, fmwork, for_aux_fit, pmat_ext)
++   SUBROUTINE kpoint_density_transform(kpoint, denmat, wtype, tempmat, sab_nl, fmwork, for_aux_fit, &
++                                       pmat_ext, overlap_rs)
+ 
+       TYPE(kpoint_type), POINTER                         :: kpoint
+       TYPE(dbcsr_p_type), DIMENSION(:, :)                :: denmat
+@@ -1749,6 +1775,8 @@ CONTAINS
+       LOGICAL, OPTIONAL                                  :: for_aux_fit
+       TYPE(cp_fm_type), DIMENSION(:, :, :), INTENT(IN), &
+          OPTIONAL                                        :: pmat_ext
++      TYPE(dbcsr_p_type), DIMENSION(:, :), POINTER, &
++         OPTIONAL                                        :: overlap_rs
+ 
+       CHARACTER(LEN=*), PARAMETER :: routineN = 'kpoint_density_transform'
+ 
+@@ -1809,6 +1837,9 @@ CONTAINS
+ 
+       CALL get_kpoint_info(kpoint, nkp=nkp, xkp=xkp, wkp=wkp, &
+                            cell_to_index=cell_to_index)
++      IF (PRESENT(overlap_rs)) THEN
++         CALL calibrate_symmetry_phases(kpoint, overlap_rs, tempmat, sab_nl, cell_to_index)
++      END IF
+       ! initialize real space density matrices
+       IF (aux_fit) THEN
+          kp => kpoint%kp_aux_env(1)%kpoint_env
+@@ -1819,8 +1850,6 @@ CONTAINS
+       nc = SIZE(kp%mos, 1)
+       nimg = SIZE(denmat, 2)
+       real_only = (nc == 1)
+-      ! Gamma-centered even grids store atom-cell shifts in the opposite Bloch-phase convention.
+-      reverse_phase = kpoint%gamma_centered .AND. ANY(MOD(kpoint%nkp_grid(1:3), 2) == 0)
+ 
+       para_env => kpoint%blacs_env_all%para_env
+       ALLOCATE (info(nspin*nkp*nc))
+@@ -1900,10 +1929,12 @@ CONTAINS
+                   END DO
+                   CPASSERT(ira > 0)
+                   kind_rot => kpoint%kind_rotmat(ira, :)
++                  CPASSERT(kpsym%phase_mode(is) > 0)
++                  reverse_phase = kpsym%phase_mode(is) == 2
+                   CALL symtrans_phase(srpmat, scpmat, rpmat, cpmat, real_only, kind_rot, &
+                                       kpsym%rot(1:3, 1:3, is), kpsym%f0(:, is), &
+-                                      kpsym%fcell(:, :, is), kpoint%atype, kpsym%xkp(1:3, is), &
+-                                      kpsym%rotp(is) < 0, reverse_phase)
++                                      kpsym%fcell_gauge(:, :, is), kpoint%atype, &
++                                      kpsym%xkp(1:3, is), kpsym%rotp(is) < 0, reverse_phase)
+                   CALL transform_dmat(denmat, srpmat, scpmat, ispin, real_only, sab_nl, &
+                                       cell_to_index, kpsym%xkp(1:3, is), wkpx)
+                END DO
+@@ -2063,6 +2094,123 @@ CONTAINS
+ 
+    END SUBROUTINE ensure_work_matrix
+ 
++! **************************************************************************************************
++!> \brief Select the Bloch-phase convention that preserves overlap covariance.
++! **************************************************************************************************
++   SUBROUTINE calibrate_symmetry_phases(kpoint, overlap_rs, tempmat, sab_nl, cell_to_index)
++
++      TYPE(kpoint_type), POINTER                         :: kpoint
++      TYPE(dbcsr_p_type), DIMENSION(:, :), POINTER      :: overlap_rs
++      TYPE(dbcsr_type), POINTER                         :: tempmat
++      TYPE(neighbor_list_set_p_type), DIMENSION(:), &
++         POINTER                                         :: sab_nl
++      INTEGER, DIMENSION(:, :, :), POINTER               :: cell_to_index
++
++      CHARACTER(LEN=256)                                :: phase_error
++      INTEGER                                            :: best_mode, ik, ir, ira, is, jr, mode
++      LOGICAL                                            :: needs_calibration, reverse
++      REAL(KIND=dp)                                      :: best_residual, candidate_norm, direct_norm, &
++                                                            overlap_dot, phase_tolerance, relative_residual
++      TYPE(dbcsr_type), POINTER                          :: direct_c, direct_r, source_c, source_r, &
++                                                            sym_c, sym_r
++      TYPE(kind_rotmat_type), DIMENSION(:), POINTER      :: kind_rot
++      TYPE(kpoint_sym_type), POINTER                     :: kpsym
++
++      needs_calibration = .FALSE.
++      DO ik = 1, kpoint%nkp
++         kpsym => kpoint%kp_sym(ik)%kpoint_sym
++         IF (kpsym%apply_symmetry) THEN
++            IF (ANY(kpsym%phase_mode == 0)) THEN
++               needs_calibration = .TRUE.
++               EXIT
++            END IF
++         END IF
++      END DO
++      IF (.NOT. needs_calibration) RETURN
++
++      ALLOCATE (source_r, source_c, direct_r, direct_c, sym_r, sym_c)
++      CALL dbcsr_create(source_r, template=tempmat, matrix_type=dbcsr_type_symmetric)
++      CALL dbcsr_create(source_c, template=tempmat, matrix_type=dbcsr_type_antisymmetric)
++      CALL dbcsr_create(direct_r, template=tempmat, matrix_type=dbcsr_type_symmetric)
++      CALL dbcsr_create(direct_c, template=tempmat, matrix_type=dbcsr_type_antisymmetric)
++      CALL dbcsr_create(sym_r, template=tempmat, matrix_type=dbcsr_type_symmetric)
++      CALL dbcsr_create(sym_c, template=tempmat, matrix_type=dbcsr_type_antisymmetric)
++      CALL cp_dbcsr_alloc_block_from_nbl(source_r, sab_nl)
++      CALL cp_dbcsr_alloc_block_from_nbl(source_c, sab_nl)
++      CALL cp_dbcsr_alloc_block_from_nbl(direct_r, sab_nl)
++      CALL cp_dbcsr_alloc_block_from_nbl(direct_c, sab_nl)
++      CALL cp_dbcsr_alloc_block_from_nbl(sym_r, sab_nl)
++      CALL cp_dbcsr_alloc_block_from_nbl(sym_c, sab_nl)
++
++      phase_tolerance = MAX(1.0e-6_dp, 100.0_dp*kpoint%eps_geo)
++      DO ik = 1, kpoint%nkp
++         kpsym => kpoint%kp_sym(ik)%kpoint_sym
++         IF (.NOT. kpsym%apply_symmetry) CYCLE
++         IF (ALL(kpsym%phase_mode > 0)) CYCLE
++
++         CALL dbcsr_set(source_r, 0.0_dp)
++         CALL dbcsr_set(source_c, 0.0_dp)
++         CALL rskp_transform(source_r, source_c, overlap_rs, 1, kpoint%xkp(1:3, ik), &
++                             cell_to_index, sab_nl)
++
++         DO is = 1, kpsym%nwght
++            IF (kpsym%phase_mode(is) > 0) CYCLE
++            CALL dbcsr_set(direct_r, 0.0_dp)
++            CALL dbcsr_set(direct_c, 0.0_dp)
++            CALL rskp_transform(direct_r, direct_c, overlap_rs, 1, kpsym%xkp(1:3, is), &
++                                cell_to_index, sab_nl)
++            CALL dbcsr_dot(direct_r, direct_r, direct_norm)
++            CALL dbcsr_dot(direct_c, direct_c, candidate_norm)
++            direct_norm = direct_norm + candidate_norm
++
++            ir = ABS(kpsym%rotp(is))
++            ira = 0
++            DO jr = 1, SIZE(kpoint%ibrot)
++               IF (ir == kpoint%ibrot(jr)) ira = jr
++            END DO
++            CPASSERT(ira > 0)
++            kind_rot => kpoint%kind_rotmat(ira, :)
++
++            best_mode = 0
++            best_residual = HUGE(1.0_dp)
++            DO mode = 1, 2
++               reverse = mode == 2
++               CALL symtrans_phase(sym_r, sym_c, source_r, source_c, .FALSE., kind_rot, &
++                                   kpsym%rot(1:3, 1:3, is), kpsym%f0(:, is), &
++                                   kpsym%fcell_gauge(:, :, is), kpoint%atype, &
++                                   kpsym%xkp(1:3, is), kpsym%rotp(is) < 0, reverse)
++               CALL dbcsr_dot(sym_r, sym_r, candidate_norm)
++               CALL dbcsr_dot(sym_c, sym_c, relative_residual)
++               candidate_norm = candidate_norm + relative_residual
++               CALL dbcsr_dot(sym_r, direct_r, overlap_dot)
++               CALL dbcsr_dot(sym_c, direct_c, relative_residual)
++               overlap_dot = overlap_dot + relative_residual
++               relative_residual = SQRT(MAX(0.0_dp, candidate_norm + direct_norm - &
++                                                 2.0_dp*overlap_dot)/MAX(direct_norm, TINY(1.0_dp)))
++               IF (relative_residual < best_residual) THEN
++                  best_residual = relative_residual
++                  best_mode = mode
++               END IF
++            END DO
++            IF (best_residual > phase_tolerance) THEN
++               WRITE (phase_error, '(A,ES12.4,A,I0,A,I0)') &
++                  "No Bloch-phase direction preserves overlap covariance; residual=", &
++                  best_residual, ", irreducible k-point=", ik, ", operation=", is
++               CALL cp_abort(__LOCATION__, TRIM(phase_error))
++            END IF
++            kpsym%phase_mode(is) = best_mode
++         END DO
++      END DO
++
++      CALL dbcsr_deallocate_matrix(source_r)
++      CALL dbcsr_deallocate_matrix(source_c)
++      CALL dbcsr_deallocate_matrix(direct_r)
++      CALL dbcsr_deallocate_matrix(direct_c)
++      CALL dbcsr_deallocate_matrix(sym_r)
++      CALL dbcsr_deallocate_matrix(sym_c)
++
++   END SUBROUTINE calibrate_symmetry_phases
++
+ ! **************************************************************************************************
+ !> \brief Symmetrize a complex k-point matrix including Bloch phase shifts
+ !> \param srpmat real part of transformed matrix
+@@ -2167,8 +2315,8 @@ CONTAINS
+          ELSE
+             shift = fcell(1:3, icol) - fcell(1:3, irow)
+          END IF
+-         arg = REAL(shift(1), dp)*xkp(1) + REAL(shift(2), dp)*xkp(2) + REAL(shift(3), dp)*xkp(3)
+-         ! The Bloch phase depends only on the mapped atom-cell shifts and the target k-point.
++         arg = REAL(shift(1), dp)*xkp(1) + REAL(shift(2), dp)*xkp(2) + &
++               REAL(shift(3), dp)*xkp(3)
+          coskl = COS(twopi*arg)
+          sinkl = SIN(twopi*arg)
+          IF (real_only) THEN
+diff --git a/src/kpoint_types.F b/src/kpoint_types.F
+index 3db68643..89b2e374 100644
+--- a/src/kpoint_types.F
++++ b/src/kpoint_types.F
+@@ -115,6 +115,8 @@ MODULE kpoint_types
+ !> \param rot       rotation matrices
+ !> \param f0        atom permutation
+ !> \param fcell     atom cell shifts generated by the symmetry operation
++!> \param fcell_gauge atom cell shifts in CP2K's internal PBC gauge
++!> \param phase_mode Bloch phase direction selected from overlap covariance
+ !> \param kgphase   atom Bloch gauge from reciprocal-lattice folding of the mapped k-point
+ !> \author JGH
+ ! **************************************************************************************************
+@@ -127,6 +129,8 @@ MODULE kpoint_types
+       INTEGER, DIMENSION(:), POINTER                    :: rotp => NULL()
+       INTEGER, DIMENSION(:, :), POINTER                 :: f0 => NULL()
+       INTEGER, DIMENSION(:, :, :), POINTER              :: fcell => NULL()
++      INTEGER, DIMENSION(:, :, :), POINTER              :: fcell_gauge => NULL()
++      INTEGER, DIMENSION(:), POINTER                    :: phase_mode => NULL()
+       REAL(KIND=dp), DIMENSION(:, :), POINTER           :: kgphase => NULL()
+    END TYPE kpoint_sym_type
+ 
+@@ -738,7 +742,7 @@ CONTAINS
+       INTEGER                                            :: i, n_rep, nval, wfntype
+       LOGICAL                                            :: available, backend_explicit, &
+                                                             non_lower_triangular_cell, &
+-                                                            non_orthogonal_cell, reduction_explicit
++                                                            reduction_explicit
+       REAL(KIND=dp)                                      :: ff
+       REAL(KIND=dp), DIMENSION(3, 3)                     :: cart_a_vec
+       REAL(KIND=dp), DIMENSION(:), POINTER               :: reallist
+@@ -846,18 +850,7 @@ CONTAINS
+             non_lower_triangular_cell = (ABS(a_vec(2, 1)) > eps_cell) .OR. &
+                                         (ABS(a_vec(3, 1)) > eps_cell) .OR. &
+                                         (ABS(a_vec(3, 2)) > eps_cell)
+-            non_orthogonal_cell = (ABS(DOT_PRODUCT(a_vec(:, 1), a_vec(:, 2))) > eps_cell) .OR. &
+-                                  (ABS(DOT_PRODUCT(a_vec(:, 1), a_vec(:, 3))) > eps_cell) .OR. &
+-                                  (ABS(DOT_PRODUCT(a_vec(:, 2), a_vec(:, 3))) > eps_cell)
+-            ! The full point-group density-matrix transform is not charge-conserving for skew cells.
+-            IF (non_orthogonal_cell) THEN
+-               kpoint%inversion_symmetry_only = .TRUE.
+-               CALL cp_warn(__LOCATION__, &
+-                            "Full atomic k-point symmetry was requested for a non-orthogonal cell. "// &
+-                            "Falling back to KPOINTS%INVERSION_SYMMETRY_ONLY because the full "// &
+-                            "point-group density-matrix symmetrization is only charge-conserving for "// &
+-                            "orthogonal cell matrices.")
+-            ELSEIF (non_lower_triangular_cell) THEN
++            IF (non_lower_triangular_cell) THEN
+                kpoint%inversion_symmetry_only = .TRUE.
+                CALL cp_warn(__LOCATION__, &
+                             "Full atomic k-point symmetry was requested for a cell matrix that does "// &
+@@ -1136,6 +1129,8 @@ CONTAINS
+       NULLIFY (kp_sym%rotp)
+       NULLIFY (kp_sym%f0)
+       NULLIFY (kp_sym%fcell)
++      NULLIFY (kp_sym%fcell_gauge)
++      NULLIFY (kp_sym%phase_mode)
+       NULLIFY (kp_sym%kgphase)
+ 
+    END SUBROUTINE kpoint_sym_create
+@@ -1162,6 +1157,12 @@ CONTAINS
+          IF (ASSOCIATED(kp_sym%fcell)) THEN
+             DEALLOCATE (kp_sym%fcell)
+          END IF
++         IF (ASSOCIATED(kp_sym%fcell_gauge)) THEN
++            DEALLOCATE (kp_sym%fcell_gauge)
++         END IF
++         IF (ASSOCIATED(kp_sym%phase_mode)) THEN
++            DEALLOCATE (kp_sym%phase_mode)
++         END IF
+          IF (ASSOCIATED(kp_sym%kgphase)) THEN
+             DEALLOCATE (kp_sym%kgphase)
+          END IF
+diff --git a/src/qs_environment.F b/src/qs_environment.F
+index 45d38fdb..001f9d96 100644
+--- a/src/qs_environment.F
++++ b/src/qs_environment.F
+@@ -994,7 +994,7 @@ CONTAINS
+       INTEGER, DIMENSION(:), POINTER                     :: mo_index_range
+       LOGICAL :: all_potential_present, be_silent, cneo_potential_present, do_kpoints, do_ri_hfx, &
+          do_ri_mp2, do_ri_rpa, do_ri_sos_mp2, do_rpa_ri_exx, do_wfc_im_time, e1terms, &
+-         has_unit_metric, lribas, mp2_present, orb_gradient, paw_atom
++         has_unit_metric, lribas, mp2_present, orb_gradient, paw_atom, smear_explicit
+       REAL(KIND=dp)                                      :: alpha, ccore, ewald_rcut, fxx, maxocc, &
+                                                             rc, rcut, total_zeff_corr, &
+                                                             verlet_skin, zeff_correction
+@@ -1673,9 +1673,12 @@ CONTAINS
+          END IF
+       END IF
+ 
+-      ! XXXXXXX this is backwards XXXXXXXX
++      smear_explicit = .FALSE.
++      CALL section_vals_val_get(dft_section, "SCF%SMEAR%_SECTION_PARAMETERS_", &
++                                explicit=smear_explicit)
+       IF (dft_control%qs_control%xtb_control%do_tblite .AND. .NOT. scf_control%use_ot) THEN
+-         IF (.NOT. scf_control%smear%do_smear) THEN
++         IF (.NOT. scf_control%smear%do_smear .AND. .NOT. smear_explicit .AND. &
++             dft_control%nspins == 1) THEN
+             ! set tblite default smearing
+             scf_control%smear%do_smear = .TRUE.
+             scf_control%smear%method = smear_fermi_dirac
+diff --git a/src/qs_scf_diagonalization.F b/src/qs_scf_diagonalization.F
+index 1b68fa75..9cbf5c3c 100644
+--- a/src/qs_scf_diagonalization.F
++++ b/src/qs_scf_diagonalization.F
+@@ -755,7 +755,7 @@ CONTAINS
+          CALL kpoint_density_matrices(kpoints)
+          ! density matrices in real space
+          CALL kpoint_density_transform(kpoints, scf_env%p_mix_new, .FALSE., &
+-                                       matrix_s(1, 1)%matrix, sab_nl, fmwork)
++                                       matrix_s(1, 1)%matrix, sab_nl, fmwork, overlap_rs=matrix_s)
+       END IF
+ 
+       CALL dbcsr_deallocate_matrix(rmatrix)
+diff --git a/src/qs_wannier90.F b/src/qs_wannier90.F
+index c13d3367..c88dd1cf 100644
+--- a/src/qs_wannier90.F
++++ b/src/qs_wannier90.F
+@@ -2665,7 +2665,7 @@ CONTAINS
+       INTEGER :: iao, iatom, ikind, imo, irow, irow_source, irow_target, irow_work, nao, natom, &
+          nmo, rot_slot, source_atom, source_dim, target_atom, target_dim
+       INTEGER, ALLOCATABLE, DIMENSION(:)                 :: ao_size, ao_start
+-      LOGICAL                                            :: reverse_phase, time_reversal
++      LOGICAL                                            :: time_reversal
+       REAL(KIND=dp)                                      :: arg, coeff_imag, coeff_real, coskl, &
+                                                             phase_imag, phase_real, sinkl
+       REAL(KIND=dp), ALLOCATABLE, DIMENSION(:, :)        :: dst_i, dst_r, src_i, src_r
+@@ -2750,7 +2750,6 @@ CONTAINS
+       END IF
+ 
+       time_reversal = kpsym%rotp(isym) < 0
+-      reverse_phase = qs_kpoint%gamma_centered .AND. ANY(MOD(qs_kpoint%nkp_grid, 2) == 0)
+       xkp_phase(1:3) = kpsym%xkp(1:3, isym)
+       DO iatom = 1, natom
+          source_atom = iatom
+@@ -2770,7 +2769,7 @@ CONTAINS
+          IF (ASSOCIATED(kpsym%kgphase)) THEN
+             arg = arg + kpsym%kgphase(source_atom, isym)
+          END IF
+-         IF (reverse_phase) arg = -arg
++         arg = -arg
+          coskl = COS(twopi*arg)
+          sinkl = SIN(twopi*arg)
+          DO imo = 1, nmo
+diff --git a/src/tblite_interface.F b/src/tblite_interface.F
+index 24089879..44514931 100644
+--- a/src/tblite_interface.F
++++ b/src/tblite_interface.F
+@@ -31,6 +31,7 @@ MODULE tblite_interface
+    USE tblite_scf_potential, ONLY: potential_type, new_potential, add_pot_to_h1
+    USE tblite_spin, ONLY: spin_polarization, new_spin_polarization
+    USE tblite_wavefunction_type, ONLY: wavefunction_type, new_wavefunction
++   USE tblite_wavefunction_restart, ONLY: load_wavefunction, save_wavefunction
+    USE tblite_xtb_calculator, ONLY: xtb_calculator, new_xtb_calculator
+    USE tblite_xtb_gfn1, ONLY: new_gfn1_calculator
+    USE tblite_xtb_gfn2, ONLY: new_gfn2_calculator
+@@ -45,6 +46,7 @@ MODULE tblite_interface
+    USE atprop_types, ONLY: atprop_type
+    USE basis_set_types, ONLY: gto_basis_set_type, gto_basis_set_p_type, &
+                               & allocate_gto_basis_set, write_gto_basis_set, process_gto_basis
++   USE block_p_types, ONLY: block_p_type
+    USE cell_types, ONLY: cell_type, get_cell
+    USE cp_blacs_env, ONLY: cp_blacs_env_type
+    USE cp_control_types, ONLY: dft_control_type, xtb_reference_cli_type
+@@ -53,7 +55,7 @@ MODULE tblite_interface
+                            dbcsr_iterator_type, dbcsr_iterator_blocks_left, &
+                            dbcsr_iterator_start, dbcsr_iterator_stop, &
+                            dbcsr_iterator_next_block
+-   USE cp_dbcsr_contrib, ONLY: dbcsr_print
++   USE cp_dbcsr_contrib, ONLY: dbcsr_dot, dbcsr_print
+    USE cp_dbcsr_cp2k_link, ONLY: cp_dbcsr_alloc_block_from_nbl
+    USE cp_dbcsr_operations, ONLY: dbcsr_allocate_matrix_set, dbcsr_deallocate_matrix_set
+    USE cp_log_handling, ONLY: cp_get_default_logger, &
+@@ -96,7 +98,7 @@ MODULE tblite_interface
+    USE qs_neighbor_list_types, ONLY: neighbor_list_iterator_create, neighbor_list_iterate, &
+                                      get_iterator_info, neighbor_list_set_p_type, &
+                                      neighbor_list_iterator_p_type, neighbor_list_iterator_release
+-   USE qs_overlap, ONLY: create_sab_matrix
++   USE qs_overlap, ONLY: build_overlap_matrix, create_sab_matrix
+    USE cp_dbcsr_output, ONLY: cp_dbcsr_write_sparse_matrix
+    USE qs_rho_types, ONLY: qs_rho_get, qs_rho_type
+    USE qs_scf_types, ONLY: qs_scf_env_type
+@@ -132,12 +134,52 @@ MODULE tblite_interface
+    PUBLIC :: tb_native_scc_mixer_active
+    PUBLIC :: tb_scf_mixer_error
+    PUBLIC :: tb_get_multipole
+-   PUBLIC :: tb_derive_dH_diag, tb_derive_dH_off
++   PUBLIC :: tb_derive_dH_off
+    PUBLIC :: tb_reference_cli_compare
+ 
+ CONTAINS
+ 
+ #if defined(__TBLITE)
++! **************************************************************************************************
++!> \brief Load tblite SCC populations and multipoles from a native restart.
++!> \param tb ...
++!> \param filename ...
++! **************************************************************************************************
++   SUBROUTINE tb_load_scc_restart(tb, filename)
++
++      TYPE(tblite_type), POINTER                         :: tb
++      CHARACTER(LEN=*), INTENT(IN)                       :: filename
++
++      TYPE(error_type), ALLOCATABLE                      :: error
++      TYPE(wavefunction_type)                            :: restart_wfn
++
++      CALL load_wavefunction(restart_wfn, TRIM(filename), error, nat=tb%mol%nat, &
++                             nsh=tb%calc%bas%nsh, nao=tb%calc%bas%nao, nspin=tb%wfn%nspin)
++      IF (ALLOCATED(error)) CPABORT(error%message)
++      tb%wfn%qat = restart_wfn%qat
++      tb%wfn%qsh = restart_wfn%qsh
++      tb%wfn%dpat = restart_wfn%dpat
++      tb%wfn%qpat = restart_wfn%qpat
++
++   END SUBROUTINE tb_load_scc_restart
++
++! **************************************************************************************************
++!> \brief Save the current tblite SCC populations and multipoles.
++!> \param tb ...
++!> \param filename ...
++! **************************************************************************************************
++   SUBROUTINE tb_save_scc_restart(tb, filename)
++
++      TYPE(tblite_type), POINTER                         :: tb
++      CHARACTER(LEN=*), INTENT(IN)                       :: filename
++
++      TYPE(error_type), ALLOCATABLE                      :: error
++
++      CALL save_wavefunction(tb%wfn, TRIM(filename), error)
++      IF (ALLOCATED(error)) CPABORT(error%message)
++
++   END SUBROUTINE tb_save_scc_restart
++
+ ! **************************************************************************************************
+ !> \brief Project a tblite charge/magnetization quantity to a CP2K spin channel.
+ !> \param values ...
+@@ -341,6 +383,8 @@ CONTAINS
+ 
+       CALL new_wavefunction(tb%wfn, tb%mol%nat, tb%calc%bas%nsh, tb%calc%bas%nao, nSpin, 0.0_dp)
+       CALL get_occupation(tb%mol, tb%calc%bas, tb%calc%h0, tb%wfn%nocc, tb%wfn%n0at, tb%wfn%n0sh)
++      IF (LEN_TRIM(dft_control%qs_control%xtb_control%tblite_scc_restart_file) > 0) &
++         CALL tb_load_scc_restart(tb, dft_control%qs_control%xtb_control%tblite_scc_restart_file)
+       CALL tb_reset_mixer(tb)
+ 
+       CALL new_potential(tb%pot, tb%mol, tb%calc%bas, tb%wfn%nspin)
+@@ -472,10 +516,12 @@ CONTAINS
+       END SELECT
+ 
+       tb%calc%max_iter = iterations
++      tb%calc%mixer_input%max_iter = iterations
++      tb%calc%mixer_input%memory = memory
+       tb%mixer_memory = memory
+       tb%mixer_solver = solver
+       tb%mixer_damping = damping
+-      tb%calc%mixer_damping = damping
++      tb%calc%mixer_input%damping = damping
+       tb%mixer_omega0 = omega0
+       tb%mixer_min_weight = min_weight
+       tb%mixer_max_weight = max_weight
+@@ -912,27 +958,31 @@ CONTAINS
+       INTEGER                                            :: handle, maxder, nderivatives, nimg, img, nkind, i, &
+                                                             ic, iw, iatom, jatom, ikind, jkind, iset, jset, n1, n2, icol, &
+                                                             irow, ia, ib, sgfa, sgfb, ldsab, nseta, nsetb, &
+-                                                            natorb_a, natorb_b, sgfa0, slot
++                                                            natorb_a, natorb_b, raw_iatom, raw_jatom, &
++                                                            slot, idim, jdim
+       LOGICAL                                            :: found, norml1, norml2, use_arnoldi
+-      REAL(KIND=dp)                                      :: dr, rr
++      REAL(KIND=dp)                                      :: dr, dshpoly, ff, hij_base, r2, rr
++      REAL(KIND=dp)                                      :: native_dot_tmp, native_cn_icol, native_cn_irow, &
++                                                            native_dot_weight
+       INTEGER, DIMENSION(3)                              :: cell
+       REAL(KIND=dp)                                      :: hij, shpoly
+       REAL(KIND=dp), DIMENSION(2)                        :: condnum
+-      REAL(KIND=dp), DIMENSION(3)                        :: rij
+-#if defined(__TBLITE_DEBUG_DIAGNOSTICS)
+-      INTEGER                                            :: debug_status
+-      CHARACTER(LEN=32)                                  :: debug_value
+-#endif
+-      INTEGER, ALLOCATABLE, DIMENSION(:)                 :: atom_of_kind
++      REAL(KIND=dp), DIMENSION(3)                        :: native_h0_overlap_force, native_radial_force, raw_rij, rij
++      REAL(KIND=dp), DIMENSION(3, 3)                     :: native_radial_dot
++      INTEGER, ALLOCATABLE, DIMENSION(:)                 :: atom_of_kind, kind_of
+       INTEGER, DIMENSION(:, :, :), POINTER                :: cell_to_index
+       REAL(KIND=dp), ALLOCATABLE, DIMENSION(:, :)        :: owork
++      REAL(KIND=dp), ALLOCATABLE, DIMENSION(:)           :: native_cn_deriv_thread
++      REAL(KIND=dp), ALLOCATABLE, DIMENSION(:, :)        :: native_radial_force_thread
+       REAL(KIND=dp), ALLOCATABLE, DIMENSION(:, :, :)     :: oint, sint, hint
++      REAL(KIND=dp), ALLOCATABLE, DIMENSION(:, :, :, :)  :: radial_hint
+       INTEGER, DIMENSION(:), POINTER                     :: la_max, la_min, lb_max, lb_min
+       INTEGER, DIMENSION(:), POINTER                     :: npgfa, npgfb, nsgfa, nsgfb
+       INTEGER, DIMENSION(:, :), POINTER                  :: first_sgfa, first_sgfb
+       REAL(KIND=dp), DIMENSION(:), POINTER               :: set_radius_a, set_radius_b
+       REAL(KIND=dp), DIMENSION(:, :), POINTER            :: rpgfa, rpgfb, zeta, zetb, scon_a, scon_b
+-      REAL(KIND=dp), DIMENSION(:, :), POINTER            :: sblock, fblock
++      REAL(KIND=dp), DIMENSION(:, :), POINTER            :: fblock, pblock, sblock
++      TYPE(block_p_type), DIMENSION(3, 3)                 :: radial_blocks
+ !$    INTEGER                                            :: hash, hash1, lock_num
+ !$    INTEGER(KIND=int_8)                                :: iatom8
+ !$    INTEGER(kind=omp_lock_kind), ALLOCATABLE, DIMENSION(:) :: locks
+@@ -942,7 +992,8 @@ CONTAINS
+       TYPE(atprop_type), POINTER                            :: atprop
+       TYPE(cp_blacs_env_type), POINTER                      :: blacs_env
+       TYPE(cp_logger_type), POINTER                         :: logger
+-      TYPE(dbcsr_p_type), DIMENSION(:, :), POINTER          :: matrix_h, matrix_s, matrix_p, matrix_w
++      TYPE(dbcsr_p_type), DIMENSION(:, :), POINTER          :: matrix_dh_native, matrix_h, matrix_p, &
++                                                               matrix_q_native, matrix_s, matrix_s_native, matrix_w
+       TYPE(dft_control_type), POINTER                       :: dft_control
+       TYPE(qs_force_type), DIMENSION(:), POINTER            :: force
+       TYPE(gto_basis_set_type), POINTER                     :: basis_set_a, basis_set_b
+@@ -962,7 +1013,7 @@ CONTAINS
+       CALL timeset(routineN, handle)
+ 
+       NULLIFY (ks_env, energy, atomic_kind_set, qs_kind_set)
+-      NULLIFY (matrix_h, matrix_s, atprop, dft_control)
++      NULLIFY (matrix_dh_native, matrix_h, matrix_q_native, matrix_s, matrix_s_native, atprop, dft_control)
+       NULLIFY (sab_orb, sab_kp, rho, tb, kpoints, cell_to_index)
+ 
+       CALL get_qs_env(qs_env=qs_env, &
+@@ -1034,14 +1085,29 @@ CONTAINS
+          tb%use_virial = virial%pv_availability .AND. (.NOT. virial%pv_numer)
+       END IF
+ 
+-      CALL get_atomic_kind_set(atomic_kind_set=atomic_kind_set, atom_of_kind=atom_of_kind)
++      IF (calculate_forces) THEN
++         CALL dbcsr_allocate_matrix_set(matrix_q_native, 1, nimg)
++         DO img = 1, nimg
++            ALLOCATE (matrix_q_native(1, img)%matrix)
++            CALL dbcsr_copy(matrix_q_native(1, img)%matrix, matrix_w(1, img)%matrix, &
++                            name="TBLITE NATIVE OVERLAP FORCE MATRIX")
++         END DO
++      END IF
++
++      CALL get_atomic_kind_set(atomic_kind_set=atomic_kind_set, atom_of_kind=atom_of_kind, kind_of=kind_of)
++      IF (calculate_forces) THEN
++         ALLOCATE (native_radial_force_thread(3, SIZE(atom_of_kind)))
++         ALLOCATE (native_cn_deriv_thread(SIZE(atom_of_kind)))
++         native_cn_deriv_thread = 0.0_dp
++         native_radial_force_thread = 0.0_dp
++      END IF
+ 
+       ! set up basis set lists
+       ALLOCATE (basis_set_list(nkind))
+       CALL basis_set_list_setup(basis_set_list, "ORB", qs_kind_set)
+ 
+       ! allocate overlap matrix
+-      CALL dbcsr_allocate_matrix_set(matrix_s, maxder, nimg)
++      CALL dbcsr_allocate_matrix_set(matrix_s, 1, nimg)
+       CALL create_sab_matrix(ks_env, matrix_s, "OVERLAP MATRIX", basis_set_list, basis_set_list, &
+                              sab_orb, .TRUE.)
+       CALL set_ks_env(ks_env, matrix_s_kp=matrix_s)
+@@ -1055,18 +1121,37 @@ CONTAINS
+          CALL cp_dbcsr_alloc_block_from_nbl(matrix_h(1, img)%matrix, sab_orb)
+       END DO
+       CALL set_ks_env(ks_env, matrix_h_kp=matrix_h)
++      IF (calculate_forces .AND. nimg > 1) THEN
++         CALL dbcsr_allocate_matrix_set(matrix_dh_native, 9, nimg)
++         DO img = 1, nimg
++            DO idim = 1, 9
++               ALLOCATE (matrix_dh_native(idim, img)%matrix)
++               CALL dbcsr_create(matrix_dh_native(idim, img)%matrix, template=matrix_s(1, img)%matrix, &
++                                 name="TBLITE H0 STRAIN DERIVATIVE")
++               CALL cp_dbcsr_alloc_block_from_nbl(matrix_dh_native(idim, img)%matrix, sab_orb)
++            END DO
++         END DO
++      END IF
+       ldsab = get_memory_usage(qs_kind_set, "ORB", "ORB")
+ 
++      native_radial_dot = 0.0_dp
++
+       ! loop over all atom pairs with a non-zero overlap (sab_orb)
+ !$OMP PARALLEL DEFAULT(NONE) &
+-!$OMP SHARED (calculate_forces, basis_set_list, sab_orb, matrix_s, matrix_h, &
++!$OMP SHARED (calculate_forces, basis_set_list, sab_orb, matrix_dh_native, matrix_s, matrix_h, matrix_p, &
+ !$OMP        cell_to_index, nimg, atom_of_kind, qs_kind_set, tb, h0, ldsab, maxder, locks, &
+-!$OMP        ncoset) &
++!$OMP        native_cn_deriv_thread, native_radial_force_thread, ncoset) &
+ !$OMP PRIVATE (slot, hash, hash1, iatom8, lock_num, ikind, jkind, iatom, jatom, cell, rij, ic, irow, &
+-!$OMP        icol, dr, n1, n2, ia, ib, i, iset, jset, sgfa, sgfb, nseta, nsetb, natorb_a, &
+-!$OMP        natorb_b, sgfa0, found, zeta, first_sgfa, la_max, la_min, npgfa, nsgfa, rpgfa, set_radius_a, &
++!$OMP        icol, dr, dshpoly, ff, hij_base, r2, raw_iatom, raw_jatom, &
++!$OMP        raw_rij, native_cn_icol, native_cn_irow, native_dot_weight, native_h0_overlap_force, &
++!$OMP        native_radial_force, &
++!$OMP        n1, n2, ia, ib, i, idim, jdim, iset, jset, sgfa, sgfb, &
++!$OMP        nseta, nsetb, natorb_a, &
++!$OMP        natorb_b, found, zeta, first_sgfa, la_max, la_min, npgfa, nsgfa, rpgfa, set_radius_a, &
+ !$OMP        scon_a, first_sgfb, lb_max, lb_min, npgfb, nsgfb, rpgfb, set_radius_b, scon_b, zetb, rr, hij, shpoly, &
+-!$OMP        owork, oint, sint, hint, basis_set_a, basis_set_b, sblock, fblock)
++!$OMP        owork, oint, sint, hint, radial_hint, basis_set_a, basis_set_b, sblock, fblock, &
++!$OMP        pblock, radial_blocks) &
++!$OMP REDUCTION (+ : native_radial_dot)
+ 
+ !$OMP SINGLE
+ !$    ALLOCATE (locks(nlock))
+@@ -1088,6 +1173,13 @@ CONTAINS
+          jatom = sab_orb(1)%nlist_task(slot)%jatom
+          cell(:) = sab_orb(1)%nlist_task(slot)%cell(:)
+          rij(1:3) = sab_orb(1)%nlist_task(slot)%r(1:3)
++         raw_iatom = iatom
++         raw_jatom = jatom
++         raw_rij = rij
++         native_cn_icol = 0.0_dp
++         native_cn_irow = 0.0_dp
++         native_h0_overlap_force = 0.0_dp
++         native_radial_force = 0.0_dp
+ 
+          ! canonicalize pair ordering as in current serial flow
+          icol = MAX(iatom, jatom)
+@@ -1100,6 +1192,7 @@ CONTAINS
+          END IF
+ 
+          dr = NORM2(rij(:))
++         r2 = dr*dr
+ 
+          IF (nimg == 1) THEN
+             ic = 1
+@@ -1116,6 +1209,23 @@ CONTAINS
+          CALL dbcsr_get_block_p(matrix=matrix_h(1, ic)%matrix, &
+                                 row=irow, col=icol, BLOCK=fblock, found=found)
+          CPASSERT(found)
++         IF (calculate_forces) THEN
++            NULLIFY (pblock)
++            CALL dbcsr_get_block_p(matrix=matrix_p(1, ic)%matrix, &
++                                   row=irow, col=icol, BLOCK=pblock, found=found)
++            CPASSERT(found)
++            IF (nimg > 1) THEN
++               DO jdim = 1, 3
++                  DO idim = 1, 3
++                     NULLIFY (radial_blocks(idim, jdim)%block)
++                     CALL dbcsr_get_block_p(matrix=matrix_dh_native(idim + 3*(jdim - 1), ic)%matrix, &
++                                            row=irow, col=icol, BLOCK=radial_blocks(idim, jdim)%block, &
++                                            found=found)
++                     CPASSERT(found)
++                  END DO
++               END DO
++            END IF
++         END IF
+ 
+          ! --------- Overlap
+          !get basis information
+@@ -1158,6 +1268,10 @@ CONTAINS
+          sint = 0.0_dp
+          ALLOCATE (hint(natorb_a, natorb_b, maxder))
+          hint = 0.0_dp
++         IF (calculate_forces .AND. nimg > 1) THEN
++            ALLOCATE (radial_hint(natorb_a, natorb_b, 3, 3))
++            radial_hint = 0.0_dp
++         END IF
+ 
+          !----------------- overlap integrals
+          DO iset = 1, nseta
+@@ -1211,26 +1325,76 @@ CONTAINS
+                hij = tb%selfenergy(n1 + iset)
+                DO ia = sgfa, sgfa + nsgfa(iset) - 1
+                   hint(ia, ia, 1) = hij
++                  IF (calculate_forces) THEN
++                     native_cn_icol = native_cn_icol + tb%dsedcn(n1 + iset)*pblock(ia, ia)
++                     DO jdim = 1, 3
++                        DO idim = 1, 3
++                           IF (nimg == 1) THEN
++                              native_radial_dot(idim, jdim) = native_radial_dot(idim, jdim) + &
++                                 tb%dsedcn(n1 + iset)*tb%dcndL(idim, jdim, icol)*pblock(ia, ia)
++                           ELSE
++                              radial_hint(ia, ia, idim, jdim) = radial_hint(ia, ia, idim, jdim) + &
++                                 tb%dsedcn(n1 + iset)*tb%dcndL(idim, jdim, icol)
++                           END IF
++                        END DO
++                     END DO
++                  END IF
+                END DO
+             END DO
+          ELSE
+             !get off-diagonal F matrix
+             rr = SQRT(dr/(h0%rad(jkind) + h0%rad(ikind)))
+             n1 = tb%calc%bas%ish_at(icol)
+-            sgfa0 = 1
+             DO iset = 1, nseta
+                sgfa = first_sgfa(1, iset)
+-               sgfa0 = sgfa0 + tb%calc%bas%cgto(iset, tb%mol%id(icol))%nprim
+                n2 = tb%calc%bas%ish_at(irow)
+                DO jset = 1, nsetb
+                   sgfb = first_sgfb(1, jset)
+                   shpoly = (1.0_dp + h0%shpoly(iset, ikind)*rr) &
+                            *(1.0_dp + h0%shpoly(jset, jkind)*rr)
+-                  hij = 0.5_dp*(tb%selfenergy(n1 + iset) + tb%selfenergy(n2 + jset)) &
+-                        *h0%hscale(iset, jset, ikind, jkind)*shpoly
++                  dshpoly = ((1.0_dp + h0%shpoly(iset, ikind)*rr)*h0%shpoly(jset, jkind)*rr &
++                             + (1.0_dp + h0%shpoly(jset, jkind)*rr)*h0%shpoly(iset, ikind)*rr) &
++                            *0.5_dp/r2
++                  hij_base = 0.5_dp*(tb%selfenergy(n1 + iset) + tb%selfenergy(n2 + jset)) &
++                             *h0%hscale(iset, jset, ikind, jkind)
++                  hij = hij_base*shpoly
+                   DO ia = sgfa, sgfa + nsgfa(iset) - 1
+                      DO ib = sgfb, sgfb + nsgfb(jset) - 1
+                         hint(ia, ib, 1) = hij*sint(ia, ib, 1)
++                        IF (calculate_forces) THEN
++                           native_dot_weight = 2.0_dp
++                           IF (icol == irow) native_dot_weight = 1.0_dp
++                           native_cn_icol = native_cn_icol + native_dot_weight*0.5_dp* &
++                              h0%hscale(iset, jset, ikind, jkind)*shpoly* &
++                              tb%dsedcn(n1 + iset)*pblock(ib, ia)*sint(ia, ib, 1)
++                           native_cn_irow = native_cn_irow + native_dot_weight*0.5_dp* &
++                              h0%hscale(iset, jset, ikind, jkind)*shpoly* &
++                              tb%dsedcn(n2 + jset)*pblock(ib, ia)*sint(ia, ib, 1)
++                           native_radial_force = native_radial_force + &
++                              hij_base*dshpoly*pblock(ib, ia)*sint(ia, ib, 1)*raw_rij
++                           native_h0_overlap_force = native_h0_overlap_force + &
++                              hij*pblock(ib, ia)*sint(ia, ib, 2:4)
++                           DO jdim = 1, 3
++                              DO idim = 1, 3
++                                 IF (nimg == 1) THEN
++                                    native_radial_dot(idim, jdim) = native_radial_dot(idim, jdim) + &
++                                       native_dot_weight*pblock(ib, ia)*( &
++                                       (-hij)*sint(ia, ib, idim + 1)*rij(jdim) + &
++                                       hij_base*dshpoly*sint(ia, ib, 1)*rij(idim)*rij(jdim) + &
++                                       0.5_dp*h0%hscale(iset, jset, ikind, jkind)*shpoly*sint(ia, ib, 1)* &
++                                       (tb%dsedcn(n1 + iset)*tb%dcndL(idim, jdim, icol) + &
++                                        tb%dsedcn(n2 + jset)*tb%dcndL(idim, jdim, irow)))
++                                 ELSE
++                                    radial_hint(ia, ib, idim, jdim) = radial_hint(ia, ib, idim, jdim) + &
++                                       (-hij)*sint(ia, ib, idim + 1)*rij(jdim) + &
++                                       hij_base*dshpoly*sint(ia, ib, 1)*rij(idim)*rij(jdim) + &
++                                       0.5_dp*h0%hscale(iset, jset, ikind, jkind)*shpoly*sint(ia, ib, 1)* &
++                                       (tb%dsedcn(n1 + iset)*tb%dcndL(idim, jdim, icol) + &
++                                        tb%dsedcn(n2 + jset)*tb%dcndL(idim, jdim, irow))
++                                 END IF
++                              END DO
++                           END DO
++                        END IF
+                      END DO
+                   END DO
+                END DO
+@@ -1241,12 +1405,45 @@ CONTAINS
+ !$       CALL omp_set_lock(locks(hash))
+          IF (icol <= irow) THEN
+             fblock(:, :) = fblock(:, :) + hint(:, :, 1)
++            IF (calculate_forces .AND. nimg > 1) THEN
++               DO jdim = 1, 3
++                  DO idim = 1, 3
++                     radial_blocks(idim, jdim)%block(:, :) = radial_blocks(idim, jdim)%block(:, :) + &
++                                                              radial_hint(:, :, idim, jdim)
++                  END DO
++               END DO
++            END IF
+          ELSE
+             fblock(:, :) = fblock(:, :) + TRANSPOSE(hint(:, :, 1))
++            IF (calculate_forces .AND. nimg > 1) THEN
++               DO jdim = 1, 3
++                  DO idim = 1, 3
++                     radial_blocks(idim, jdim)%block(:, :) = radial_blocks(idim, jdim)%block(:, :) + &
++                                                              TRANSPOSE(radial_hint(:, :, idim, jdim))
++                  END DO
++               END DO
++            END IF
+          END IF
+ !$       CALL omp_unset_lock(locks(hash))
+ 
++         IF (calculate_forces) THEN
++            ff = 2.0_dp
++!$OMP CRITICAL(tblite_native_radial_force)
++            native_radial_force_thread(:, raw_iatom) = &
++               native_radial_force_thread(:, raw_iatom) - ff*native_radial_force
++            native_radial_force_thread(:, raw_jatom) = &
++               native_radial_force_thread(:, raw_jatom) + ff*native_radial_force
++            native_radial_force_thread(:, icol) = &
++               native_radial_force_thread(:, icol) + ff*native_h0_overlap_force
++            native_radial_force_thread(:, irow) = &
++               native_radial_force_thread(:, irow) - ff*native_h0_overlap_force
++            native_cn_deriv_thread(icol) = native_cn_deriv_thread(icol) + native_cn_icol
++            native_cn_deriv_thread(irow) = native_cn_deriv_thread(irow) + native_cn_irow
++!$OMP END CRITICAL(tblite_native_radial_force)
++         END IF
++
+          DEALLOCATE (sint, hint)
++         IF (ALLOCATED(radial_hint)) DEALLOCATE (radial_hint)
+ 
+       END DO
+ !$OMP END DO
+@@ -1261,6 +1458,38 @@ CONTAINS
+ !$OMP END SINGLE NOWAIT
+ !$OMP END PARALLEL
+ 
++      IF (calculate_forces) THEN
++         IF (nimg > 1) THEN
++            native_radial_dot = 0.0_dp
++            DO img = 1, nimg
++               DO jdim = 1, 3
++                  DO idim = 1, 3
++                     CALL dbcsr_finalize(matrix_dh_native(idim + 3*(jdim - 1), img)%matrix)
++                     CALL dbcsr_dot(matrix_dh_native(idim + 3*(jdim - 1), img)%matrix, &
++                                    matrix_p(1, img)%matrix, native_dot_tmp)
++                     native_radial_dot(idim, jdim) = native_radial_dot(idim, jdim) + native_dot_tmp
++                  END DO
++               END DO
++            END DO
++            CALL dbcsr_deallocate_matrix_set(matrix_dh_native)
++         ELSE
++            CALL para_env%sum(native_radial_dot)
++         END IF
++         CALL para_env%sum(native_cn_deriv_thread)
++         tb%grad = 0.0_dp
++         CALL tb_add_grad(tb%grad, tb%dcndr, native_cn_deriv_thread, tb%mol%nat)
++         CALL tb_grad2force(qs_env, tb, para_env, 4)
++         DO iatom = 1, SIZE(atom_of_kind)
++            ikind = kind_of(iatom)
++            force(ikind)%overlap(:, atom_of_kind(iatom)) = &
++               force(ikind)%overlap(:, atom_of_kind(iatom)) + native_radial_force_thread(:, iatom)
++         END DO
++         IF (tb%use_virial) THEN
++            virial%pv_overlap = virial%pv_overlap - native_radial_dot
++            virial%pv_virial = virial%pv_virial - native_radial_dot
++         END IF
++      END IF
++
+       DO img = 1, nimg
+          DO i = 1, SIZE(matrix_s, 1)
+             CALL dbcsr_finalize(matrix_s(i, img)%matrix)
+@@ -1270,6 +1499,15 @@ CONTAINS
+          END DO
+       END DO
+ 
++      IF (calculate_forces) THEN
++         CALL build_overlap_matrix(ks_env, matrixkp_s=matrix_s_native, &
++                                   matrix_name="OVERLAP MATRIX", nderivative=nderivatives, &
++                                   basis_type_a="ORB", basis_type_b="ORB", sab_nl=sab_orb, &
++                                   calculate_forces=.TRUE., matrixkp_p=matrix_q_native)
++         CALL dbcsr_deallocate_matrix_set(matrix_s_native)
++         CALL dbcsr_deallocate_matrix_set(matrix_q_native)
++      END IF
++
+       !compute multipole moments for gfn2
+       IF (dft_control%qs_control%xtb_control%tblite_method == gfn2xtb) &
+          CALL tb_get_multipole(qs_env, tb)
+@@ -1291,6 +1529,8 @@ CONTAINS
+       END IF
+ 
+       DEALLOCATE (basis_set_list)
++      IF (ALLOCATED(native_cn_deriv_thread)) DEALLOCATE (native_cn_deriv_thread)
++      IF (ALLOCATED(native_radial_force_thread)) DEALLOCATE (native_radial_force_thread)
+ 
+       CALL timestop(handle)
+ 
+@@ -1901,6 +2141,11 @@ CONTAINS
+          END IF
+       END IF
+ 
++      IF (.NOT. calculate_forces .AND. para_env%mepos == para_env%source .AND. &
++          LEN_TRIM(dft_control%qs_control%xtb_control%tblite_scc_restart_write_file) > 0) &
++         CALL tb_save_scc_restart(tb, &
++                                  dft_control%qs_control%xtb_control%tblite_scc_restart_write_file)
++
+       CALL tb%pot%reset
+       tb%e_es = 0.0_dp
+       tb%e_scd = 0.0_dp
+@@ -3184,121 +3429,7 @@ CONTAINS
+    END SUBROUTINE tb_zero_force
+ 
+ ! **************************************************************************************************
+-!> \brief compute the derivative of the energy
+-!> \param qs_env ...
+-!> \param use_rho ...
+-!> \param nimg ...
+-! **************************************************************************************************
+-   SUBROUTINE tb_derive_dH_diag(qs_env, use_rho, nimg)
+-
+-      TYPE(qs_environment_type), POINTER                 :: qs_env
+-      LOGICAL, INTENT(IN)                                :: use_rho
+-      INTEGER, INTENT(IN)                                :: nimg
+-
+-#if defined(__TBLITE)
+-      INTEGER                                            :: i, iatom, ic, ikind, ind, is, ish, ispin, &
+-                                                            jatom, jkind
+-      INTEGER, DIMENSION(3)                              :: cellind
+-      INTEGER, DIMENSION(:, :, :), POINTER               :: cell_to_index
+-      LOGICAL                                            :: found
+-      REAL(KIND=dp), ALLOCATABLE, DIMENSION(:)           :: dE
+-      REAL(KIND=dp), DIMENSION(:, :), POINTER            :: pblock
+-      TYPE(dbcsr_p_type), DIMENSION(:, :), POINTER       :: matrix_p
+-      TYPE(kpoint_type), POINTER                         :: kpoints
+-      TYPE(mp_para_env_type), POINTER                    :: para_env
+-      TYPE(neighbor_list_iterator_p_type), &
+-         DIMENSION(:), POINTER                           :: nl_iterator
+-      TYPE(neighbor_list_set_p_type), DIMENSION(:), &
+-         POINTER                                         :: sab_orb
+-      TYPE(neighbor_list_set_p_type), DIMENSION(:), &
+-         POINTER                                         :: sab_kp
+-      TYPE(qs_rho_type), POINTER                         :: rho
+-      TYPE(qs_scf_env_type), POINTER                     :: scf_env
+-      TYPE(tblite_type), POINTER                         :: tb
+-
+-      ! compute mulliken charges required for charge update
+-      NULLIFY (scf_env, rho, tb, sab_orb, sab_kp, para_env, kpoints)
+-      CALL get_qs_env(qs_env=qs_env, scf_env=scf_env, rho=rho, tb_tblite=tb, &
+-                      sab_orb=sab_orb, sab_kp=sab_kp, para_env=para_env, kpoints=kpoints)
+-
+-      NULLIFY (cell_to_index)
+-      IF (nimg > 1) THEN
+-         IF (.NOT. ASSOCIATED(sab_kp)) CPABORT("Missing tblite k-point neighbor list")
+-         sab_orb => sab_kp
+-         CALL get_kpoint_info(kpoint=kpoints, cell_to_index=cell_to_index)
+-      END IF
+-
+-      NULLIFY (matrix_p)
+-      IF (use_rho) THEN
+-         CALL qs_rho_get(rho, rho_ao_kp=matrix_p)
+-      ELSEIF (ASSOCIATED(tb%rho_ao_kp_ref)) THEN
+-         matrix_p => tb%rho_ao_kp_ref
+-      ELSE
+-         matrix_p => scf_env%p_mix_new
+-      END IF
+-
+-      ALLOCATE (dE(tb%mol%nat))
+-
+-      dE = 0.0_dp
+-      ! loop over all atom pairs with a non-zero overlap (sab_orb)
+-      NULLIFY (nl_iterator)
+-      CALL neighbor_list_iterator_create(nl_iterator, sab_orb)
+-      DO WHILE (neighbor_list_iterate(nl_iterator) == 0)
+-         CALL get_iterator_info(nl_iterator, ikind=ikind, jkind=jkind, &
+-                                iatom=iatom, jatom=jatom, cell=cellind)
+-
+-         IF (iatom /= jatom) CYCLE
+-
+-         IF (ikind /= jkind) CPABORT("Type wrong")
+-
+-         is = tb%calc%bas%ish_at(iatom)
+-
+-         IF (nimg == 1) THEN
+-            ic = 1
+-         ELSE
+-            ic = cell_to_index(cellind(1), cellind(2), cellind(3))
+-            CPASSERT(ic > 0)
+-         END IF
+-
+-         IF (cellind(1) /= 0) CYCLE
+-         IF (cellind(2) /= 0) CYCLE
+-         IF (cellind(3) /= 0) CYCLE
+-
+-         DO ispin = 1, SIZE(matrix_p, 1)
+-            CALL dbcsr_get_block_p(matrix=matrix_p(ispin, ic)%matrix, &
+-                                   row=iatom, col=jatom, BLOCK=pblock, found=found)
+-
+-            IF (.NOT. found) CPABORT("block not found")
+-
+-            ind = 0
+-            DO ish = 1, tb%calc%bas%nsh_id(ikind)
+-               DO i = 1, msao(tb%calc%bas%cgto(ish, ikind)%ang)
+-                  ind = ind + 1
+-                  dE(iatom) = dE(iatom) + tb%dsedcn(is + ish)*pblock(ind, ind)
+-               END DO
+-            END DO
+-         END DO
+-      END DO
+-      CALL neighbor_list_iterator_release(nl_iterator)
+-      CALL para_env%sum(dE)
+-
+-      tb%grad = 0.0_dp
+-      CALL tb_add_grad(tb%grad, tb%dcndr, dE, tb%mol%nat)
+-      IF (tb%use_virial) CALL tb_add_sig(tb%sigma, tb%dcndL, dE, tb%mol%nat)
+-      CALL tb_grad2force(qs_env, tb, para_env, 4)
+-      DEALLOCATE (dE)
+-
+-#else
+-      MARK_USED(qs_env)
+-      MARK_USED(use_rho)
+-      MARK_USED(nimg)
+-      CPABORT("Built without TBLITE")
+-#endif
+-
+-   END SUBROUTINE tb_derive_dH_diag
+-
+-! **************************************************************************************************
+-!> \brief compute the derivative of the energy
++!> \brief Add SCC-overlap and direct multipole Hamiltonian derivatives.
+ !> \param qs_env ...
+ !> \param use_rho ...
+ !> \param nimg ...
+@@ -3310,48 +3441,36 @@ CONTAINS
+       INTEGER, INTENT(IN)                                :: nimg
+ 
+ #if defined(__TBLITE)
+-      INTEGER                                            :: i, ij, iatom, ic, icol, ikind, ni, nj, nkind, nel, &
+-                                                            sgfi, sgfj, ityp, jatom, jkind, jrow, jtyp, iset, jset, &
+-                                                            nseti, nsetj, ia, ib, inda, indb, fold_index, &
+-                                                            has_nyquist_image, n_cn_norm_images, n_periodic, &
+-                                                            n_non_nyquist_images, &
+-                                                            n_sampled_kpoints, sampled_axes, sampled_even_axes, &
+-                                                            sampled_non_nyquist_axes, sampled_odd_axes, nspin
+-      INTEGER, DIMENSION(3)                              :: cellind, fold_shape, nkp_cellind, nkp_grid
++      INTEGER                                            :: i, idim, ij, iatom, ic, icol, ikind, img, ispin, &
++                                                            jdim, ni, nj, nkind, nel, &
++                                                            ityp, jatom, jkind, jrow, jtyp, iset, jset, nseti, nsetj, &
++                                                            ia, ib, inda, indb, sampled_axes, sampled_even_axes, &
++                                                            sampled_gamma_axes, nspin, ikp_axis
++      INTEGER, DIMENSION(3)                              :: cellind, nkp_cellind, nkp_grid
+       INTEGER, DIMENSION(:), POINTER                     :: nsgfa, nsgfb
+       INTEGER, DIMENSION(:, :), POINTER                  :: first_sgfa, first_sgfb
+       INTEGER, DIMENSION(:, :, :), POINTER               :: cell_to_index
+-      LOGICAL                                            :: found, has_multipole_response, image_pair, kpoint_image_pair, &
+-                                                            sampled_image_pair
+-      REAL(KIND=dp)                                      :: r2, dr, itemp, jtemp, rr, hij, shpoly, dshpoly, idHdc, jdHdc, &
+-                                                            scal, hp, i_a_shift, j_a_shift, i_a_shift_mag, j_a_shift_mag, &
++      LOGICAL                                            :: found, gamma_centered, gamma_sampled_image_pair, &
++                                                            has_multipole_response, sampled_image_pair, &
++                                                            use_matrix_scc_stress
++      LOGICAL, DIMENSION(3)                              :: mesh_has_gamma
++      REAL(KIND=dp)                                      :: r2, dr, i_a_shift, j_a_shift, i_a_shift_mag, j_a_shift_mag, &
+                                                             ishift, jshift, ishift_mag, jshift_mag, pij_charge, &
+-                                                            pij_magnet, wij_charge, &
+-                                                            dip_deriv_fac, quad_deriv_fac, dip_deriv_fac_pair, &
+-                                                            quad_deriv_fac_pair, overlap_deriv_fac, pot_deriv_scale, &
+-                                                            w_deriv_scale, h0_deriv_scale, mp_deriv_scale, &
+-                                                            pot_image_deriv_scale, w_image_deriv_scale, &
+-                                                            h0_image_deriv_scale, mp_image_deriv_scale, &
+-                                                            pot_pair_scale, w_pair_scale, h0_pair_scale, mp_pair_scale, &
+-                                                            pot_self_image_deriv_scale, w_self_image_deriv_scale, &
+-                                                            h0_self_image_deriv_scale, mp_self_image_deriv_scale, &
+-                                                            cn_image_scale, cn_deriv_scale, &
+-                                                            nyquist_self_image_deriv_scale
+-#if defined(__TBLITE_DEBUG_DIAGNOSTICS)
+-      INTEGER                                            :: debug_status
+-      CHARACTER(LEN=32)                                  :: scale_value
+-#endif
+-      REAL(KIND=dp), DIMENSION(3)                        :: rij, dgrad
++                                                            pij_magnet, mp_pair_scale, kpoint_coordinate, native_dot_tmp
++      REAL(KIND=dp), DIMENSION(3)                        :: kp_shift
++      REAL(KIND=dp), DIMENSION(3)                        :: rij, dgrad, dhgrad_charge, dhgrad_magnet, &
++                                                            mpgrad_charge, mpgrad_magnet
+       REAL(KIND=dp), DIMENSION(3, 3)                     :: hsigma
+-      REAL(KIND=dp), ALLOCATABLE, DIMENSION(:)           :: dE, t_ov, idip, jdip, idip_mag, jdip_mag, &
++      REAL(KIND=dp), ALLOCATABLE, DIMENSION(:)           :: t_ov, idip, jdip, idip_mag, jdip_mag, &
+                                                             iquad, jquad, iquad_mag, jquad_mag
+-      INTEGER, ALLOCATABLE, DIMENSION(:)                 :: non_nyquist_folded_seen
+       REAL(KIND=dp), ALLOCATABLE, DIMENSION(:, :)        :: t_dip, t_quad, t_d_ov
+       REAL(KIND=dp), ALLOCATABLE, DIMENSION(:, :, :)     :: t_i_dip, t_i_quad, t_j_dip, t_j_quad
+-      REAL(KIND=dp), DIMENSION(:, :), POINTER            :: pblock, pblock_beta, wblock, wblock_beta
++      REAL(KIND=dp), ALLOCATABLE, DIMENSION(:, :, :, :, :) :: scc_strain_hint
++      REAL(KIND=dp), DIMENSION(:, :), POINTER            :: pblock, pblock_beta
++      TYPE(block_p_type), DIMENSION(3, 3, 2)             :: scc_strain_blocks
+ 
+       TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
+-      TYPE(dbcsr_p_type), DIMENSION(:, :), POINTER       :: matrix_p, matrix_w
++      TYPE(dbcsr_p_type), DIMENSION(:, :), POINTER       :: matrix_dh_scc, matrix_p
+       TYPE(gto_basis_set_p_type), DIMENSION(:), POINTER  :: basis_set_list
+       TYPE(gto_basis_set_type), POINTER            :: basis_set_a, basis_set_b
+       TYPE(kpoint_type), POINTER                         :: kpoints
+@@ -3365,11 +3484,11 @@ CONTAINS
+       TYPE(qs_kind_type), DIMENSION(:), POINTER          :: qs_kind_set
+       TYPE(qs_rho_type), POINTER                         :: rho
+       TYPE(qs_scf_env_type), POINTER                     :: scf_env
+-      TYPE(tb_hamiltonian), POINTER                      :: h0
+       TYPE(tblite_type), POINTER                         :: tb
++      TYPE(virial_type), POINTER                         :: virial
+ 
+       ! compute mulliken charges required for charge update
+-      NULLIFY (scf_env, rho, tb, sab_orb, sab_kp, para_env, kpoints, matrix_w)
++      NULLIFY (scf_env, rho, tb, sab_orb, sab_kp, para_env, kpoints, matrix_dh_scc, virial)
+       CALL get_qs_env(qs_env=qs_env, &
+                       atomic_kind_set=atomic_kind_set, &
+                       scf_env=scf_env, &
+@@ -3379,87 +3498,34 @@ CONTAINS
+                       sab_kp=sab_kp, &
+                       para_env=para_env, &
+                       qs_kind_set=qs_kind_set, &
+-                      kpoints=kpoints, &
+-                      matrix_w_kp=matrix_w)
++                      kpoints=kpoints)
+ 
+       NULLIFY (cell_to_index)
+       IF (nimg > 1) THEN
+          IF (.NOT. ASSOCIATED(sab_kp)) CPABORT("Missing tblite k-point neighbor list")
+          sab_orb => sab_kp
+-         CALL get_kpoint_info(kpoint=kpoints, cell_to_index=cell_to_index, nkp_grid=nkp_grid)
++         CALL get_kpoint_info(kpoint=kpoints, cell_to_index=cell_to_index, nkp_grid=nkp_grid, &
++                              kp_shift=kp_shift, gamma_centered=gamma_centered)
+       ELSE
+          nkp_grid = 1
++         kp_shift = 0.0_dp
++         gamma_centered = .TRUE.
+       END IF
+-      sampled_odd_axes = 0
+-      IF (nkp_grid(1) > 1 .AND. MODULO(nkp_grid(1), 2) == 1) sampled_odd_axes = sampled_odd_axes + 1
+-      IF (nkp_grid(2) > 1 .AND. MODULO(nkp_grid(2), 2) == 1) sampled_odd_axes = sampled_odd_axes + 1
+-      IF (nkp_grid(3) > 1 .AND. MODULO(nkp_grid(3), 2) == 1) sampled_odd_axes = sampled_odd_axes + 1
+-      n_periodic = COUNT(tb%mol%periodic)
+-      n_sampled_kpoints = 1
++      mesh_has_gamma = .FALSE.
+       DO i = 1, 3
+-         IF (tb%mol%periodic(i)) n_sampled_kpoints = n_sampled_kpoints*nkp_grid(i)
++         DO ikp_axis = 1, nkp_grid(i)
++            IF (gamma_centered .AND. MODULO(nkp_grid(i), 2) == 0) THEN
++               kpoint_coordinate = REAL(2*ikp_axis - nkp_grid(i), KIND=dp)/ &
++                                   REAL(2*nkp_grid(i), KIND=dp) + kp_shift(i)
++            ELSE
++               kpoint_coordinate = REAL(2*ikp_axis - nkp_grid(i) - 1, KIND=dp)/ &
++                                   REAL(2*nkp_grid(i), KIND=dp) + kp_shift(i)
++            END IF
++            IF (ABS(kpoint_coordinate - ANINT(kpoint_coordinate)) < 1.0e-12_dp) &
++               mesh_has_gamma(i) = .TRUE.
++         END DO
+       END DO
+-
+-      h0 => tb%calc%h0
+       has_multipole_response = ASSOCIATED(tb%dipbra) .OR. ASSOCIATED(tb%quadbra)
+-      dip_deriv_fac = -1.0_dp
+-      quad_deriv_fac = -1.0_dp
+-      pot_deriv_scale = 1.0_dp
+-      w_deriv_scale = 1.0_dp
+-      h0_deriv_scale = 1.0_dp
+-      mp_deriv_scale = 1.0_dp
+-#if defined(__TBLITE_DEBUG_DIAGNOSTICS)
+-      CALL GET_ENVIRONMENT_VARIABLE("CP2K_TBLITE_DH_POT_SCALE", scale_value, STATUS=debug_status)
+-      IF (debug_status == 0) READ (scale_value, *, IOSTAT=debug_status) pot_deriv_scale
+-      CALL GET_ENVIRONMENT_VARIABLE("CP2K_TBLITE_DH_W_SCALE", scale_value, STATUS=debug_status)
+-      IF (debug_status == 0) READ (scale_value, *, IOSTAT=debug_status) w_deriv_scale
+-      CALL GET_ENVIRONMENT_VARIABLE("CP2K_TBLITE_DH_H0_SCALE", scale_value, STATUS=debug_status)
+-      IF (debug_status == 0) READ (scale_value, *, IOSTAT=debug_status) h0_deriv_scale
+-      CALL GET_ENVIRONMENT_VARIABLE("CP2K_TBLITE_DH_MP_SCALE", scale_value, STATUS=debug_status)
+-      IF (debug_status == 0) READ (scale_value, *, IOSTAT=debug_status) mp_deriv_scale
+-#endif
+-      pot_image_deriv_scale = pot_deriv_scale
+-      w_image_deriv_scale = w_deriv_scale
+-      h0_image_deriv_scale = h0_deriv_scale
+-      mp_image_deriv_scale = mp_deriv_scale
+-#if defined(__TBLITE_DEBUG_DIAGNOSTICS)
+-      CALL GET_ENVIRONMENT_VARIABLE("CP2K_TBLITE_DH_POT_IMAGE_SCALE", scale_value, STATUS=debug_status)
+-      IF (debug_status == 0) READ (scale_value, *, IOSTAT=debug_status) pot_image_deriv_scale
+-      CALL GET_ENVIRONMENT_VARIABLE("CP2K_TBLITE_DH_W_IMAGE_SCALE", scale_value, STATUS=debug_status)
+-      IF (debug_status == 0) READ (scale_value, *, IOSTAT=debug_status) w_image_deriv_scale
+-      CALL GET_ENVIRONMENT_VARIABLE("CP2K_TBLITE_DH_H0_IMAGE_SCALE", scale_value, STATUS=debug_status)
+-      IF (debug_status == 0) READ (scale_value, *, IOSTAT=debug_status) h0_image_deriv_scale
+-      CALL GET_ENVIRONMENT_VARIABLE("CP2K_TBLITE_DH_MP_IMAGE_SCALE", scale_value, STATUS=debug_status)
+-      IF (debug_status == 0) READ (scale_value, *, IOSTAT=debug_status) mp_image_deriv_scale
+-#endif
+-      pot_self_image_deriv_scale = pot_image_deriv_scale
+-      w_self_image_deriv_scale = w_image_deriv_scale
+-      h0_self_image_deriv_scale = h0_image_deriv_scale
+-      mp_self_image_deriv_scale = mp_image_deriv_scale
+-      ! K-point self-images are stored in CP2K's sorted on-site image block.
+-      ! Keep the sampled-image H0 response on the real-space normalization. The
+-      ! corresponding Pulay/W contribution is normalized below from the
+-      ! Nyquist multiplicity of the sampled k-point image. Multipole models use
+-      ! the sampled matrix block orientation for their self-image derivatives.
+-      IF (nimg > 1 .AND. ANY(nkp_grid > 1) .AND. has_multipole_response) &
+-         mp_self_image_deriv_scale = -mp_image_deriv_scale
+-#if defined(__TBLITE_DEBUG_DIAGNOSTICS)
+-      CALL GET_ENVIRONMENT_VARIABLE("CP2K_TBLITE_DH_POT_SELF_IMAGE_SCALE", scale_value, STATUS=debug_status)
+-      IF (debug_status == 0) READ (scale_value, *, IOSTAT=debug_status) pot_self_image_deriv_scale
+-      CALL GET_ENVIRONMENT_VARIABLE("CP2K_TBLITE_DH_W_SELF_IMAGE_SCALE", scale_value, STATUS=debug_status)
+-      IF (debug_status == 0) READ (scale_value, *, IOSTAT=debug_status) w_self_image_deriv_scale
+-      CALL GET_ENVIRONMENT_VARIABLE("CP2K_TBLITE_DH_H0_SELF_IMAGE_SCALE", scale_value, STATUS=debug_status)
+-      IF (debug_status == 0) READ (scale_value, *, IOSTAT=debug_status) h0_self_image_deriv_scale
+-      CALL GET_ENVIRONMENT_VARIABLE("CP2K_TBLITE_DH_MP_SELF_IMAGE_SCALE", scale_value, STATUS=debug_status)
+-      IF (debug_status == 0) READ (scale_value, *, IOSTAT=debug_status) mp_self_image_deriv_scale
+-#endif
+-      cn_image_scale = 1.0_dp
+-      IF (nimg > 1 .AND. ANY(tb%mol%periodic)) cn_image_scale = -0.25_dp
+-      cn_deriv_scale = 1.0_dp
+-#if defined(__TBLITE_DEBUG_DIAGNOSTICS)
+-      CALL GET_ENVIRONMENT_VARIABLE("CP2K_TBLITE_DH_CN_IMAGE_SCALE", scale_value, STATUS=debug_status)
+-      IF (debug_status == 0) READ (scale_value, *, IOSTAT=debug_status) cn_image_scale
+-#endif
+ 
+       NULLIFY (matrix_p)
+       IF (use_rho) THEN
+@@ -3470,14 +3536,30 @@ CONTAINS
+          matrix_p => scf_env%p_mix_new
+       END IF
+       nspin = SIZE(matrix_p, 1)
++      use_matrix_scc_stress = tb%use_virial .AND. nimg > 1 .AND. ALL(tb%mol%periodic)
++
++      IF (use_matrix_scc_stress) THEN
++         CALL dbcsr_allocate_matrix_set(matrix_dh_scc, 9*nspin, nimg)
++         DO img = 1, nimg
++            DO ispin = 1, nspin
++               DO jdim = 1, 3
++                  DO idim = 1, 3
++                     i = idim + 3*(jdim - 1) + 9*(ispin - 1)
++                     ALLOCATE (matrix_dh_scc(i, img)%matrix)
++                     CALL dbcsr_create(matrix_dh_scc(i, img)%matrix, template=matrix_p(ispin, img)%matrix, &
++                                       name="TBLITE SCC STRAIN DERIVATIVE")
++                     CALL cp_dbcsr_alloc_block_from_nbl(matrix_dh_scc(i, img)%matrix, sab_orb)
++                  END DO
++               END DO
++            END DO
++         END DO
++      END IF
+ 
+       ! set up basis set lists
+       nkind = SIZE(atomic_kind_set)
+       ALLOCATE (basis_set_list(nkind))
+       CALL basis_set_list_setup(basis_set_list, "ORB", qs_kind_set)
+ 
+-      ALLOCATE (dE(tb%mol%nat))
+-
+       nel = msao(tb%calc%bas%maxl)**2
+       ALLOCATE (t_ov(nel))
+       ALLOCATE (t_d_ov(3, nel))
+@@ -3489,13 +3571,8 @@ CONTAINS
+       ALLOCATE (idip(dip_n), jdip(dip_n), idip_mag(dip_n), jdip_mag(dip_n))
+       ALLOCATE (iquad(quad_n), jquad(quad_n), iquad_mag(quad_n), jquad_mag(quad_n))
+ 
+-      dE = 0.0_dp
+       tb%grad = 0.0_dp
+       hsigma = 0.0_dp
+-      fold_shape = 2*nkp_grid + 1
+-      ALLOCATE (non_nyquist_folded_seen(PRODUCT(fold_shape)))
+-      non_nyquist_folded_seen = 0
+-      has_nyquist_image = 0
+       ! loop over all atom pairs with a non-zero overlap (sab_orb)
+       NULLIFY (nl_iterator)
+       CALL neighbor_list_iterator_create(nl_iterator, sab_orb)
+@@ -3519,7 +3596,6 @@ CONTAINS
+          r2 = DOT_PRODUCT(rij, rij)
+          dr = SQRT(r2)
+          IF (icol == jrow .AND. dr < same_atom) CYCLE
+-         rr = SQRT(dr/(h0%rad(ikind) + h0%rad(jkind)))
+ 
+          !get basis information
+          basis_set_a => basis_set_list(ikind)%gto_basis_set
+@@ -3539,7 +3615,6 @@ CONTAINS
+             ic = cell_to_index(cellind(1), cellind(2), cellind(3))
+             CPASSERT(ic > 0)
+          END IF
+-         image_pair = (cellind(1) /= 0 .OR. cellind(2) /= 0 .OR. cellind(3) /= 0)
+          nkp_cellind = 0
+          DO i = 1, 3
+             IF (nkp_grid(i) > 1) THEN
+@@ -3551,49 +3626,20 @@ CONTAINS
+          IF (nkp_cellind(1) /= 0) sampled_axes = sampled_axes + 1
+          IF (nkp_cellind(2) /= 0) sampled_axes = sampled_axes + 1
+          IF (nkp_cellind(3) /= 0) sampled_axes = sampled_axes + 1
+-         kpoint_image_pair = image_pair .AND. sampled_axes > 0
+          sampled_even_axes = 0
+-         IF (nkp_grid(1) > 1 .AND. MODULO(nkp_grid(1), 2) == 0 .AND. &
+-             ABS(2*nkp_cellind(1)) == nkp_grid(1)) sampled_even_axes = sampled_even_axes + 1
+-         IF (nkp_grid(2) > 1 .AND. MODULO(nkp_grid(2), 2) == 0 .AND. &
+-             ABS(2*nkp_cellind(2)) == nkp_grid(2)) sampled_even_axes = sampled_even_axes + 1
+-         IF (nkp_grid(3) > 1 .AND. MODULO(nkp_grid(3), 2) == 0 .AND. &
+-             ABS(2*nkp_cellind(3)) == nkp_grid(3)) sampled_even_axes = sampled_even_axes + 1
+-         sampled_non_nyquist_axes = MAX(0, sampled_axes - sampled_even_axes)
+-         IF (kpoint_image_pair .AND. sampled_even_axes > 0) has_nyquist_image = 1
+-         IF (kpoint_image_pair .AND. sampled_non_nyquist_axes > 0 .AND. sampled_even_axes == 0) THEN
+-            fold_index = 1 + (nkp_cellind(1) + nkp_grid(1)) &
+-                         + fold_shape(1)*(nkp_cellind(2) + nkp_grid(2)) &
+-                         + fold_shape(1)*fold_shape(2)*(nkp_cellind(3) + nkp_grid(3))
+-            non_nyquist_folded_seen(fold_index) = 1
+-         END IF
+-         sampled_image_pair = kpoint_image_pair .AND. sampled_even_axes > 0
+-         pot_pair_scale = MERGE(pot_image_deriv_scale, pot_deriv_scale, image_pair)
+-         w_pair_scale = MERGE(w_image_deriv_scale, w_deriv_scale, image_pair)
+-         h0_pair_scale = MERGE(h0_image_deriv_scale, h0_deriv_scale, image_pair)
+-         mp_pair_scale = MERGE(mp_image_deriv_scale, mp_deriv_scale, image_pair)
+-         IF (icol == jrow .AND. sampled_image_pair) THEN
+-            pot_pair_scale = pot_self_image_deriv_scale
+-            w_pair_scale = w_self_image_deriv_scale
+-            ! sampled_even_axes identifies a Nyquist self-image. The sorted
+-            ! self-image block needs one normalization; the multiplicity follows
+-            ! from the sampled mesh, periodicity, and active response channels.
+-            nyquist_self_image_deriv_scale = 1.0_dp
+-            IF (has_multipole_response) THEN
+-               IF (n_periodic > 1) &
+-                  nyquist_self_image_deriv_scale = 1.0_dp + REAL(n_periodic, dp)/ &
+-                                                   REAL(n_sampled_kpoints*(1 + dip_n + quad_n), dp)
+-            ELSEIF (n_periodic == 3) THEN
+-               nyquist_self_image_deriv_scale = 1.0_dp + 1.0_dp/REAL(n_sampled_kpoints*n_periodic, dp)
++         sampled_gamma_axes = 0
++         DO i = 1, 3
++            IF (nkp_grid(i) > 1 .AND. MODULO(nkp_grid(i), 2) == 0 .AND. &
++                ABS(2*nkp_cellind(i)) == nkp_grid(i)) THEN
++               sampled_even_axes = sampled_even_axes + 1
++               IF (mesh_has_gamma(i)) sampled_gamma_axes = sampled_gamma_axes + 1
+             END IF
+-            w_pair_scale = w_pair_scale*nyquist_self_image_deriv_scale
+-            ! Odd Monkhorst-Pack meshes do not contain a Nyquist image along the
+-            ! sampled axis. Match the self-image W derivative to the reduced
+-            ! real-space representation used by the k-point density transform.
+-            w_pair_scale = w_pair_scale*(1.0_dp - 0.125_dp*REAL(sampled_odd_axes, dp))
+-            h0_pair_scale = h0_self_image_deriv_scale
+-            mp_pair_scale = mp_self_image_deriv_scale
+-         END IF
++         END DO
++         sampled_image_pair = sampled_axes > 0 .AND. sampled_even_axes > 0
++         gamma_sampled_image_pair = sampled_image_pair .AND. sampled_gamma_axes == sampled_even_axes
++         mp_pair_scale = 1.0_dp
++         IF (icol == jrow .AND. sampled_image_pair .AND. has_multipole_response .AND. &
++             .NOT. gamma_sampled_image_pair) mp_pair_scale = -1.0_dp
+ 
+          NULLIFY (pblock, pblock_beta)
+          CALL dbcsr_get_block_p(matrix=matrix_p(1, ic)%matrix, &
+@@ -3604,17 +3650,22 @@ CONTAINS
+                                    row=jrow, col=icol, BLOCK=pblock_beta, found=found)
+             IF (.NOT. found) CPABORT("pblock beta not found")
+          END IF
+-
+-         NULLIFY (wblock, wblock_beta)
+-         CALL dbcsr_get_block_p(matrix=matrix_w(1, ic)%matrix, &
+-                                row=jrow, col=icol, block=wblock, found=found)
+-         CPASSERT(found)
+-         IF (nspin > 1) THEN
+-            CALL dbcsr_get_block_p(matrix=matrix_w(2, ic)%matrix, &
+-                                   row=jrow, col=icol, block=wblock_beta, found=found)
+-            CPASSERT(found)
++         IF (use_matrix_scc_stress) THEN
++            ALLOCATE (scc_strain_hint(SIZE(pblock, 2), SIZE(pblock, 1), 3, 3, nspin))
++            scc_strain_hint = 0.0_dp
++            DO ispin = 1, nspin
++               DO jdim = 1, 3
++                  DO idim = 1, 3
++                     NULLIFY (scc_strain_blocks(idim, jdim, ispin)%block)
++                     i = idim + 3*(jdim - 1) + 9*(ispin - 1)
++                     CALL dbcsr_get_block_p(matrix=matrix_dh_scc(i, ic)%matrix, &
++                                            row=jrow, col=icol, &
++                                            BLOCK=scc_strain_blocks(idim, jdim, ispin)%block, found=found)
++                     IF (.NOT. found) CPABORT("SCC strain derivative block not found")
++                  END DO
++               END DO
++            END DO
+          END IF
+-
+          i_a_shift = tb%pot%vat(icol, 1)
+          j_a_shift = tb%pot%vat(jrow, 1)
+          i_a_shift_mag = 0.0_dp
+@@ -3639,19 +3690,13 @@ CONTAINS
+             iquad_mag(:) = tb%pot%vqp(:, icol, 2)
+             jquad_mag(:) = tb%pot%vqp(:, jrow, 2)
+          END IF
+-         dip_deriv_fac_pair = dip_deriv_fac
+-         quad_deriv_fac_pair = quad_deriv_fac
+-         overlap_deriv_fac = 1.0_dp
+-
+          ni = tb%calc%bas%ish_at(icol)
+          DO iset = 1, nseti
+-            sgfi = first_sgfa(1, iset)
+             ishift = i_a_shift + tb%pot%vsh(ni + iset, 1)
+             ishift_mag = 0.0_dp
+             IF (SIZE(tb%pot%vsh, 2) > 1) ishift_mag = i_a_shift_mag + tb%pot%vsh(ni + iset, 2)
+             nj = tb%calc%bas%ish_at(jrow)
+             DO jset = 1, nsetj
+-               sgfj = first_sgfb(1, jset)
+                jshift = j_a_shift + tb%pot%vsh(nj + jset, 1)
+                jshift_mag = 0.0_dp
+                IF (SIZE(tb%pot%vsh, 2) > 1) jshift_mag = j_a_shift_mag + tb%pot%vsh(nj + jset, 2)
+@@ -3661,19 +3706,6 @@ CONTAINS
+                   & r2, rij, tb%calc%bas%intcut, t_ov, t_dip, t_quad, t_d_ov, t_i_dip, t_i_quad, &
+                   & t_j_dip, t_j_quad)
+ 
+-               shpoly = (1.0_dp + h0%shpoly(iset, ikind)*rr) &
+-                        *(1.0_dp + h0%shpoly(jset, jkind)*rr)
+-               dshpoly = ((1.0_dp + h0%shpoly(iset, ikind)*rr)*h0%shpoly(jset, jkind)*rr &
+-                          + (1.0_dp + h0%shpoly(jset, jkind)*rr)*h0%shpoly(iset, ikind)*rr) &
+-                         *0.5_dp/r2
+-               scal = h0%hscale(iset, jset, ikind, jkind)
+-               hij = 0.5_dp*(tb%selfenergy(ni + iset) + tb%selfenergy(nj + jset))*scal
+-
+-               idHdc = tb%dsedcn(ni + iset)*shpoly*scal
+-               jdHdc = tb%dsedcn(nj + jset)*shpoly*scal
+-
+-               itemp = 0.0_dp
+-               jtemp = 0.0_dp
+                dgrad = 0.0_dp
+                DO inda = 1, nsgfa(iset)
+                   ia = first_sgfa(1, iset) - first_sgfa(1, 1) + inda
+@@ -3684,58 +3716,54 @@ CONTAINS
+ 
+                      pij_charge = pblock(ib, ia)
+                      pij_magnet = 0.0_dp
+-                     wij_charge = wblock(ib, ia)
+                      IF (nspin > 1) THEN
+                         pij_charge = pij_charge + pblock_beta(ib, ia)
+                         pij_magnet = pblock(ib, ia) - pblock_beta(ib, ia)
+-                        ! CP2K's core Hamiltonian force setup leaves matrix_w(1)
+-                        ! as the already combined alpha+beta channel for LSD.
+                      END IF
+-
+-                     itemp = itemp + overlap_deriv_fac*idHdc*pij_charge*t_ov(ij)
+-                     jtemp = jtemp + overlap_deriv_fac*jdHdc*pij_charge*t_ov(ij)
+-
+-                     hp = 2*hij*pij_charge
+-                     dgrad(:) = dgrad(:) &
+-                                + overlap_deriv_fac*(-pot_pair_scale*((ishift + jshift)*pij_charge &
+-                                                                      + (ishift_mag + jshift_mag)*pij_magnet)*t_d_ov(:, ij) &
+-                                                     - 2*w_pair_scale*wij_charge*t_d_ov(:, ij) &
+-                                                     + h0_pair_scale*(hp*shpoly*t_d_ov(:, ij) &
+-                                                                      + hp*dshpoly*t_ov(ij)*rij)) &
+-                                + mp_pair_scale*(pij_charge*( &
+-                                                 dip_deriv_fac_pair*(MATMUL(t_i_dip(:, :, ij), idip) &
+-                                                                     + MATMUL(t_j_dip(:, :, ij), jdip)) &
+-                                                 + quad_deriv_fac_pair*(MATMUL(t_i_quad(:, :, ij), iquad) &
+-                                                                        + MATMUL(t_j_quad(:, :, ij), jquad))) &
+-                                                 + pij_magnet*( &
+-                                                 dip_deriv_fac_pair*(MATMUL(t_i_dip(:, :, ij), idip_mag) &
+-                                                                     + MATMUL(t_j_dip(:, :, ij), jdip_mag)) &
+-                                                 + quad_deriv_fac_pair*(MATMUL(t_i_quad(:, :, ij), iquad_mag) &
+-                                                                        + MATMUL(t_j_quad(:, :, ij), jquad_mag))))
++                     mpgrad_charge = MATMUL(t_i_dip(:, :, ij), idip) &
++                                     + MATMUL(t_j_dip(:, :, ij), jdip) &
++                                     + MATMUL(t_i_quad(:, :, ij), iquad) &
++                                     + MATMUL(t_j_quad(:, :, ij), jquad)
++                     mpgrad_magnet = MATMUL(t_i_dip(:, :, ij), idip_mag) &
++                                     + MATMUL(t_j_dip(:, :, ij), jdip_mag) &
++                                     + MATMUL(t_i_quad(:, :, ij), iquad_mag) &
++                                     + MATMUL(t_j_quad(:, :, ij), jquad_mag)
++                     dhgrad_charge = -(ishift + jshift)*t_d_ov(:, ij) - mp_pair_scale*mpgrad_charge
++                     dhgrad_magnet = -(ishift_mag + jshift_mag)*t_d_ov(:, ij) - mp_pair_scale*mpgrad_magnet
++                     dgrad(:) = dgrad(:) - &
++                                ((ishift + jshift)*pij_charge + &
++                                 (ishift_mag + jshift_mag)*pij_magnet)*t_d_ov(:, ij) - &
++                                mp_pair_scale*(pij_charge*mpgrad_charge + pij_magnet*mpgrad_magnet)
++
++                     IF (ALLOCATED(scc_strain_hint)) THEN
++                        DO jdim = 1, 3
++                           DO idim = 1, 3
++                              scc_strain_hint(ia, ib, idim, jdim, 1) = &
++                                 scc_strain_hint(ia, ib, idim, jdim, 1) &
++                                 + (dhgrad_charge(idim) + MERGE(dhgrad_magnet(idim), 0.0_dp, nspin > 1))*rij(jdim)
++                              IF (nspin > 1) THEN
++                                 scc_strain_hint(ia, ib, idim, jdim, 2) = &
++                                    scc_strain_hint(ia, ib, idim, jdim, 2) &
++                                    + (dhgrad_charge(idim) - dhgrad_magnet(idim))*rij(jdim)
++                              END IF
++                           END DO
++                        END DO
++                     END IF
+ 
+                   END DO
+                END DO
+-               ! Periodic self-image pairs share one atom in the sorted CP2K block representation.
+-               IF (icol == jrow) THEN
+-                  IF (sampled_image_pair) THEN
+-                     dE(icol) = dE(icol) + cn_image_scale*0.5_dp*(itemp + jtemp)
+-                  ELSE
+-                     dE(icol) = dE(icol) + 0.5_dp*(itemp + jtemp)
+-                  END IF
+-               ELSE
+-                  dE(icol) = dE(icol) + itemp
+-                  dE(jrow) = dE(jrow) + jtemp
+-               END IF
+                tb%grad(:, icol) = tb%grad(:, icol) - dgrad
+                tb%grad(:, jrow) = tb%grad(:, jrow) + dgrad
+-               IF (tb%use_virial) THEN
++               IF (tb%use_virial .AND. .NOT. use_matrix_scc_stress) THEN
+                   IF (icol == jrow) THEN
+                      DO ia = 1, 3
+                         DO ib = 1, 3
+-                           IF (sampled_image_pair) THEN
+-                              hsigma(ia, ib) = hsigma(ia, ib) - 0.25_dp*(rij(ia)*dgrad(ib) + rij(ib)*dgrad(ia))
++                           IF (sampled_image_pair .AND. .NOT. gamma_sampled_image_pair) THEN
++                              hsigma(ia, ib) = hsigma(ia, ib) - 0.25_dp* &
++                                               (rij(ia)*dgrad(ib) + rij(ib)*dgrad(ia))
+                            ELSE
+-                              hsigma(ia, ib) = hsigma(ia, ib) + 0.25_dp*(rij(ia)*dgrad(ib) + rij(ib)*dgrad(ia))
++                              hsigma(ia, ib) = hsigma(ia, ib) + 0.25_dp* &
++                                               (rij(ia)*dgrad(ib) + rij(ib)*dgrad(ia))
+                            END IF
+                         END DO
+                      END DO
+@@ -3749,43 +3777,64 @@ CONTAINS
+                END IF
+             END DO
+          END DO
++         IF (ALLOCATED(scc_strain_hint)) THEN
++            DO ispin = 1, nspin
++               DO jdim = 1, 3
++                  DO idim = 1, 3
++                     IF (icol <= jrow) THEN
++                        scc_strain_blocks(idim, jdim, ispin)%block(:, :) = &
++                           scc_strain_blocks(idim, jdim, ispin)%block(:, :) &
++                           + scc_strain_hint(:, :, idim, jdim, ispin)
++                     ELSE
++                        scc_strain_blocks(idim, jdim, ispin)%block(:, :) = &
++                           scc_strain_blocks(idim, jdim, ispin)%block(:, :) &
++                           + TRANSPOSE(scc_strain_hint(:, :, idim, jdim, ispin))
++                     END IF
++                  END DO
++               END DO
++            END DO
++            DEALLOCATE (scc_strain_hint)
++         END IF
+       END DO
+       CALL neighbor_list_iterator_release(nl_iterator)
+ 
+-      CALL para_env%sum(hsigma)
+-      CALL para_env%sum(dE)
+-      CALL para_env%max(non_nyquist_folded_seen)
+-      CALL para_env%max(has_nyquist_image)
+-      n_non_nyquist_images = COUNT(non_nyquist_folded_seen > 0)
+-      n_cn_norm_images = 1 + n_non_nyquist_images + has_nyquist_image
+-      ! GFN2-like multipole Hamiltonians fold the scalar CN response over
+-      ! k-point image classes. Non-Nyquist classes need the central class plus
+-      ! the sampled folded images, with one aggregate Nyquist class if present.
+-      IF (has_multipole_response .AND. n_periodic == 3 .AND. n_non_nyquist_images > 0) &
+-         cn_deriv_scale = 1.0_dp - 0.5_dp/REAL(n_cn_norm_images, dp)
+-      dE = cn_deriv_scale*dE
++      IF (use_matrix_scc_stress) THEN
++         hsigma = 0.0_dp
++         DO img = 1, nimg
++            DO ispin = 1, nspin
++               DO jdim = 1, 3
++                  DO idim = 1, 3
++                     i = idim + 3*(jdim - 1) + 9*(ispin - 1)
++                     CALL dbcsr_finalize(matrix_dh_scc(i, img)%matrix)
++                     CALL dbcsr_dot(matrix_dh_scc(i, img)%matrix, matrix_p(ispin, img)%matrix, native_dot_tmp)
++                     ! Symmetric DBCSR storage represents both orientations of each assembled pair.
++                     hsigma(idim, jdim) = hsigma(idim, jdim) + 0.5_dp*native_dot_tmp
++                  END DO
++               END DO
++            END DO
++         END DO
++         CALL dbcsr_deallocate_matrix_set(matrix_dh_scc)
++      ELSE
++         CALL para_env%sum(hsigma)
++      END IF
+       CALL para_env%sum(tb%grad)
+-
+-      CALL tb_add_grad(tb%grad, tb%dcndr, dE, tb%mol%nat)
+       CALL tb_grad2force(qs_env, tb, para_env, 4)
+ 
+-      CALL tb_dump_sigma_component("before_h0_off", tb%sigma, para_env)
+-      tb%sigma = tb%sigma + hsigma
+-      CALL tb_dump_sigma_component("after_h0_off_direct", tb%sigma, para_env)
+-      IF (tb%use_virial) THEN
+-         CALL tb_add_sig(tb%sigma, tb%dcndL, dE, tb%mol%nat)
+-         CALL tb_dump_sigma_component("after_h0_off_cn", tb%sigma, para_env)
+-      END IF
++      IF (.NOT. use_matrix_scc_stress) tb%sigma = tb%sigma + hsigma
+ 
+-      DEALLOCATE (dE)
+-      DEALLOCATE (non_nyquist_folded_seen)
+       DEALLOCATE (basis_set_list)
+       DEALLOCATE (t_ov, t_d_ov)
+       DEALLOCATE (t_dip, t_i_dip, t_j_dip)
+       DEALLOCATE (t_quad, t_i_quad, t_j_quad)
+       DEALLOCATE (idip, jdip, idip_mag, jdip_mag, iquad, jquad, iquad_mag, jquad_mag)
+ 
+-      IF (tb%use_virial) CALL tb_add_stress(qs_env, tb, para_env)
++      IF (tb%use_virial) THEN
++         CALL tb_add_stress(qs_env, tb, para_env)
++         IF (use_matrix_scc_stress) THEN
++            CALL get_qs_env(qs_env=qs_env, virial=virial)
++            virial%pv_virial = virial%pv_virial - hsigma
++         END IF
++      END IF
+ 
+ #else
+       MARK_USED(qs_env)
+@@ -4038,7 +4087,7 @@ CONTAINS
+          IF (ref%stop_on_error) &
+             CPABORT("tblite reference CLI cannot reproduce TBLITE_MIXER/WEIGHT_FACTOR")
+       END IF
+-      etemp = 300.0_dp
++      etemp = 0.0_dp
+       IF (ASSOCIATED(scf_control) .AND. ASSOCIATED(scf_control%smear)) THEN
+          IF (scf_control%smear%do_smear) THEN
+             etemp = cp_unit_from_cp2k(scf_control%smear%electronic_temperature, "K")
+diff --git a/src/tblite_ks_matrix.F b/src/tblite_ks_matrix.F
+index 924e88db..d8eec8c5 100644
+--- a/src/tblite_ks_matrix.F
++++ b/src/tblite_ks_matrix.F
+@@ -30,8 +30,7 @@ MODULE tblite_ks_matrix
+                                               mo_set_type
+    USE qs_rho_types,                    ONLY: qs_rho_get,&
+                                               qs_rho_type
+-   USE tblite_interface,                ONLY: tb_derive_dH_diag,&
+-                                              tb_derive_dH_off,&
++   USE tblite_interface,                ONLY: tb_derive_dH_off,&
+                                               tb_ham_add_coulomb,&
+                                               tb_update_charges
+ #include "./base/base_uses.f90"
+@@ -139,7 +138,6 @@ CONTAINS
+       END IF
+ 
+       IF (calculate_forces) THEN
+-         CALL tb_derive_dH_diag(qs_env, force_use_rho, nimg)
+          CALL tb_derive_dH_off(qs_env, force_use_rho, nimg)
+       END IF
+ 
+diff --git a/src/tblite_scc_mixer.F b/src/tblite_scc_mixer.F
+index 237f3357..94fe95a8 100644
+--- a/src/tblite_scc_mixer.F
++++ b/src/tblite_scc_mixer.F
+@@ -203,7 +203,8 @@ CONTAINS
+       REAL(wp), DIMENSION(memory, memory), INTENT(INOUT) :: a
+       INTEGER, INTENT(OUT)                               :: info
+ 
+-      INTEGER                                            :: i, it1, itn, j
++      INTEGER                                            :: first, i, ih, it1, itn, j, jh, nhist
++      INTEGER, ALLOCATABLE, DIMENSION(:)                 :: hist
+       REAL(wp)                                           :: inv
+       REAL(wp), ALLOCATABLE, DIMENSION(:, :)             :: beta, c
+ 
+@@ -218,7 +219,12 @@ CONTAINS
+          RETURN
+       END IF
+ 
+-      ALLOCATE (beta(MIN(memory, itn), MIN(memory, itn)), c(MIN(memory, itn), 1))
++      nhist = MIN(memory, itn)
++      first = MAX(1, itn - memory + 1)
++      ALLOCATE (hist(nhist), beta(nhist, nhist), c(nhist, 1))
++      DO ih = 1, nhist
++         hist(ih) = MOD(first + ih - 2, memory) + 1
++      END DO
+ 
+       omega(it1) = SQRT(DOT_PRODUCT(dq, dq))
+       IF (omega(it1) > (wfac/maxw)) THEN
+@@ -233,17 +239,22 @@ CONTAINS
+       inv = 1.0_wp/inv
+       df(:, it1) = inv*df(:, it1)
+ 
+-      DO j = MAX(1, itn - memory + 1), itn
+-         i = MOD(j - 1, memory) + 1
+-         a(i, it1) = DOT_PRODUCT(df(:, i), df(:, it1))
+-         a(it1, i) = a(i, it1)
+-         c(i, 1) = omega(i)*DOT_PRODUCT(df(:, i), dq)
++      DO ih = 1, nhist
++         i = hist(ih)
++         c(ih, 1) = omega(i)*DOT_PRODUCT(df(:, i), dq)
++         DO jh = 1, nhist
++            j = hist(jh)
++            a(i, j) = DOT_PRODUCT(df(:, i), df(:, j))
++         END DO
+       END DO
+ 
+-      DO j = MAX(1, itn - memory + 1), itn
+-         i = MOD(j - 1, memory) + 1
+-         beta(:it1, i) = omega(:it1)*omega(i)*a(:it1, i)
+-         beta(i, i) = beta(i, i) + omega0*omega0
++      DO ih = 1, nhist
++         i = hist(ih)
++         DO jh = 1, nhist
++            j = hist(jh)
++            beta(ih, jh) = omega(i)*omega(j)*a(i, j)
++         END DO
++         beta(ih, ih) = beta(ih, ih) + omega0*omega0
+       END DO
+ 
+       CALL cp2k_tblite_lineq(beta, c, info)
+@@ -254,9 +265,9 @@ CONTAINS
+       qlast(:) = q
+       q(:) = q + alpha*dq
+ 
+-      DO j = MAX(1, itn - memory + 1), itn
+-         i = MOD(j - 1, memory) + 1
+-         q(:) = q - omega(i)*c(i, 1)*u(:, i)
++      DO ih = 1, nhist
++         i = hist(ih)
++         q(:) = q - omega(i)*c(ih, 1)*u(:, i)
+       END DO
+ 
+    END SUBROUTINE cp2k_tblite_broyden
+diff --git a/tests/QS/regtest-kp-1-spg/TEST_FILES.toml b/tests/QS/regtest-kp-1-spg/TEST_FILES.toml
+index 3edd09a8..48998095 100644
+--- a/tests/QS/regtest-kp-1-spg/TEST_FILES.toml
++++ b/tests/QS/regtest-kp-1-spg/TEST_FILES.toml
+@@ -19,4 +19,9 @@
+                                            {matcher="N_special_kpoints", tol=0.0, ref=20}]
+ "h_hex_c3_gamma_macdonald_spglib.inp"   = [{matcher="E_total", tol=1e-7, ref=-9.29866167374671},
+                                            {matcher="N_special_kpoints", tol=0.0, ref=32}]
++"he_monoclinic_full_symmetry.inp"       = [{matcher="E_total", tol=1e-10, ref=-11.32544952043517},
++                                           {matcher="N_special_kpoints", tol=0.0, ref=2}]
++"he_monoclinic_full_symmetry_debug.inp" = [{matcher="DEBUG_stress_sum", tol=1.0e-8, ref=0.0},
++                                           {matcher="DEBUG_force_sum", tol=1.0e-8, ref=0.0},
++                                           {matcher="N_special_kpoints", tol=0.0, ref=4}]
+ #EOF
+diff --git a/tests/QS/regtest-kp-1-spg/he_monoclinic_full_symmetry.inp b/tests/QS/regtest-kp-1-spg/he_monoclinic_full_symmetry.inp
+new file mode 100644
+index 00000000..b5abb8d3
+--- /dev/null
++++ b/tests/QS/regtest-kp-1-spg/he_monoclinic_full_symmetry.inp
+@@ -0,0 +1,65 @@
++&GLOBAL
++  PRINT_LEVEL MEDIUM
++  PROJECT HE_MONOCLINIC_FULL_SYMMETRY
++  RUN_TYPE ENERGY
++&END GLOBAL
++
++&FORCE_EVAL
++  METHOD QS
++  &DFT
++    BASIS_SET_FILE_NAME GTH_BASIS_SETS
++    POTENTIAL_FILE_NAME POTENTIAL
++    &KPOINTS
++      SCHEME MACDONALD 2 2 2 0.0 0.0 0.0
++      SYMMETRY ON
++      FULL_GRID OFF
++      SYMMETRY_BACKEND SPGLIB
++      SYMMETRY_REDUCTION_METHOD SPGLIB
++      VERBOSE T
++      WAVEFUNCTIONS COMPLEX
++    &END KPOINTS
++    &MGRID
++      CUTOFF 300
++      REL_CUTOFF 50
++    &END MGRID
++    &QS
++      EPS_DEFAULT 1.0E-12
++      METHOD GPW
++    &END QS
++    &SCF
++      EPS_SCF 1.0E-10
++      MAX_SCF 150
++      SCF_GUESS ATOMIC
++      &MIXING
++        ALPHA 0.4
++        METHOD DIRECT_P_MIXING
++      &END MIXING
++      &PRINT
++        &RESTART OFF
++        &END RESTART
++      &END PRINT
++    &END SCF
++    &XC
++      &XC_FUNCTIONAL PADE
++      &END XC_FUNCTIONAL
++    &END XC
++  &END DFT
++  &SUBSYS
++    &CELL
++      ABC 4.0 5.0 6.0
++      ALPHA_BETA_GAMMA 90.0 110.0 90.0
++      PERIODIC XYZ
++    &END CELL
++    &COORD
++      SCALED
++      He 0.13 0.21 0.17
++      He 0.87 0.21 0.83
++      He 0.13 0.79 0.17
++      He 0.87 0.79 0.83
++    &END COORD
++    &KIND He
++      BASIS_SET DZVP-GTH
++      POTENTIAL GTH-PADE-q2
++    &END KIND
++  &END SUBSYS
++&END FORCE_EVAL
+diff --git a/tests/QS/regtest-kp-1-spg/he_monoclinic_full_symmetry_debug.inp b/tests/QS/regtest-kp-1-spg/he_monoclinic_full_symmetry_debug.inp
+new file mode 100644
+index 00000000..3dcb00ce
+--- /dev/null
++++ b/tests/QS/regtest-kp-1-spg/he_monoclinic_full_symmetry_debug.inp
+@@ -0,0 +1,75 @@
++&GLOBAL
++  PRINT_LEVEL MEDIUM
++  PROJECT HE_MONOCLINIC_FULL_SYMMETRY_DEBUG
++  RUN_TYPE DEBUG
++&END GLOBAL
++
++&DEBUG
++  DEBUG_FORCES T
++  DEBUG_STRESS_TENSOR T
++  DX 1.0E-4
++  MAX_RELATIVE_ERROR 0.5
++  STOP_ON_MISMATCH F
++&END DEBUG
++
++&FORCE_EVAL
++  METHOD QS
++  STRESS_TENSOR ANALYTICAL
++  &DFT
++    BASIS_SET_FILE_NAME GTH_BASIS_SETS
++    POTENTIAL_FILE_NAME POTENTIAL
++    &KPOINTS
++      SCHEME MACDONALD 2 2 2 0.0 0.0 0.0
++      EPS_SYMMETRY 1.0E-8
++      SYMMETRY ON
++      FULL_GRID OFF
++      SYMMETRY_BACKEND SPGLIB
++      SYMMETRY_REDUCTION_METHOD SPGLIB
++      VERBOSE T
++      WAVEFUNCTIONS COMPLEX
++    &END KPOINTS
++    &MGRID
++      CUTOFF 300
++      REL_CUTOFF 50
++    &END MGRID
++    &QS
++      EPS_DEFAULT 1.0E-12
++      METHOD GPW
++    &END QS
++    &SCF
++      EPS_SCF 1.0E-10
++      MAX_SCF 150
++      SCF_GUESS ATOMIC
++      &MIXING
++        ALPHA 0.4
++        METHOD DIRECT_P_MIXING
++      &END MIXING
++      &PRINT
++        &RESTART OFF
++        &END RESTART
++      &END PRINT
++    &END SCF
++    &XC
++      &XC_FUNCTIONAL PADE
++      &END XC_FUNCTIONAL
++    &END XC
++  &END DFT
++  &SUBSYS
++    &CELL
++      ABC 4.0 5.0 6.0
++      ALPHA_BETA_GAMMA 90.0 110.0 90.0
++      PERIODIC XYZ
++    &END CELL
++    &COORD
++      SCALED
++      He 0.13 0.21 0.17
++      He 0.87 0.21 0.83
++      He 0.13 0.79 0.17
++      He 0.87 0.79 0.83
++    &END COORD
++    &KIND He
++      BASIS_SET DZVP-GTH
++      POTENTIAL GTH-PADE-q2
++    &END KIND
++  &END SUBSYS
++&END FORCE_EVAL
+diff --git a/tests/xTB/regtest-3-spglib/TEST_FILES.toml b/tests/xTB/regtest-3-spglib/TEST_FILES.toml
+index aece05aa..67d46613 100644
+--- a/tests/xTB/regtest-3-spglib/TEST_FILES.toml
++++ b/tests/xTB/regtest-3-spglib/TEST_FILES.toml
+@@ -5,4 +5,14 @@
+                                            {matcher="N_special_kpoints", tol=0.0, ref=4}]
+ "si_kp_tblite_mixer_spglib.inp"         = [{matcher="E_total", tol=6.0E-7, ref=-14.73197235360055},
+                                            {matcher="N_special_kpoints", tol=0.0, ref=1}]
++"bn_gfn1_kp_spglib_phase.inp"           = [{matcher="E_total", tol=1.0E-10, ref=-18.82000122976238},
++                                           {matcher="N_special_kpoints", tol=0.0, ref=4}]
++"urea_gfn1_kp_spglib_boundary.inp"       = [{matcher="E_total", tol=1.0E-10, ref=-30.89448648357338},
++                                           {matcher="N_special_kpoints", tol=0.0, ref=6}]
++"urea_gfn1_kp_spglib_cellopt.inp"        = [{matcher="M011", tol=1.0E-10, ref=-30.89506414487334},
++                                           {matcher="N_special_kpoints", tol=0.0, ref=6}]
++"ice_viii_gfn2_kp_spglib_nonsymmorphic.inp" = [{matcher="E_total", tol=1.0E-10, ref=-40.71301345059185},
++                                                 {matcher="N_special_kpoints", tol=0.0, ref=6}]
++"ice_ix_gfn2_kp_k290_nonsymmorphic.inp" = [{matcher="E_total", tol=1.0E-10, ref=-61.10270535138308},
++                                            {matcher="N_special_kpoints", tol=0.0, ref=14}]
+ #EOF
+diff --git a/tests/xTB/regtest-3-spglib/bn_gfn1_kp_spglib_phase.inp b/tests/xTB/regtest-3-spglib/bn_gfn1_kp_spglib_phase.inp
+new file mode 100644
+index 00000000..90d69cda
+--- /dev/null
++++ b/tests/xTB/regtest-3-spglib/bn_gfn1_kp_spglib_phase.inp
+@@ -0,0 +1,63 @@
++&GLOBAL
++  PRINT_LEVEL LOW
++  PROJECT bn_gfn1_kp_spglib_phase
++  RUN_TYPE ENERGY
++&END GLOBAL
++
++&FORCE_EVAL
++  METHOD Quickstep
++  &DFT
++    &KPOINTS
++      EPS_SYMMETRY 1.0E-8
++      FULL_GRID OFF
++      SCHEME MACDONALD 3 3 3 0 0 0
++      SYMMETRY ON
++      SYMMETRY_BACKEND SPGLIB
++      SYMMETRY_REDUCTION_METHOD SPGLIB
++      VERBOSE T
++    &END KPOINTS
++    &QS
++      EPS_DEFAULT 1.0E-12
++      METHOD xTB
++      &XTB
++        GFN_TYPE TBLITE
++        &TBLITE
++          METHOD GFN1
++          ACCURACY 0.05
++        &END TBLITE
++      &END XTB
++    &END QS
++    &SCF
++      EPS_SCF 1.0E-9
++      MAX_SCF 300
++      SCF_GUESS MOPAC
++      &MIXING
++        METHOD DIRECT_P_MIXING
++        ALPHA 0.2
++      &END MIXING
++      &PRINT
++        &RESTART OFF
++        &END RESTART
++      &END PRINT
++    &END SCF
++  &END DFT
++  &SUBSYS
++    &CELL
++      ABC 3.608972409874 3.608972409874 3.608972409874
++      CANONICALIZE TRUE
++      PERIODIC XYZ
++      SYMMETRY CUBIC
++    &END CELL
++    &COORD
++      SCALED
++      B  0.00 0.00 0.00
++      B  0.00 0.50 0.50
++      B  0.50 0.00 0.50
++      B  0.50 0.50 0.00
++      N  0.25 0.25 0.25
++      N  0.25 0.75 0.75
++      N  0.75 0.25 0.75
++      N  0.75 0.75 0.25
++    &END COORD
++  &END SUBSYS
++&END FORCE_EVAL
+diff --git a/tests/xTB/regtest-3-spglib/ice_ix_gfn2_kp_k290_nonsymmorphic.inp b/tests/xTB/regtest-3-spglib/ice_ix_gfn2_kp_k290_nonsymmorphic.inp
+new file mode 100644
+index 00000000..e0ef932b
+--- /dev/null
++++ b/tests/xTB/regtest-3-spglib/ice_ix_gfn2_kp_k290_nonsymmorphic.inp
+@@ -0,0 +1,90 @@
++&GLOBAL
++  PRINT_LEVEL LOW
++  PROJECT ice_ix_gfn2_kp_k290_nonsymmorphic
++  RUN_TYPE ENERGY
++&END GLOBAL
++
++&FORCE_EVAL
++  METHOD Quickstep
++  &DFT
++    &QS
++      EPS_DEFAULT 1.0E-12
++      METHOD xTB
++      &XTB
++        GFN_TYPE TBLITE
++        &TBLITE
++          METHOD GFN2
++          ACCURACY 0.1
++        &END TBLITE
++      &END XTB
++    &END QS
++    &KPOINTS
++      SCHEME MACDONALD 3 3 3 0.0 0.0 0.0
++      SYMMETRY T
++      FULL_GRID F
++      SYMMETRY_BACKEND K290
++      SYMMETRY_REDUCTION_METHOD K290
++      VERBOSE T
++    &END KPOINTS
++    &SCF
++      EPS_SCF 1.0E-9
++      MAX_SCF 300
++      SCF_GUESS MOPAC
++      &MIXING
++        METHOD DIRECT_P_MIXING
++        ALPHA 0.2
++      &END MIXING
++      &PRINT
++        &RESTART OFF
++        &END RESTART
++      &END PRINT
++    &END SCF
++  &END DFT
++  &SUBSYS
++    &CELL
++      PERIODIC XYZ
++      A 6.784903000000 0.000000000000 0.000000000000
++      B 0.000000000000 6.784903000000 0.000000000000
++      C 0.000000000000 0.000000000000 6.807916000000
++    &END CELL
++    &COORD
++      SCALED
++      H  -0.006830000000  0.340009000000  0.190161000000
++      H   0.113981000000  0.164412000000  0.283330000000
++      H   0.309270000000  0.370346000000  0.106284000000
++      H   0.159991000000  0.493170000000  0.440161000000
++      H   0.335588000000  0.613981000000  0.533330000000
++      H   0.129654000000  0.809270000000  0.356284000000
++      H   0.840009000000  0.506830000000 -0.059839000000
++      H   0.664412000000  0.386019000000  0.033330000000
++      H   0.870346000000  0.190730000000  0.856284000000
++      H   0.506830000000  0.840009000000  1.059839000000
++      H   0.386019000000  0.664412000000  0.966670000000
++      H   0.190730000000  0.870346000000  0.143716000000
++      H   0.493170000000  0.159991000000  0.559839000000
++      H   0.613981000000  0.335588000000  0.466670000000
++      H   0.809270000000  0.129654000000  0.643716000000
++      H   0.370346000000  0.309270000000 -0.106284000000
++      H   0.659991000000  1.006830000000  0.309839000000
++      H   0.835588000000  0.886019000000  0.216670000000
++      H   0.629654000000  0.690730000000  0.393716000000
++      H   1.006830000000  0.659991000000  0.690161000000
++      H   0.886019000000  0.835588000000  0.783330000000
++      H   0.690730000000  0.629654000000  0.606284000000
++      H   0.340009000000 -0.006830000000  0.809839000000
++      H   0.164412000000  0.113981000000  0.716670000000
++      O   0.114088000000  0.310030000000  0.267366000000
++      O   0.189970000000  0.614088000000  0.517366000000
++      O   0.810030000000  0.385912000000  0.017365000000
++      O   0.385912000000  0.810030000000  0.982634000000
++      O   0.614088000000  0.189970000000  0.482634000000
++      O   0.689970000000  0.885912000000  0.232634000000
++      O   0.885912000000  0.689970000000  0.767366000000
++      O   0.310030000000  0.114088000000  0.732634000000
++      O   0.404256000000  0.404256000000  0.000000000000
++      O   0.095744000000  0.904256000000  0.250000000000
++      O   0.904256000000  0.095744000000  0.750000000000
++      O   0.595744000000  0.595744000000  0.500000000000
++    &END COORD
++  &END SUBSYS
++&END FORCE_EVAL
+diff --git a/tests/xTB/regtest-3-spglib/ice_viii_gfn2_kp_spglib_nonsymmorphic.inp b/tests/xTB/regtest-3-spglib/ice_viii_gfn2_kp_spglib_nonsymmorphic.inp
+new file mode 100644
+index 00000000..4d38959e
+--- /dev/null
++++ b/tests/xTB/regtest-3-spglib/ice_viii_gfn2_kp_spglib_nonsymmorphic.inp
+@@ -0,0 +1,77 @@
++&GLOBAL
++  PRINT_LEVEL LOW
++  PROJECT ice_viii_gfn2_kp_spglib_nonsymmorphic
++  RUN_TYPE ENERGY
++&END GLOBAL
++
++&FORCE_EVAL
++  METHOD Quickstep
++  &DFT
++    &QS
++      EPS_DEFAULT 1.0E-12
++      METHOD xTB
++      &XTB
++        GFN_TYPE TBLITE
++        &TBLITE
++          METHOD GFN2
++          ACCURACY 0.1
++        &END TBLITE
++      &END XTB
++    &END QS
++    &KPOINTS
++      SCHEME MACDONALD 3 3 3 0.0 0.0 0.0
++      SYMMETRY T
++      FULL_GRID F
++      SYMMETRY_BACKEND SPGLIB
++      SYMMETRY_REDUCTION_METHOD SPGLIB
++      VERBOSE T
++    &END KPOINTS
++    &SCF
++      EPS_SCF 1.0E-9
++      MAX_SCF 300
++      SCF_GUESS MOPAC
++      &MIXING
++        METHOD DIRECT_P_MIXING
++        ALPHA 0.2
++      &END MIXING
++      &PRINT
++        &RESTART OFF
++        &END RESTART
++      &END PRINT
++    &END SCF
++  &END DFT
++  &SUBSYS
++    &CELL
++      PERIODIC XYZ
++      A 4.849465370000 0.000000000000 0.000000000000
++      B 0.000000000000 4.849465370000 0.000000000000
++      C 0.000000000000 0.000000000000 7.056513790000
++    &END CELL
++    &COORD
++      H   6.781516750000  7.563033500000  6.966619500000
++      H   9.206249250000  9.987766000000  10.494876500000
++      H   6.000000000000  9.206249250000  8.730748000000
++      H   9.987766000000  6.781516750000  12.259005000000
++      H   9.206249250000  7.563033500000  7.764128500000
++      H   9.206249250000  6.000000000000  7.764128500000
++      H   9.987766000000  9.206249250000  6.000000000000
++      H   6.000000000000  6.781516750000  9.528257000000
++      H   8.424732500000  9.206249250000  6.000000000000
++      H   8.424732500000  6.781516750000  12.259005000000
++      H   6.781516750000  6.000000000000  6.966619500000
++      H   7.563033500000  9.206249250000  8.730748000000
++      H   7.563033500000  6.781516750000  9.528257000000
++      H   9.206249250000  8.424732500000  10.494876500000
++      H   6.781516750000  9.987766000000  11.292385500000
++      H   6.781516750000  8.424732500000  11.292385500000
++      O   6.781516750000  6.781516750000  6.368001500000
++      O   6.781516750000  9.206249250000  8.132130000000
++      O   9.206249250000  6.781516750000  11.660387000000
++      O   9.206249250000  6.781516750000  8.362746500000
++      O   9.206249250000  9.206249250000  6.598618000000
++      O   6.781516750000  6.781516750000  10.126875000000
++      O   9.206249250000  9.206249250000  9.896258500000
++      O   6.781516750000  9.206249250000  11.891003500000
++    &END COORD
++  &END SUBSYS
++&END FORCE_EVAL
+diff --git a/tests/xTB/regtest-3-spglib/urea_gfn1_kp_spglib_boundary.inp b/tests/xTB/regtest-3-spglib/urea_gfn1_kp_spglib_boundary.inp
+new file mode 100644
+index 00000000..6d4b0b94
+--- /dev/null
++++ b/tests/xTB/regtest-3-spglib/urea_gfn1_kp_spglib_boundary.inp
+@@ -0,0 +1,77 @@
++ &GLOBAL
++   PRINT_LEVEL LOW
++   PROJECT_NAME "urea_gfn1_kp_spglib_boundary"
++   RUN_TYPE ENERGY
++ &END GLOBAL
++ &FORCE_EVAL
++   METHOD QS
++   STRESS_TENSOR ANALYTICAL
++   &DFT
++     &SCF
++       MAX_SCF 300
++       EPS_SCF  1.0000000000000001E-009
++       SCF_GUESS MOPAC
++       &MIXING T
++         METHOD DIRECT_P_MIXING
++         ALPHA  2.0000000000000001E-001
++       &END MIXING
++       &PRINT
++         &RESTART OFF
++         &END RESTART
++       &END PRINT
++     &END SCF
++     &QS
++       EPS_DEFAULT  9.9999999999999998E-013
++       METHOD XTB
++       &XTB
++         GFN_TYPE TBLITE
++         &TBLITE T
++           METHOD GFN1
++           ACCURACY  1.0000000000000001E-001
++         &END TBLITE
++       &END XTB
++     &END QS
++     &KPOINTS
++       SCHEME MACDONALD 2 2 2 0.25 0.25 0.25
++       EPS_SYMMETRY 1.0E-8
++       SYMMETRY T
++       FULL_GRID F
++       SYMMETRY_BACKEND SPGLIB
++       SYMMETRY_REDUCTION_METHOD SPGLIB
++       VERBOSE T
++     &END KPOINTS
++   &END DFT
++   &SUBSYS
++     &CELL
++       CANONICALIZE TRUE
++       A  5.2159966903739186E+000  0.0000000000000000E+000  0.0000000000000000E+000
++       B  0.0000000000000000E+000  5.2159966903737809E+000  0.0000000000000000E+000
++       C  0.0000000000000000E+000  0.0000000000000000E+000  4.9491754758942879E+000
++       PERIODIC XYZ
++       MULTIPLE_UNIT_CELL 1 1 1
++     &END CELL
++     &COORD
++       C  9.9999999999999878E-001  4.9999999999999933E-001  3.2101388247716989E-001
++       C  5.0000000000000022E-001 -1.0340691003044431E-015  6.7898611723238622E-001
++       O  9.9999999999999900E-001  4.9999999999999956E-001  5.7123643787624401E-001
++       O  5.0000000000000033E-001  7.9227636698446263E-016  4.2876356225551016E-001
++       N  1.5582226440252989E-001  6.5582226440257119E-001  1.7818364409247928E-001
++       N  6.5582226442015923E-001  8.4417773557979969E-001  8.2181635603715397E-001
++       N  3.4417773557983750E-001  1.5582226442019881E-001  8.2181635603715109E-001
++       N  8.4417773559747156E-001  3.4417773559743020E-001  1.7818364409247456E-001
++       H  2.7312356664824483E-001  7.7312356664827964E-001  2.8290207445821941E-001
++       H  7.7312356665118154E-001  7.2687643334878826E-001  7.1709792553130869E-001
++       H  2.2687643334882171E-001  2.7312356665121323E-001  7.1709792553131035E-001
++       H  7.2687643335175167E-001  2.2687643335171906E-001  2.8290207445822330E-001
++       H  1.5659886877892482E-001  6.5659886877895290E-001  9.7604046944000633E-001
++       H  6.5659886878433193E-001  8.4340113121563576E-001  2.3959530520177012E-002
++       H  3.4340113121566673E-001  1.5659886878436219E-001  2.3959530520177613E-002
++       H  8.4340113122107319E-001  3.4340113122104521E-001  9.7604046944000944E-001
++       SCALED T
++     &END COORD
++     &TOPOLOGY
++       NUMBER_OF_ATOMS 16
++       MULTIPLE_UNIT_CELL 1 1 1
++     &END TOPOLOGY
++   &END SUBSYS
++ &END FORCE_EVAL
+diff --git a/tests/xTB/regtest-3-spglib/urea_gfn1_kp_spglib_cellopt.inp b/tests/xTB/regtest-3-spglib/urea_gfn1_kp_spglib_cellopt.inp
+new file mode 100644
+index 00000000..b2649ed2
+--- /dev/null
++++ b/tests/xTB/regtest-3-spglib/urea_gfn1_kp_spglib_cellopt.inp
+@@ -0,0 +1,91 @@
++ &GLOBAL
++   PRINT_LEVEL LOW
++   PROJECT_NAME "urea_gfn1_kp_spglib_cellopt"
++   RUN_TYPE CELL_OPT
++ &END GLOBAL
++ &FORCE_EVAL
++   METHOD QS
++   STRESS_TENSOR ANALYTICAL
++   &DFT
++     &SCF
++       MAX_SCF 300
++       EPS_SCF  1.0000000000000001E-009
++       SCF_GUESS MOPAC
++       &MIXING T
++         METHOD DIRECT_P_MIXING
++         ALPHA  2.0000000000000001E-001
++       &END MIXING
++       &PRINT
++         &RESTART OFF
++         &END RESTART
++       &END PRINT
++     &END SCF
++     &QS
++       EPS_DEFAULT  9.9999999999999998E-013
++       METHOD XTB
++       &XTB
++         GFN_TYPE TBLITE
++         &TBLITE T
++           METHOD GFN1
++           ACCURACY  1.0000000000000001E-001
++         &END TBLITE
++       &END XTB
++     &END QS
++     &KPOINTS
++       SCHEME MACDONALD 2 2 2 0.25 0.25 0.25
++       EPS_SYMMETRY 1.0E-8
++       SYMMETRY T
++       FULL_GRID F
++       SYMMETRY_BACKEND SPGLIB
++       SYMMETRY_REDUCTION_METHOD SPGLIB
++       VERBOSE T
++     &END KPOINTS
++   &END DFT
++   &SUBSYS
++     &CELL
++       CANONICALIZE TRUE
++       A  5.2159966903739186E+000  0.0000000000000000E+000  0.0000000000000000E+000
++       B  0.0000000000000000E+000  5.2159966903737809E+000  0.0000000000000000E+000
++       C  0.0000000000000000E+000  0.0000000000000000E+000  4.9491754758942879E+000
++       PERIODIC XYZ
++       MULTIPLE_UNIT_CELL 1 1 1
++     &END CELL
++     &COORD
++       C  9.9999999999999878E-001  4.9999999999999933E-001  3.2101388247716989E-001
++       C  5.0000000000000022E-001 -1.0340691003044431E-015  6.7898611723238622E-001
++       O  9.9999999999999900E-001  4.9999999999999956E-001  5.7123643787624401E-001
++       O  5.0000000000000033E-001  7.9227636698446263E-016  4.2876356225551016E-001
++       N  1.5582226440252989E-001  6.5582226440257119E-001  1.7818364409247928E-001
++       N  6.5582226442015923E-001  8.4417773557979969E-001  8.2181635603715397E-001
++       N  3.4417773557983750E-001  1.5582226442019881E-001  8.2181635603715109E-001
++       N  8.4417773559747156E-001  3.4417773559743020E-001  1.7818364409247456E-001
++       H  2.7312356664824483E-001  7.7312356664827964E-001  2.8290207445821941E-001
++       H  7.7312356665118154E-001  7.2687643334878826E-001  7.1709792553130869E-001
++       H  2.2687643334882171E-001  2.7312356665121323E-001  7.1709792553131035E-001
++       H  7.2687643335175167E-001  2.2687643335171906E-001  2.8290207445822330E-001
++       H  1.5659886877892482E-001  6.5659886877895290E-001  9.7604046944000633E-001
++       H  6.5659886878433193E-001  8.4340113121563576E-001  2.3959530520177012E-002
++       H  3.4340113121566673E-001  1.5659886878436219E-001  2.3959530520177613E-002
++       H  8.4340113122107319E-001  3.4340113122104521E-001  9.7604046944000944E-001
++       SCALED T
++     &END COORD
++     &TOPOLOGY
++       NUMBER_OF_ATOMS 16
++       MULTIPLE_UNIT_CELL 1 1 1
++     &END TOPOLOGY
++   &END SUBSYS
++ &END FORCE_EVAL
++
++ &MOTION
++   &CELL_OPT
++     OPTIMIZER CG
++     MAX_ITER 6
++     EXTERNAL_PRESSURE [bar] 0.0
++     KEEP_ANGLES T
++     &CG
++       &LINE_SEARCH
++         TYPE 2PNT
++       &END LINE_SEARCH
++     &END CG
++   &END CELL_OPT
++ &END MOTION
+diff --git a/tests/xTB/regtest-gfn0/TEST_FILES.toml b/tests/xTB/regtest-gfn0/TEST_FILES.toml
+index 95f9d9cb..a56916af 100644
+--- a/tests/xTB/regtest-gfn0/TEST_FILES.toml
++++ b/tests/xTB/regtest-gfn0/TEST_FILES.toml
+@@ -26,7 +26,7 @@
+ "si_kp_spglib_reduction_atomdisp.inp"   = [{matcher="E_total", tol=1.0E-11, ref=-13.92586348551223},
+                                            {matcher="N_special_kpoints", tol=0.0, ref=12}]
+ "si_kp_kpsym_debug_stress.inp"          = [{matcher="E_total", tol=1.0E-11, ref=-13.92597057189198},
+-                                           {matcher="N_special_kpoints", tol=0.0, ref=32},
++                                           {matcher="N_special_kpoints", tol=0.0, ref=4},
+                                            {matcher="M042", tol=1.0E-5, ref=0.0}]
+ "si_smear.inp"                          = []
+ "SiC_virial.inp"                        = []
+diff --git a/tests/xTB/regtest-gfn1-d/TEST_FILES.toml b/tests/xTB/regtest-gfn1-d/TEST_FILES.toml
+index 3099d773..7385d847 100644
+--- a/tests/xTB/regtest-gfn1-d/TEST_FILES.toml
++++ b/tests/xTB/regtest-gfn1-d/TEST_FILES.toml
+@@ -27,7 +27,7 @@
+                                            {matcher="DEBUG_force_sum", tol=1.0E-6, ref=0.0000000},
+                                            {matcher="N_special_kpoints", tol=0.0, ref=2}]
+ "si_kp_kpsym_debug_stress.inp"          = [{matcher="DEBUG_stress_sum", tol=1.0E-6, ref=0.0000000},
+-                                           {matcher="N_special_kpoints", tol=0.0, ref=4}]
++                                           {matcher="N_special_kpoints", tol=0.0, ref=1}]
+ #
+ #ch2o_t09.inp                               0
+ #ch2o_t10.inp                               0
+diff --git a/tests/xTB/regtest-tblite-gfn1-grad/H2O_gfn1_yz_kp_debug.inp b/tests/xTB/regtest-tblite-gfn1-grad/H2O_gfn1_yz_kp_debug.inp
+new file mode 100644
+index 00000000..43072897
+--- /dev/null
++++ b/tests/xTB/regtest-tblite-gfn1-grad/H2O_gfn1_yz_kp_debug.inp
+@@ -0,0 +1,61 @@
++&GLOBAL
++  PRINT_LEVEL MEDIUM
++  PROJECT H2O_gfn1_yz_kp_debug
++  RUN_TYPE DEBUG
++&END GLOBAL
++
++&DEBUG
++  DEBUG_FORCES T
++  DEBUG_STRESS_TENSOR T
++  DX 0.0001
++  MAX_RELATIVE_ERROR 0.5
++  STOP_ON_MISMATCH F
++&END DEBUG
++
++&FORCE_EVAL
++  STRESS_TENSOR ANALYTICAL
++  &DFT
++    &KPOINTS
++      EPS_SYMMETRY 1.e-8
++      FULL_GRID OFF
++      SCHEME MONKHORST-PACK 1 2 2
++      SYMMETRY ON
++      SYMMETRY_BACKEND SPGLIB
++      VERBOSE T
++    &END KPOINTS
++    &QS
++      EPS_DEFAULT 1.00E-10
++      METHOD xTB
++      &XTB
++        GFN_TYPE TBLITE
++        &TBLITE
++          METHOD GFN1
++        &END TBLITE
++      &END XTB
++    &END QS
++    &SCF
++      EPS_SCF 1.e-10
++      MAX_SCF 300
++      SCF_GUESS MOPAC
++      &MIXING
++        ALPHA 0.2
++        METHOD DIRECT_P_MIXING
++      &END MIXING
++      &PRINT
++        &RESTART OFF
++        &END RESTART
++      &END PRINT
++    &END SCF
++  &END DFT
++  &SUBSYS
++    &CELL
++      ABC 18.0 6.0 6.0
++      PERIODIC YZ
++    &END CELL
++    &COORD
++      O     0.421000    0.377000    0.289000
++      H     1.179602    0.391000    0.793284
++      H    -0.337602    0.364000    0.793284
++    &END COORD
++  &END SUBSYS
++&END FORCE_EVAL
+diff --git a/tests/xTB/regtest-tblite-gfn1-grad/TEST_FILES.toml b/tests/xTB/regtest-tblite-gfn1-grad/TEST_FILES.toml
+index 33ddcca6..7170e824 100644
+--- a/tests/xTB/regtest-tblite-gfn1-grad/TEST_FILES.toml
++++ b/tests/xTB/regtest-tblite-gfn1-grad/TEST_FILES.toml
+@@ -5,12 +5,17 @@
+ #      for details see cp2k/tools/do_regtest
+ "CH2O_gfn1_force.inp"                          = [{matcher="M082", tol=1.0E-5, ref=0.0000000}]
+ "CH2O_gfn1_uks_force.inp"                      = [{matcher="M082", tol=1.0E-5, ref=0.0000000}]
+-"O2_gfn1_uks_force.inp"                        = [{matcher="M082", tol=1.0E-5, ref=0.0000000}]
++"O2_gfn1_uks_force.inp"                        = [{matcher="M082", tol=1.0E-5, ref=0.0000000},
++                                                   {matcher="M011", tol=1.0E-8, ref=-9.14556690814639}]
+ "COBe_gfn1_fd_force.inp"                       = [{matcher="M082", tol=1.0E-5, ref=0.0000000}]
+ "CH2O_gfn1_stress.inp"                         = [{matcher="DEBUG_stress_sum", tol=1.0E-5, ref=0.0000000}]
+ "Si_gfn1_fd_force.inp"                         = [{matcher="M082", tol=2.0E-4, ref=0.0000000}]
+ "Si_gfn1_fd_stress.inp"                        = [{matcher="M042", tol=1.0E-5, ref=0.0000000}]
+-"Si_gfn1_kp_stress.inp"                        = [{matcher="DEBUG_stress_sum", tol=5.0E-5, ref=0.0000000}]
++"Si_gfn1_kp_stress.inp"                        = [{matcher="DEBUG_stress_sum", tol=5.0E-6, ref=0.0000000}]
++"H2O_gfn1_yz_kp_debug.inp"                     = [{matcher="DEBUG_stress_sum", tol=1.0E-7, ref=0.0000000},
++                                                   {matcher="DEBUG_periodic_stress_sum", tol=1.0E-7, ref=0.0000000},
++                                                   {matcher="DEBUG_force_sum", tol=1.0E-6, ref=0.0000000},
++                                                   {matcher="N_special_kpoints", tol=0.0, ref=2}]
+ "Ar_fcc_gfn1_kp_debug.inp"                     = [{matcher="DEBUG_stress_sum", tol=1.0E-5, ref=0.0000000},
+                                                    {matcher="DEBUG_force_sum", tol=1.0E-5, ref=0.0000000},
+                                                    {matcher="N_special_kpoints", tol=0.0, ref=4}]
+@@ -29,4 +34,7 @@
+                                                    {matcher="DEBUG_periodic_stress_sum", tol=5.0E-6, ref=0.0000000},
+                                                    {matcher="DEBUG_force_sum", tol=1.0E-6, ref=0.0000000},
+                                                    {matcher="N_special_kpoints", tol=0.0, ref=2}]
++"hbn_gfn1_hex_kp_debug.inp"                    = [{matcher="DEBUG_stress_sum", tol=1.0E-6, ref=0.0000000},
++                                                   {matcher="DEBUG_force_sum", tol=1.0E-6, ref=0.0000000},
++                                                   {matcher="N_special_kpoints", tol=0.0, ref=8}]
+ #EOF
+diff --git a/tests/xTB/regtest-tblite-gfn1-grad/hbn_gfn1_hex_kp_debug.inp b/tests/xTB/regtest-tblite-gfn1-grad/hbn_gfn1_hex_kp_debug.inp
+new file mode 100644
+index 00000000..66f4d4e3
+--- /dev/null
++++ b/tests/xTB/regtest-tblite-gfn1-grad/hbn_gfn1_hex_kp_debug.inp
+@@ -0,0 +1,67 @@
++&GLOBAL
++  PRINT_LEVEL MEDIUM
++  PROJECT hbn_gfn1_hex_kp_debug
++  RUN_TYPE DEBUG
++&END GLOBAL
++
++&DEBUG
++  DEBUG_FORCES T
++  DEBUG_STRESS_TENSOR T
++  DX 1.0E-4
++  MAX_RELATIVE_ERROR 0.5
++  STOP_ON_MISMATCH F
++&END DEBUG
++
++&FORCE_EVAL
++  METHOD QS
++  STRESS_TENSOR ANALYTICAL
++  &DFT
++    &KPOINTS
++      SCHEME MACDONALD 2 2 2 0.25 0.25 0.25
++      EPS_SYMMETRY 1.0E-8
++      SYMMETRY T
++      FULL_GRID F
++      SYMMETRY_BACKEND SPGLIB
++      SYMMETRY_REDUCTION_METHOD SPGLIB
++      VERBOSE T
++    &END KPOINTS
++    &QS
++      EPS_DEFAULT 1.0E-12
++      METHOD xTB
++      &XTB
++        GFN_TYPE TBLITE
++        &TBLITE
++          METHOD GFN1
++          ACCURACY 0.1
++        &END TBLITE
++      &END XTB
++    &END QS
++    &SCF
++      EPS_SCF 1.0E-10
++      MAX_SCF 300
++      SCF_GUESS MOPAC
++      &MIXING
++        METHOD DIRECT_P_MIXING
++        ALPHA 0.2
++      &END MIXING
++      &PRINT
++        &RESTART OFF
++        &END RESTART
++      &END PRINT
++    &END SCF
++  &END DFT
++  &SUBSYS
++    &CELL
++      A  2.500000000000  0.000000000000  0.000000000000
++      B -1.250000000000  2.165063509461  0.000000000000
++      C  0.000000000000  0.000000000000  6.660000000000
++      CANONICALIZE TRUE
++      PERIODIC XYZ
++    &END CELL
++    &COORD
++      SCALED
++      B 0.000000000000 0.000000000000 0.000000000000
++      N 0.333333333333 0.666666666667 0.500000000000
++    &END COORD
++  &END SUBSYS
++&END FORCE_EVAL
+diff --git a/tests/xTB/regtest-tblite-gfn1-periodic/TEST_FILES.toml b/tests/xTB/regtest-tblite-gfn1-periodic/TEST_FILES.toml
+index b4bfd88f..26359954 100644
+--- a/tests/xTB/regtest-tblite-gfn1-periodic/TEST_FILES.toml
++++ b/tests/xTB/regtest-tblite-gfn1-periodic/TEST_FILES.toml
+@@ -3,12 +3,12 @@
+ # e.g. 0 means do not compare anything, running is enough
+ #      1 compares the last total energy in the file
+ #      for details see cp2k/tools/do_regtest
+-"COBe_gfn1_fd.inp"                       = [{matcher="E_total", tol=1.0E-8, ref=-7.4283186205}]
+-"CH2O_gfn1.inp"                          = [{matcher="E_total", tol=1.0E-8, ref=-7.8503584297}]
+-"Si_gfn1_fd.inp"                         = [{matcher="E_total", tol=3.0E-8, ref=-14.45211749988608}]
+-"Si_gfn1_kp.inp"                         = [{matcher="E_total", tol=3.0E-8, ref=-14.707430385147}]
+-"Si_gfn1_kp_kpsym.inp"                   = [{matcher="E_total", tol=1.0E-8, ref=-14.722697896033},
++"COBe_gfn1_fd.inp"                       = [{matcher="E_total", tol=1.0E-8, ref=-7.42848707385935}]
++"CH2O_gfn1.inp"                          = [{matcher="E_total", tol=1.0E-8, ref=-7.85048910369790}]
++"Si_gfn1_fd.inp"                         = [{matcher="E_total", tol=3.0E-8, ref=-14.44320245934278}]
++"Si_gfn1_kp.inp"                         = [{matcher="E_total", tol=3.0E-8, ref=-14.70433442694045}]
++"Si_gfn1_kp_kpsym.inp"                   = [{matcher="E_total", tol=1.0E-8, ref=-14.72017602003837},
+                                              {matcher="N_special_kpoints", tol=0.0, ref=4}]
+-"Si_gfn1_kp_spglib_backend.inp"          = [{matcher="E_total", tol=1.0E-8, ref=-14.722697896033},
++"Si_gfn1_kp_spglib_backend.inp"          = [{matcher="E_total", tol=1.0E-8, ref=-14.72017602003837},
+                                              {matcher="N_special_kpoints", tol=0.0, ref=4}]
+ #EOF
+diff --git a/tests/xTB/regtest-tblite-gfn2/N2_gfn2_scc_restart_read.inp b/tests/xTB/regtest-tblite-gfn2/N2_gfn2_scc_restart_read.inp
+new file mode 100644
+index 00000000..0169199a
+--- /dev/null
++++ b/tests/xTB/regtest-tblite-gfn2/N2_gfn2_scc_restart_read.inp
+@@ -0,0 +1,47 @@
++&GLOBAL
++  PRINT_LEVEL LOW
++  PROJECT N2_gfn2_scc_restart_read
++  RUN_TYPE ENERGY
++&END GLOBAL
++
++#CPQA DEPENDS N2_gfn2_scc_restart_write.inp
++&FORCE_EVAL
++  &DFT
++    &QS
++      METHOD xTB
++      &XTB
++        GFN_TYPE TBLITE
++        SCC_MIXER TBLITE
++        &TBLITE
++          METHOD GFN2
++          SCC_RESTART_FILE_NAME N2_gfn2_scc_restart.npz
++        &END TBLITE
++        &TBLITE_MIXER
++          DAMPING 0.4
++          ITERATIONS 200
++          MEMORY 2
++        &END TBLITE_MIXER
++      &END XTB
++    &END QS
++    &SCF
++      ADDED_MOS -1
++      EPS_SCF 1.e-10
++      MAX_SCF 200
++      SCF_GUESS MOPAC
++      &PRINT
++        &RESTART OFF
++        &END RESTART
++      &END PRINT
++    &END SCF
++  &END DFT
++  &SUBSYS
++    &CELL
++      ABC 20.0 20.0 20.0
++      PERIODIC NONE
++    &END CELL
++    &COORD
++      N     0.000000    0.000000    0.000000
++      N     1.000000    0.000000    0.000000
++    &END COORD
++  &END SUBSYS
++&END FORCE_EVAL
+diff --git a/tests/xTB/regtest-tblite-gfn2/N2_gfn2_scc_restart_write.inp b/tests/xTB/regtest-tblite-gfn2/N2_gfn2_scc_restart_write.inp
+new file mode 100644
+index 00000000..f4555e1f
+--- /dev/null
++++ b/tests/xTB/regtest-tblite-gfn2/N2_gfn2_scc_restart_write.inp
+@@ -0,0 +1,46 @@
++&GLOBAL
++  PRINT_LEVEL LOW
++  PROJECT N2_gfn2_scc_restart_write
++  RUN_TYPE ENERGY
++&END GLOBAL
++
++&FORCE_EVAL
++  &DFT
++    &QS
++      METHOD xTB
++      &XTB
++        GFN_TYPE TBLITE
++        SCC_MIXER TBLITE
++        &TBLITE
++          METHOD GFN2
++          SCC_RESTART_WRITE_FILE_NAME N2_gfn2_scc_restart.npz
++        &END TBLITE
++        &TBLITE_MIXER
++          DAMPING 0.4
++          ITERATIONS 200
++          MEMORY 2
++        &END TBLITE_MIXER
++      &END XTB
++    &END QS
++    &SCF
++      ADDED_MOS -1
++      EPS_SCF 1.e-10
++      MAX_SCF 200
++      SCF_GUESS MOPAC
++      &PRINT
++        &RESTART OFF
++        &END RESTART
++      &END PRINT
++    &END SCF
++  &END DFT
++  &SUBSYS
++    &CELL
++      ABC 20.0 20.0 20.0
++      PERIODIC NONE
++    &END CELL
++    &COORD
++      N     0.000000    0.000000    0.000000
++      N     1.000000    0.000000    0.000000
++    &END COORD
++  &END SUBSYS
++&END FORCE_EVAL
+diff --git a/tests/xTB/regtest-tblite-gfn2/O2_gfn2_uks_kp_debug.inp b/tests/xTB/regtest-tblite-gfn2/O2_gfn2_uks_kp_debug.inp
+new file mode 100644
+index 00000000..a1151229
+--- /dev/null
++++ b/tests/xTB/regtest-tblite-gfn2/O2_gfn2_uks_kp_debug.inp
+@@ -0,0 +1,57 @@
++&GLOBAL
++  PRINT_LEVEL MEDIUM
++  PROJECT O2_gfn2_uks_kp_debug
++  RUN_TYPE DEBUG
++&END GLOBAL
++
++&DEBUG
++  DEBUG_FORCES T
++  DEBUG_STRESS_TENSOR T
++  DX 0.0001
++  STOP_ON_MISMATCH F
++&END DEBUG
++
++&FORCE_EVAL
++  STRESS_TENSOR ANALYTICAL
++  &DFT
++    LSD
++    MULTIPLICITY 3
++    &KPOINTS
++      FULL_GRID OFF
++      SCHEME MONKHORST-PACK 2 2 2
++      SYMMETRY ON
++      SYMMETRY_BACKEND SPGLIB
++    &END KPOINTS
++    &QS
++      EPS_DEFAULT 1.00E-12
++      METHOD xTB
++      &XTB
++        GFN_TYPE TBLITE
++        SCC_MIXER TBLITE
++        &TBLITE
++          METHOD GFN2
++        &END TBLITE
++      &END XTB
++    &END QS
++    &SCF
++      ADDED_MOS 1 3
++      EPS_SCF 1.e-10
++      MAX_SCF 200
++      SCF_GUESS MOPAC
++      &PRINT
++        &RESTART OFF
++        &END RESTART
++      &END PRINT
++    &END SCF
++  &END DFT
++  &SUBSYS
++    &CELL
++      ABC 4.0 4.0 4.0
++      PERIODIC XYZ
++    &END CELL
++    &COORD
++      O     0.417000    0.283000    0.191000
++      O     1.625000    0.311000    0.203000
++    &END COORD
++  &END SUBSYS
++&END FORCE_EVAL
+diff --git a/tests/xTB/regtest-tblite-gfn2/O2plus_gfn2_uks_cp2k_mixer.inp b/tests/xTB/regtest-tblite-gfn2/O2plus_gfn2_uks_cp2k_mixer.inp
+index 74753985..b26fe410 100644
+--- a/tests/xTB/regtest-tblite-gfn2/O2plus_gfn2_uks_cp2k_mixer.inp
++++ b/tests/xTB/regtest-tblite-gfn2/O2plus_gfn2_uks_cp2k_mixer.inp
+@@ -22,13 +22,12 @@
+     &END QS
+     &SCF
+       ADDED_MOS 1 2
+-      EPS_SCF 1.e-6
+-      MAX_SCF 80
++      EPS_SCF 1.e-10
++      MAX_SCF 200
+       SCF_GUESS MOPAC
+       &MIXING
+-        ALPHA 0.4
+-        METHOD BROYDEN_MIXING
+-        NBUFFER 8
++        ALPHA 0.2
++        METHOD DIRECT_P_MIXING
+       &END MIXING
+       &PRINT
+         &RESTART OFF
+diff --git a/tests/xTB/regtest-tblite-gfn2/Si_gfn2_asym_kp_stress.inp b/tests/xTB/regtest-tblite-gfn2/Si_gfn2_asym_kp_stress.inp
+new file mode 100644
+index 00000000..b9035203
+--- /dev/null
++++ b/tests/xTB/regtest-tblite-gfn2/Si_gfn2_asym_kp_stress.inp
+@@ -0,0 +1,74 @@
++&GLOBAL
++  PRINT_LEVEL MEDIUM
++  PROJECT Si_gfn2_asym_kp_stress
++  RUN_TYPE DEBUG
++&END GLOBAL
++
++&DEBUG
++  DEBUG_FORCES F
++  DEBUG_STRESS_TENSOR T
++  DX 0.0001
++  MAX_RELATIVE_ERROR 0.5
++  STOP_ON_MISMATCH F
++&END DEBUG
++
++&FORCE_EVAL
++  STRESS_TENSOR ANALYTICAL
++  &DFT
++    &KPOINTS
++      FULL_GRID OFF
++      SCHEME MONKHORST-PACK 2 2 2
++      SYMMETRY ON
++      SYMMETRY_BACKEND SPGLIB
++      VERBOSE T
++    &END KPOINTS
++    &POISSON
++      PERIODIC XYZ
++      POISSON_SOLVER PERIODIC
++    &END POISSON
++    &QS
++      EPS_DEFAULT 1.0E-14
++      METHOD xTB
++      &XTB
++        GFN_TYPE TBLITE
++        &TBLITE
++          METHOD GFN2
++        &END TBLITE
++      &END XTB
++    &END QS
++    &SCF
++      ADDED_MOS -1 -1
++      EPS_SCF 1.0E-10
++      MAX_SCF 1000
++      SCF_GUESS MOPAC
++      &MIXING
++        ALPHA 0.2
++        METHOD DIRECT_P_MIXING
++      &END MIXING
++      &PRINT
++        &RESTART OFF
++        &END RESTART
++      &END PRINT
++      &SMEAR ON
++        ELECTRONIC_TEMPERATURE 300
++        METHOD FERMI_DIRAC
++      &END SMEAR
++    &END SCF
++  &END DFT
++  &SUBSYS
++    &CELL
++      ABC 5.431 5.431 5.431
++      PERIODIC XYZ
++    &END CELL
++    &COORD
++      Si     0.01300000     0.00700000     0.01100000
++      Si     2.69650000     2.72950000     0.01700000
++      Si     2.73150000     0.01800000     2.70350000
++      Si     0.02100000     2.70050000     2.73450000
++      Si     1.36775000     1.34175000     1.37775000
++      Si     1.33975000     4.11140500     4.08640500
++      Si     4.11540500     1.37675000     4.11340500
++      Si     4.08340500     4.09040500     1.33975000
++    &END COORD
++  &END SUBSYS
++&END FORCE_EVAL
+diff --git a/tests/xTB/regtest-tblite-gfn2/Si_gfn2_kp_spglib_shifted.inp b/tests/xTB/regtest-tblite-gfn2/Si_gfn2_kp_spglib_shifted.inp
+new file mode 100644
+index 00000000..49232825
+--- /dev/null
++++ b/tests/xTB/regtest-tblite-gfn2/Si_gfn2_kp_spglib_shifted.inp
+@@ -0,0 +1,69 @@
++&GLOBAL
++  PRINT_LEVEL MEDIUM
++  PROJECT Si_gfn2_kp_spglib_shifted
++  RUN_TYPE ENERGY
++&END GLOBAL
++
++&FORCE_EVAL
++  METHOD QS
++  &DFT
++    &KPOINTS
++      EPS_SYMMETRY 1.e-8
++      FULL_GRID OFF
++      PARALLEL_GROUP_SIZE -1
++      SCHEME MONKHORST-PACK 4 4 4
++      SYMMETRY ON
++      SYMMETRY_BACKEND SPGLIB
++      VERBOSE T
++    &END KPOINTS
++    &POISSON
++      PERIODIC XYZ
++      POISSON_SOLVER PERIODIC
++    &END POISSON
++    &QS
++      EPS_DEFAULT 1.00E-12
++      METHOD xTB
++      &XTB
++        GFN_TYPE TBLITE
++        &TBLITE
++          METHOD GFN2
++        &END TBLITE
++      &END XTB
++    &END QS
++    &SCF
++      ADDED_MOS -1 -1
++      EPS_SCF 1.e-10
++      MAX_SCF 300
++      SCF_GUESS MOPAC
++      &MIXING
++        ALPHA 0.2
++        METHOD DIRECT_P_MIXING
++      &END MIXING
++      &PRINT
++        &RESTART OFF
++        &END RESTART
++      &END PRINT
++      &SMEAR ON
++        ELECTRONIC_TEMPERATURE 300
++        METHOD FERMI_DIRAC
++      &END SMEAR
++    &END SCF
++  &END DFT
++  &SUBSYS
++    &CELL
++      ABC 5.4310000000 5.4310000000000 5.431000000000
++      PERIODIC XYZ
++    &END CELL
++    &COORD
++      SCALED
++      Si 0.010000 0.020000 0.030000
++      Si 0.510000 0.520000 0.030000
++      Si 0.510000 0.020000 0.530000
++      Si 0.010000 0.520000 0.530000
++      Si 0.260000 0.270000 0.280000
++      Si 0.260000 0.770000 0.780000
++      Si 0.760000 0.270000 0.780000
++      Si 0.760000 0.770000 0.280000
++    &END COORD
++  &END SUBSYS
++&END FORCE_EVAL
+diff --git a/tests/xTB/regtest-tblite-gfn2/TEST_FILES.toml b/tests/xTB/regtest-tblite-gfn2/TEST_FILES.toml
+index 9f490077..9c623057 100644
+--- a/tests/xTB/regtest-tblite-gfn2/TEST_FILES.toml
++++ b/tests/xTB/regtest-tblite-gfn2/TEST_FILES.toml
+@@ -8,6 +8,8 @@
+ "H2SO4_gfn2.inp"                         = [{matcher="E_total", tol=1.0E-8, ref=-20.535208593}]
+ "NH3_gfn2.inp"                           = [{matcher="E_total", tol=1.0E-8, ref=-4.4259996366}]
+ "N2_gfn2.inp"                            = [{matcher="E_total", tol=1.0E-8, ref=-5.7289226128}]
++"N2_gfn2_scc_restart_write.inp"          = [{matcher="E_total", tol=1.0E-8, ref=-5.7289226128}]
++"N2_gfn2_scc_restart_read.inp"           = [{matcher="E_total", tol=1.0E-8, ref=-5.7289226128}]
+ "N2_gfn2_ot.inp"                         = [{matcher="E_total", tol=1.0E-8, ref=-5.7289226128}]
+ "N2_gfn2_ls.inp"                         = [{matcher="M011", tol=1.0E-8, ref=-5.72892260298788}]
+ "N2_gfn2_uks.inp"                        = [{matcher="E_total", tol=1.0E-8, ref=-5.7289226128}]
+@@ -17,10 +19,11 @@
+ "CH2O_gfn2_uks_force.inp"                = [{matcher="M082", tol=5.0E-6, ref=0.0000000}]
+ "N2_gfn2_uks_force.inp"                  = [{matcher="M082", tol=5.0E-6, ref=0.0000000}]
+ "N2_gfn2_uks_cp2k_mixer_force.inp"       = [{matcher="M082", tol=5.0E-6, ref=0.0000000}]
+-"O2_gfn2_uks_force.inp"                  = [{matcher="M082", tol=5.0E-6, ref=0.0000000}]
++"O2_gfn2_uks_force.inp"                  = [{matcher="M082", tol=5.0E-6, ref=0.0000000},
++                                             {matcher="M011", tol=1.0E-8, ref=-7.93196515457848}]
+ "O2_gfn2_uks_ot.inp"                     = [{matcher="E_total", tol=1.0E-8, ref=-7.9319651546}]
+ "O2_gfn2_uks_xyz_ls_cp2k_mixer.inp"      = [{matcher="M011", tol=1.0E-8, ref=-7.93196513956454}]
+-"O2plus_gfn2_uks_cp2k_mixer.inp"         = [{matcher="E_total", tol=1.0E-8, ref=-7.26596846265160}]
++"O2plus_gfn2_uks_cp2k_mixer.inp"         = [{matcher="E_total", tol=1.0E-8, ref=-7.27142409810067}]
+ "O2plus_gfn2_uks_cp2k_mixer_force.inp"   = [{matcher="M082", tol=5.0E-6, ref=0.0000000}]
+ "CH2O_gfn2_force_cp2k_mixer.inp"         = [{matcher="M082", tol=5.0E-6, ref=0.0000000}]
+ "CH2O_gfn2_stress.inp"                   = [{matcher="M042", tol=1.0E-7, ref=0.0000000}]
+@@ -33,16 +36,23 @@
+ # Low-symmetry periodic GFN2/tblite stress diagnostic enabled on this branch.
+ # DEBUG_STRESS_TENSOR matches the final finite-difference cell, whose symmetry is lower.
+ "Si_gfn2_asym_fd_stress.inp"             = [{matcher="DEBUG_stress_sum", tol=5.0E-6, ref=0.0000000}]
+-"Si_gfn2_kp_stress.inp"                  = [{matcher="DEBUG_stress_sum", tol=5.0E-5, ref=0.0000000},
++"Si_gfn2_kp_stress.inp"                  = [{matcher="DEBUG_stress_sum", tol=5.0E-6, ref=0.0000000},
++                                             {matcher="N_special_kpoints", tol=0.0, ref=2}]
++"Si_gfn2_kp_333_stress.inp"              = [{matcher="DEBUG_stress_sum", tol=5.0E-6, ref=0.0000000},
++                                             {matcher="N_special_kpoints", tol=0.0, ref=6}]
++"Si_gfn2_asym_kp_stress.inp"             = [{matcher="DEBUG_stress_sum", tol=5.0E-6, ref=0.0000000},
++                                             {matcher="N_special_kpoints", tol=0.0, ref=4}]
++"O2_gfn2_uks_kp_debug.inp"               = [{matcher="DEBUG_stress_sum", tol=5.0E-6, ref=0.0000000},
++                                             {matcher="DEBUG_force_sum", tol=5.0E-6, ref=0.0000000},
++                                             {matcher="M011", tol=1.0E-8, ref=-7.93283134055016}]
++"Si_gfn2_kp_kpsym.inp"                   = [{matcher="E_total", tol=1.0E-8, ref=-13.65663936611195},
++                                             {matcher="N_special_kpoints", tol=0.0, ref=4}]
++"Si_gfn2_kp_spglib_backend.inp"          = [{matcher="E_total", tol=1.0E-8, ref=-13.65663936611195},
+                                              {matcher="N_special_kpoints", tol=0.0, ref=4}]
+-"Si_gfn2_kp_333_stress.inp"              = [{matcher="DEBUG_stress_sum", tol=2.0E-4, ref=0.0000000},
+-                                             {matcher="N_special_kpoints", tol=0.0, ref=14}]
+-"Si_gfn2_kp_kpsym.inp"                   = [{matcher="E_total", tol=1.0E-8, ref=-13.65677573470654},
++"Si_gfn2_kp_spglib_shifted.inp"          = [{matcher="E_total", tol=1.0E-8, ref=-13.65663936611195},
+                                              {matcher="N_special_kpoints", tol=0.0, ref=4}]
+-"Si_gfn2_kp_spglib_backend.inp"          = [{matcher="E_total", tol=1.0E-8, ref=-13.65677573470654},
++"Zn_fcc_gfn2_kp_k290.inp"                = [{matcher="E_total", tol=1.0E-8, ref=-0.528574891420040},
+                                              {matcher="N_special_kpoints", tol=0.0, ref=4}]
+-"Zn_fcc_gfn2_kp_k290.inp"                = [{matcher="E_total", tol=1.0E-8, ref=-0.528740963544749},
+-                                             {matcher="N_special_kpoints", tol=0.0, ref=14}]
+ "Ar_fcc_gfn2_ls.inp"                     = [{matcher="M011", tol=5.0E-8, ref=-17.12154132132343}]
+ "Ar_fcc_gfn2_force.inp"                  = [{matcher="M082", tol=1.0E-5, ref=0.0000000}]
+ "Ar_fcc_gfn2_stress.inp"                 = [{matcher="M042", tol=1.0E-5, ref=0.0000000}]
+diff --git a/tests/xTB/regtest-tblite-ipea1/TEST_FILES.toml b/tests/xTB/regtest-tblite-ipea1/TEST_FILES.toml
+index e9b77d1c..f8ced963 100644
+--- a/tests/xTB/regtest-tblite-ipea1/TEST_FILES.toml
++++ b/tests/xTB/regtest-tblite-ipea1/TEST_FILES.toml
+@@ -9,7 +9,7 @@
+ "CH2O_ipea1_force.inp"                    = [{matcher="M082", tol=1.0E-6, ref=0.0000000}]
+ "COBe_ipea1_force.inp"                    = [{matcher="M082", tol=1.0E-6, ref=0.0000000}]
+ "O2_ipea1_uks_force.inp"                  = [{matcher="M082", tol=1.0E-6, ref=0.0000000}]
+-"Si_ipea1_kp_kpsym.inp"                   = [{matcher="E_total", tol=1.0E-8, ref=-15.179073369509},
++"Si_ipea1_kp_kpsym.inp"                   = [{matcher="E_total", tol=1.0E-8, ref=-15.18478726953853},
+                                              {matcher="N_special_kpoints", tol=0.0, ref=4}]
+ "Ar_fcc_ipea1_kp_debug.inp"               = [{matcher="DEBUG_stress_sum", tol=1.0E-5, ref=0.0000000},
+                                              {matcher="DEBUG_force_sum", tol=1.0E-5, ref=0.0000000},
