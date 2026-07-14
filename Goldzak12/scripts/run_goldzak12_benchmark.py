@@ -50,21 +50,17 @@ REFERENCES: tuple[Reference, ...] = (
     Reference("BP", "zincblende", (("B", 1), ("P", 1)), 4.525, 4.584, 4.495, 4.517, 4.528, 5.14, 3.42, 5.58, 5.30, 5.16),
     Reference("AlN", "zincblende", (("Al", 1), ("N", 1)), 4.368, 4.365, 4.388, 4.389, 4.389, 5.85, 3.86, 6.00, 5.85, 5.78),
     Reference("AlP", "zincblende", (("Al", 1), ("P", 1)), 5.448, 5.542, 5.444, 5.465, 5.475, 4.31, 2.71, 4.42, 4.23, 4.14),
-    Reference("MgO", "rocksalt", (("Mg", 1), ("O", 1)), 4.189, 4.176, 4.227, 4.224, 4.223, 5.19, 3.62, 5.37, 5.18, 5.09),
     Reference("MgS", "rocksalt", (("Mg", 1), ("S", 1)), 5.188, 5.281, 5.171, 5.191, 5.201, 4.04, 2.78, 4.20, 3.97, 3.86),
-    Reference("LiH", "rocksalt", (("Li", 1), ("H", 1)), 3.979, 4.094, 3.996, 4.009, 4.015, 2.49, 1.85, 2.41, 2.45, 2.48),
     Reference("LiF", "rocksalt", (("Li", 1), ("F", 1)), 3.973, 3.964, 3.990, 3.992, 3.993, 4.46, 3.41, 4.58, 4.49, 4.44),
     Reference("LiCl", "rocksalt", (("Li", 1), ("Cl", 1)), 5.072, 5.253, 5.021, 5.059, 5.078, 3.58, 2.73, 3.69, 3.58, 3.52),
 )
 
 METHODS = ("GFN1", "GFN2")
 ELEMENT_MULTIPLICITY = {
-    "H": 2,
     "Li": 2,
     "B": 2,
     "C": 3,
     "N": 4,
-    "O": 3,
     "F": 2,
     "Mg": 1,
     "Al": 2,
@@ -807,7 +803,7 @@ def write_markdown(rows: list[dict[str, object]], summary: list[dict[str, object
     order = [ref.solid for ref in REFERENCES]
     by_key = {(r["solid"], r["method"]): r for r in rows}
     lines = [
-        f"# Goldzak12 CP2K/tblite results ({result_mesh} final energies)",
+        f"# LC10 CP2K/tblite results ({result_mesh} final energies)",
         "",
         "All GFN values use native Bloch k-points in CP2K. Cohesive energies are in eV per atom.",
         "",
@@ -888,7 +884,7 @@ def plot(rows: list[dict[str, object]], result_mesh: str) -> None:
         ax.set_ylabel(ylabel)
         ax.set_xticks(x)
         ax.set_xticklabels(solids, rotation=45, ha="right")
-        ax.set_title(f"Goldzak12 CP2K/tblite native-Bloch {result_mesh}: {prop} errors")
+        ax.set_title(f"LC10 CP2K/tblite native-Bloch {result_mesh}: {prop} errors")
         ax.legend(frameon=False)
         ax.grid(axis="y", color="#d0d0d0", linewidth=0.6, alpha=0.7)
         fig.tight_layout()
@@ -926,7 +922,7 @@ def plot(rows: list[dict[str, object]], result_mesh: str) -> None:
         ax.set_ylabel(f"CP2K/tblite {label}")
         ax.grid(color="#d0d0d0", linewidth=0.6, alpha=0.7)
     axes[0].legend(frameon=False)
-    fig.suptitle(f"Goldzak12 CP2K/tblite native-Bloch {result_mesh} vs experiment")
+    fig.suptitle(f"LC10 CP2K/tblite native-Bloch {result_mesh} vs experiment")
     fig.tight_layout()
     out_base = ROOT / "figures" / "goldzak12_scatter"
     fig.savefig(out_base.with_suffix(".png"), dpi=220)

@@ -26,7 +26,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--eos-mesh", default="k444")
     parser.add_argument("--energy-mesh", action="append", default=[])
-    parser.add_argument("--result-mesh", default="k444")
+    parser.add_argument("--result-mesh", default="k555")
     args = parser.parse_args()
     energy_meshes = args.energy_mesh or ["k333", "k444", "k555"]
 
@@ -46,13 +46,9 @@ def main() -> int:
     if fit_pairs != expected_pairs:
         problems.append(f"EOS fit coverage differs: missing {sorted(expected_pairs - fit_pairs)}")
     bad_fits = [row for row in fits if row["a_eos_A"] == "" or row["fit_status"] != "quadratic"]
-    allowed_bad_fits = [
-        row for row in bad_fits if row["fit_status"] in {"poor_quadratic_fit", "no_local_minimum"}
-    ]
-    unexpected_bad_fits = [row for row in bad_fits if row not in allowed_bad_fits]
-    if unexpected_bad_fits:
-        labels = ", ".join(f"{row['method']}/{row['solid']}={row['fit_status']}" for row in unexpected_bad_fits)
-        problems.append(f"Unexpected invalid EOS fits ({len(unexpected_bad_fits)}): {labels}")
+    if bad_fits:
+        labels = ", ".join(f"{row['method']}/{row['solid']}={row['fit_status']}" for row in bad_fits)
+        problems.append(f"Invalid EOS fits ({len(bad_fits)}): {labels}")
 
     results = read_csv(ROOT / "data" / "eos_results.csv")
     valid_pairs = {(row["solid"], row["method"]) for row in fits if row["a_eos_A"] != ""}
@@ -86,13 +82,13 @@ def main() -> int:
         problems.append("Provenance result mesh does not match validation request")
 
     if problems:
-        print("LC12 validation FAILED")
+        print("LC10 validation FAILED")
         for problem in problems:
             print(f"- {problem}")
         return 1
 
     print(
-        f"LC12 validation passed: {len(points)} EOS points ({len(failed_points)} nonessential failures), "
+        f"LC10 validation passed: {len(points)} EOS points ({len(failed_points)} nonessential failures), "
         f"{len(valid_pairs)}/{len(fits)} valid fits, {len(results)} final single points."
     )
     return 0

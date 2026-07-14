@@ -25,7 +25,7 @@ X23b,volume ME,GFN2-xTB,-1.657324,percent,23 native Bloch k222 cell optimization
 X23b,volume MAE,GFN2-xTB,5.842296,percent,23 native Bloch k222 cell optimizations,X23b/data/x23b_summary.csv
 X23b,volume RMSE,GFN2-xTB,7.530373,percent,23 native Bloch k222 cell optimizations,X23b/data/x23b_summary.csv
 X23b,volume MaxAE,GFN2-xTB,19.952589,percent,23 native Bloch k222 cell optimizations,X23b/data/x23b_summary.csv
-LC12,lattice-constant MAE,GFN1-xTB,0.13665006,A,12 valid k444 EOS fits,Goldzak12/data/eos_summary.csv
-LC12,cohesive-energy MAE,GFN1-xTB,1.45769443,eV atom-1,k555 energies on 12 k444 EOS minima,Goldzak12/data/eos_summary.csv
-LC12,lattice-constant MAE,GFN2-xTB,0.06240968,A,10 valid k444 EOS fits,Goldzak12/data/eos_summary.csv
-LC12,cohesive-energy MAE,GFN2-xTB,1.29932483,eV atom-1,k555 energies on 10 k444 EOS minima,Goldzak12/data/eos_summary.csv
+LC10,lattice-constant MAE,GFN1-xTB,0.14511782,A,10 valid k444 EOS fits,Goldzak12/data/eos_summary.csv
+LC10,cohesive-energy MAE,GFN1-xTB,1.54385092,eV atom-1,k555 energies on 10 k444 EOS minima,Goldzak12/data/eos_summary.csv
+LC10,lattice-constant MAE,GFN2-xTB,0.06240968,A,10 valid k444 EOS fits,Goldzak12/data/eos_summary.csv
+LC10,cohesive-energy MAE,GFN2-xTB,1.29932483,eV atom-1,k555 energies on 10 k444 EOS minima,Goldzak12/data/eos_summary.csv
