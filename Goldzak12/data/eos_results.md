@@ -1,4 +1,4 @@
-# LC12 (Goldzak12) EOS results (k555 final energies)
+# LC10 EOS results (k555 final energies)
 
 Solid energies use CP2K/tblite native Bloch k-points. Atomic references use the matching tblite CLI.
 
@@ -6,19 +6,19 @@ Solid energies use CP2K/tblite native Bloch k-points. Atomic references use the 
 
 | method | valid fits | excluded EOS curves |
 |---|---:|---|
-| GFN1 | 12/12 | - |
-| GFN2 | 10/12 | MgO (no bracketed minimum), LiH (discontinuous EOS) |
+| GFN1 | 10/10 | - |
+| GFN2 | 10/10 | - |
 
 ## MAE comparison to experiment
 
 | source | method | n | a ME (A) | a MAE (A) | Ecoh ME (eV/atom) | Ecoh MAE (eV/atom) |
 |---|---|---:|---:|---:|---:|---:|
-| CP2K/tblite EOS | GFN1 | 12 | 0.01815986 | 0.13665006 | 1.39379706 | 1.45769443 |
+| CP2K/tblite EOS | GFN1 | 10 | 0.02198549 | 0.14511782 | 1.46717408 | 1.54385092 |
 | CP2K/tblite EOS | GFN2 | 10 | -0.00578455 | 0.06240968 | 1.10698251 | 1.29932483 |
-| Goldzak2022 | HF | 12 | 0.05208333 | 0.05725000 | -1.53666667 | 1.53666667 |
-| Goldzak2022 | MP2 | 12 | -0.00325000 | 0.01958333 | 0.21500000 | 0.22833333 |
-| Goldzak2022 | SCS-MP2 | 12 | 0.01050000 | 0.01450000 | 0.02166667 | 0.05666667 |
-| Goldzak2022 | SOS-MP2 | 12 | 0.01708333 | 0.01708333 | -0.07000000 | 0.08333333 |
+| Goldzak2022 | HF | 10 | 0.05230000 | 0.05590000 | -1.62300000 | 1.62300000 |
+| Goldzak2022 | MP2 | 10 | -0.00940000 | 0.01800000 | 0.24800000 | 0.24800000 |
+| Goldzak2022 | SCS-MP2 | 10 | 0.00610000 | 0.01090000 | 0.03100000 | 0.06300000 |
+| Goldzak2022 | SOS-MP2 | 10 | 0.01350000 | 0.01350000 | -0.07300000 | 0.08900000 |
 
 ## Per-system GFN comparison
 
@@ -31,9 +31,7 @@ Solid energies use CP2K/tblite native Bloch k-points. Atomic references use the 
 | BP | 4.525 | 4.5785 | 0.0535 | 4.5501 | 0.0251 | 5.14 | 6.196 | 1.056 | 6.225 | 1.085 |
 | AlN | 4.368 | 4.6121 | 0.2441 | 4.3128 | -0.0552 | 5.85 | 7.623 | 1.773 | 8.400 | 2.550 |
 | AlP | 5.448 | 5.5741 | 0.1261 | 5.5450 | 0.0970 | 4.31 | 6.865 | 2.555 | 5.009 | 0.699 |
-| MgO | 4.189 | 4.0937 | -0.0953 |  |  | 5.19 | 5.871 | 0.681 |  |  |
 | MgS | 5.188 | 5.0625 | -0.1255 | 5.1442 | -0.0438 | 4.04 | 3.657 | -0.383 | 4.604 | 0.564 |
-| LiH | 3.979 | 4.0723 | 0.0933 |  |  | 2.49 | 3.863 | 1.373 |  |  |
 | LiF | 3.973 | 3.7457 | -0.2273 | 4.0040 | 0.0310 | 4.46 | 5.215 | 0.755 | 4.887 | 0.427 |
 | LiCl | 5.072 | 4.8091 | -0.2629 | 4.8301 | -0.2419 | 3.58 | 4.611 | 1.031 | 4.611 | 1.031 |
 
@@ -41,7 +39,7 @@ Solid energies use CP2K/tblite native Bloch k-points. Atomic references use the 
 
 | method | mesh vs k555 | mean abs delta (eV/atom) | max abs delta (eV/atom) |
 |---|---|---:|---:|
-| GFN1 | k333 | 0.010462 | 0.035388 |
-| GFN1 | k444 | 0.001687 | 0.005566 |
+| GFN1 | k333 | 0.008266 | 0.035388 |
+| GFN1 | k444 | 0.001342 | 0.005566 |
 | GFN2 | k333 | 0.002046 | 0.006485 |
 | GFN2 | k444 | 0.000371 | 0.001341 |

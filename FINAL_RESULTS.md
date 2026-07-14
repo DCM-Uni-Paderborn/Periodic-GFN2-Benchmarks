@@ -58,16 +58,14 @@ The k333-to-k444 mean absolute changes are 0.079329 kJ mol-1 for GFN1-xTB
 and 0.084265 kJ mol-1 for GFN2-xTB. The corresponding k444 MAEs are 11.366118
 and 14.166994 kJ mol-1.
 
-## LC12
+## LC10
 
-The k444 equation-of-state fits are valid for 12/12 GFN1 solids and 10/12
-GFN2 solids. GFN2/MgO and GFN2/LiH have no physical bracketed minimum before
-their electronic branches collapse. Cohesive energies use k555 single points
-on the k444 minima.
+The k444 equation-of-state fits are valid for all ten solids with both
+methods. Cohesive energies use k555 single points on the k444 minima.
 
 | Method | N | Lattice-constant MAE / A | Cohesive-energy MAE / eV atom-1 |
 |---|---:|---:|---:|
-| GFN1-xTB | 12 | 0.136650 | 1.457694 |
+| GFN1-xTB | 10 | 0.145118 | 1.543851 |
 | GFN2-xTB | 10 | 0.062410 | 1.299325 |
 
 ## Verification

@@ -1,4 +1,4 @@
-# LC12 old/new comparison (k555)
+# LC10 old/new comparison (k555)
 
 Negative MAE changes indicate an improvement. The common-subset columns isolate numerical changes from coverage changes.
 
@@ -6,9 +6,9 @@ Negative MAE changes indicate an improvement. The common-subset columns isolate 
 
 | method | metric | n old/new/common | MAE old | MAE new | dMAE | dMAE common | mean abs value change | max abs value change |
 |---|---|---:|---:|---:|---:|---:|---:|---:|
-| GFN1 | lattice_constant_A | 12/12/12 | 0.16434107 | 0.13665006 | -0.02769101 | -0.02769101 | 0.05707238 | 0.16012107 |
-| GFN1 | cohesive_energy_eV_per_atom | 12/12/12 | 1.45732549 | 1.45769443 | 0.00036894 | 0.00036894 | 0.07953287 | 0.39193565 |
-| GFN2 | lattice_constant_A | 11/10/10 | 0.14763755 | 0.06240969 | -0.08522787 | -0.07085394 | 0.09675816 | 0.46302944 |
+| GFN1 | lattice_constant_A | 10/10/10 | 0.16917604 | 0.14511782 | -0.02405823 | -0.02405823 | 0.04563362 | 0.10658077 |
+| GFN1 | cohesive_energy_eV_per_atom | 10/10/10 | 1.58808261 | 1.54385092 | -0.04423169 | -0.04423169 | 0.05076503 | 0.19575072 |
+| GFN2 | lattice_constant_A | 10/10/10 | 0.13326362 | 0.06240969 | -0.07085394 | -0.07085394 | 0.09675816 | 0.46302944 |
 | GFN2 | cohesive_energy_eV_per_atom | 10/10/10 | 1.53452079 | 1.29932483 | -0.23519595 | -0.23519595 | 0.25286847 | 1.65481042 |
 
 ## Per-system changes
@@ -29,12 +29,8 @@ Negative MAE changes indicate an improvement. The common-subset columns isolate 
 | AlN | GFN2 | 4.1439 | 4.3128 | 0.1689 | 8.6886 | 8.3998 | -0.2888 |
 | AlP | GFN1 | 5.5699 | 5.5741 | 0.0042 | 6.8707 | 6.8650 | -0.0057 |
 | AlP | GFN2 | 5.5335 | 5.5450 | 0.0115 | 5.0363 | 5.0086 | -0.0277 |
-| MgO | GFN1 | 3.9336 | 4.0937 | 0.1601 | 5.4787 | 5.8706 | 0.3919 |
-| MgO | GFN2 | 3.8976 |  |  |  |  |  |
 | MgS | GFN1 | 4.9641 | 5.0625 | 0.0984 | 3.5937 | 3.6566 | 0.0629 |
 | MgS | GFN2 | 4.9952 | 5.1442 | 0.1490 | 4.5172 | 4.6043 | 0.0871 |
-| LiH | GFN1 | 4.0039 | 4.0723 | 0.0684 | 3.8084 | 3.8632 | 0.0548 |
-| LiH | GFN2 |  |  |  |  |  |  |
 | LiF | GFN1 | 3.6461 | 3.7457 | 0.0996 | 5.2463 | 5.2145 | -0.0318 |
 | LiF | GFN2 | 3.5410 | 4.0040 | 0.4630 | 6.5416 | 4.8868 | -1.6548 |
 | LiCl | GFN1 | 4.8756 | 4.8091 | -0.0665 | 4.5785 | 4.6112 | 0.0327 |

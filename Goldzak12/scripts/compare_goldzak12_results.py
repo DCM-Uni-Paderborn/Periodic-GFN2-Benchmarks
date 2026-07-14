@@ -140,7 +140,7 @@ def make_summary(records: list[dict[str, object]]) -> list[dict[str, object]]:
 
 def write_markdown(records: list[dict[str, object]], summary: list[dict[str, object]], mesh: str) -> None:
     lines = [
-        f"# LC12 old/new comparison ({mesh})",
+        f"# LC10 old/new comparison ({mesh})",
         "",
         "Negative MAE changes indicate an improvement. The common-subset columns isolate numerical changes from coverage changes.",
         "",
@@ -208,7 +208,7 @@ def plot(records: list[dict[str, object]], mesh: str) -> None:
     axes[0].legend(frameon=False, ncol=2)
     axes[-1].set_xticks(x)
     axes[-1].set_xticklabels(solids, rotation=45, ha="right")
-    fig.suptitle(f"LC12 current stack versus previous results ({mesh} native Bloch)")
+    fig.suptitle(f"LC10 current stack versus previous results ({mesh} native Bloch)")
     fig.tight_layout()
     output = ROOT / "figures" / "goldzak12_old_vs_new_deltas"
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -221,7 +221,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--baseline", type=Path, default=DEFAULT_BASELINE)
     parser.add_argument("--current", type=Path, default=ROOT / "data" / "eos_results.csv")
-    parser.add_argument("--mesh", default="k444")
+    parser.add_argument("--mesh", default="k555")
     args = parser.parse_args()
 
     records = comparison_records(read_csv(args.baseline), read_csv(args.current), args.mesh)

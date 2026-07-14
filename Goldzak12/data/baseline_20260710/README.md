@@ -1,6 +1,6 @@
-# Previous LC12 dataset
+# Previous LC10 dataset
 
-This directory freezes the LC12/Goldzak12 tables reported on 2026-07-10 before
+This directory freezes the corresponding LC10 subset reported on 2026-07-10 before
 the benchmark was rerun with the synchronized CP2K/tblite build.
 
 The CP2K outputs identify development revision `faf9aae912`. The exact linked

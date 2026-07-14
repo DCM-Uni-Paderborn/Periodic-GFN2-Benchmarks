@@ -230,7 +230,7 @@ def promote(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Continue an LC12 EOS branch through neighboring volumes.")
+    parser = argparse.ArgumentParser(description="Continue an LC10 EOS branch through neighboring volumes.")
     parser.add_argument("--solid", required=True)
     parser.add_argument("--method", choices=base.METHODS, required=True)
     parser.add_argument("--mesh", default="k444")

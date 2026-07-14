@@ -20,36 +20,11 @@ import run_goldzak12_benchmark as base  # noqa: E402
 
 ROOT = base.ROOT
 DEFAULT_SCALES = (0.82, 0.88, 0.94, 0.98, 1.00, 1.02, 1.06, 1.12, 1.20, 1.30, 1.45)
-# Physical LC12 EOS curves vary by less than 2 Eh over the sampled interval.
+# Physical LC10 EOS curves vary by less than 2 Eh over the sampled interval.
 # A much lower total energy is the numerical signature of the SCC charge collapse.
 CHARGE_COLLAPSE_ENERGY_DROP_HARTREE = 25.0
 CATASTROPHIC_CHARGE_COLLAPSE_ENERGY_HARTREE = -50.0
-ADAPTIVE_SCALES = {
-    ("MgO", "GFN2"): (0.90, 0.92, 0.926, 0.927, 0.928, 0.93),
-    ("LiH", "GFN2"): (
-        0.71,
-        0.72,
-        0.73,
-        0.74,
-        0.75,
-        0.76,
-        0.77,
-        0.78,
-        0.79,
-        0.80,
-        0.81,
-        0.83,
-        0.84,
-        0.85,
-        0.86,
-        0.87,
-        0.89,
-        0.90,
-        0.91,
-        0.92,
-        0.93,
-    ),
-}
+ADAPTIVE_SCALES: dict[tuple[str, str], tuple[float, ...]] = {}
 
 
 def scale_tag(scale: float) -> str:
@@ -451,7 +426,6 @@ def collect_results(fits: list[dict[str, object]], result_meshes: list[str], res
     base.write_csv(ROOT / "data" / "eos_kpoint_convergence.csv", convergence)
     write_markdown(rows, summary, lit_summary, convergence, result_mesh, fits)
     plot(rows, summary, lit_summary, result_mesh)
-    plot_eos_diagnostics(fits)
     return rows, summary, convergence
 
 
@@ -542,6 +516,35 @@ def rmse(values: list[float]) -> str:
     return f"{math.sqrt(sum(v * v for v in values) / len(values)):.8f}" if values else ""
 
 
+def read_csv(path: Path) -> list[dict[str, object]]:
+    with path.open(newline="") as handle:
+        return list(csv.DictReader(handle))
+
+
+def reanalyse_curated_results(result_meshes: list[str], result_mesh: str) -> None:
+    allowed_solids = {ref.solid for ref in base.REFERENCES}
+    points = [row for row in read_csv(ROOT / "data" / "eos_points.csv") if row["solid"] in allowed_solids]
+    fits = [row for row in read_csv(ROOT / "data" / "eos_fits.csv") if row["solid"] in allowed_solids]
+    rows = [
+        row
+        for row in read_csv(ROOT / "data" / "eos_results.csv")
+        if row["solid"] in allowed_solids and row["energy_mesh"] in result_meshes
+    ]
+    for row in rows:
+        row["sp_completed"] = str(row["sp_completed"]).lower() == "true"
+
+    base.write_csv(ROOT / "data" / "eos_points.csv", points)
+    base.write_csv(ROOT / "data" / "eos_fits.csv", fits)
+    base.write_csv(ROOT / "data" / "eos_results.csv", rows)
+    summary = summary_rows(rows, result_mesh)
+    lit_summary = literature_summary()
+    base.write_csv(ROOT / "data" / "eos_summary.csv", summary + lit_summary)
+    convergence = kpoint_convergence(rows)
+    base.write_csv(ROOT / "data" / "eos_kpoint_convergence.csv", convergence)
+    write_markdown(rows, summary, lit_summary, convergence, result_mesh, fits)
+    plot(rows, summary, lit_summary, result_mesh)
+
+
 def write_markdown(
     rows: list[dict[str, object]],
     summary: list[dict[str, object]],
@@ -554,7 +557,7 @@ def write_markdown(
     by_key = {(r["solid"], r["method"]): r for r in selected}
     refs = {ref.solid: ref for ref in base.REFERENCES}
     lines = [
-        f"# LC12 (Goldzak12) EOS results ({result_mesh} final energies)",
+        f"# LC10 EOS results ({result_mesh} final energies)",
         "",
         "Solid energies use CP2K/tblite native Bloch k-points. Atomic references use the matching tblite CLI.",
         "",
@@ -661,7 +664,7 @@ def plot(rows: list[dict[str, object]], summary: list[dict[str, object]], lit_su
         ax.set_xticks(x)
         ax.set_xticklabels(solids, rotation=45, ha="right")
         ax.set_ylabel(ylabel)
-        ax.set_title(f"LC12 (Goldzak12) EOS CP2K/tblite native-Bloch {result_mesh}")
+        ax.set_title(f"LC10 EOS CP2K/tblite native-Bloch {result_mesh}")
         ax.legend(frameon=False)
         ax.grid(axis="y", color="#d0d0d0", linewidth=0.6, alpha=0.7)
         fig.tight_layout()
@@ -682,66 +685,11 @@ def plot(rows: list[dict[str, object]], summary: list[dict[str, object]], lit_su
     for ax in axes:
         ax.tick_params(axis="x", rotation=35)
         ax.grid(axis="y", color="#d0d0d0", linewidth=0.6, alpha=0.7)
-    fig.suptitle("LC12 (Goldzak12) comparison to zero-point corrected experiment")
+    fig.suptitle("LC10 comparison to zero-point corrected experiment")
     fig.tight_layout()
     out = ROOT / "figures" / "goldzak12_eos_mae_comparison"
     fig.savefig(out.with_suffix(".png"), dpi=220)
     fig.savefig(out.with_suffix(".pdf"))
-    plt.close(fig)
-
-
-def plot_eos_diagnostics(fits: list[dict[str, object]]) -> None:
-    with (ROOT / "data" / "eos_points.csv").open(newline="") as handle:
-        points = list(csv.DictReader(handle))
-    fit_by_key = {(str(row["solid"]), str(row["method"])): row for row in fits}
-    systems = ("MgO", "LiH")
-    fig, axes = plt.subplots(1, 2, figsize=(10.8, 4.4), sharey=True)
-    for ax, solid in zip(axes, systems):
-        selected = sorted(
-            (row for row in points if row["solid"] == solid and row["method"] == "GFN2"),
-            key=lambda row: float(row["scale"]),
-        )
-        completed = [
-            row
-            for row in selected
-            if row.get("valid_for_eos", row["completed"]) == "True" and row["energy_hartree"] != ""
-        ]
-        charge_collapsed = [row for row in selected if row.get("diagnostic") == "charge_collapse"]
-        unstable = [
-            row
-            for row in selected
-            if row["completed"] != "True" and row.get("diagnostic") != "charge_collapse"
-        ]
-        energy_min = min(float(row["energy_hartree"]) for row in completed)
-        scales = [float(row["scale"]) for row in completed]
-        relative = [
-            (float(row["energy_hartree"]) - energy_min) * base.HARTREE_TO_EV / 8.0 for row in completed
-        ]
-        ax.plot(scales, relative, color="#D97706", linewidth=1.2, alpha=0.75)
-        ax.scatter(scales, relative, color="#D97706", s=38, label="converged")
-        marker_height = max(relative) * 1.08 if max(relative) > 0 else 1.0
-        for row in unstable:
-            scale = float(row["scale"])
-            ax.axvline(scale, color="#888888", linewidth=0.8, linestyle="--", alpha=0.6)
-            ax.scatter(scale, marker_height, color="#666666", marker="x", s=42, label="unstable SCC branch")
-        for row in charge_collapsed:
-            scale = float(row["scale"])
-            ax.axvline(scale, color="#B91C1C", linewidth=0.8, linestyle=":", alpha=0.7)
-            ax.scatter(scale, marker_height, color="#B91C1C", marker="x", s=48, label="charge-collapsed SCC solution")
-        fit = fit_by_key[(solid, "GFN2")]
-        label = "no bracketed minimum" if fit["fit_status"] == "no_local_minimum" else "discontinuous EOS"
-        ax.set_title(f"{solid}: {label}")
-        ax.set_xlabel("lattice scale (a / experimental a)")
-        ax.grid(color="#d0d0d0", linewidth=0.6, alpha=0.7)
-    axes[0].set_ylabel("relative energy (eV/atom)")
-    handles, labels = axes[0].get_legend_handles_labels()
-    unique = dict(zip(labels, handles))
-    axes[0].legend(unique.values(), unique.keys(), frameon=False)
-    fig.suptitle("LC12 GFN2 EOS diagnostics (native-Bloch k444)")
-    fig.tight_layout()
-    output = ROOT / "figures" / "goldzak12_gfn2_eos_diagnostics"
-    fig.savefig(output.with_suffix(".png"), dpi=220)
-    fig.savefig(output.with_suffix(".pdf"))
     plt.close(fig)
 
 
@@ -754,9 +702,14 @@ def main() -> int:
     parser.add_argument("--jobs", type=int, default=6)
     parser.add_argument("--threads", type=int, default=1)
     parser.add_argument("--force", action="store_true")
+    parser.add_argument(
+        "--analysis-only",
+        action="store_true",
+        help="rebuild tables and figures from existing outputs without launching calculations",
+    )
     parser.add_argument("--eos-mesh", default="k444")
     parser.add_argument("--energy-mesh", action="append", default=[])
-    parser.add_argument("--result-mesh", default="k444")
+    parser.add_argument("--result-mesh", default="k555")
     parser.add_argument("--scale", type=float, action="append", default=[])
     args = parser.parse_args()
 
@@ -764,19 +717,26 @@ def main() -> int:
     energy_meshes = args.energy_mesh or ["k333", "k444", "k555"]
     if args.result_mesh not in energy_meshes:
         parser.error(f"--result-mesh {args.result_mesh} must also be supplied as --energy-mesh")
+    if args.analysis_only:
+        reanalyse_curated_results(energy_meshes, args.result_mesh)
+        return 0
+
     base.write_build_provenance(
         args.cp2k,
         args.tblite,
         args.cp2k_source,
         args.tblite_source,
         {
-            "benchmark": "LC12 (Goldzak12)",
+            "benchmark": "LC10",
             "cell_protocol": "cubic equation of state",
             "eos_mesh": args.eos_mesh,
             "energy_meshes": energy_meshes,
             "result_mesh": args.result_mesh,
             "scales": scales,
-            "adaptive_scales": {f"{solid}/{method}": values for (solid, method), values in ADAPTIVE_SCALES.items()},
+            "adaptive_scales": {
+                f"{solid}/{method}": values for (solid, method), values in ADAPTIVE_SCALES.items()
+            },
+            "systems": [ref.solid for ref in base.REFERENCES],
             "kpoint_scheme": "CP2K native Bloch MACDONALD with full SPGLIB symmetry reduction",
             "smearing_temperature_K": 300.0,
             "reported_energy": "Total energy extrapolated to T->0",

@@ -234,7 +234,7 @@ def write_markdown(
     common5: list[dict[str, object]],
 ) -> None:
     lines = [
-        "# LC12 (Goldzak12) literature comparison",
+        "# LC10 literature comparison",
         "",
         "All errors below use the same zero-point-corrected experimental values from Goldzak et al. (2022).",
         "The source-specific experimental columns are retained in the raw reference CSV files but are not mixed into the MAEs.",
@@ -267,7 +267,7 @@ def write_markdown(
 
     selected_methods = ("GFN1", "GFN2", "MP2", "SCS-MP2", "SCAN", "r2SCAN")
     by_key = {(str(row["method"]), str(row["solid"])): row for row in records}
-    solids = ("C", "Si", "SiC", "BN", "BP", "AlN", "AlP", "MgO", "LiH", "LiF", "LiCl", "MgS")
+    solids = ("C", "Si", "SiC", "BN", "BP", "AlN", "AlP", "MgS", "LiF", "LiCl")
     lines += [
         "",
         "## Per-system lattice constants",
@@ -334,7 +334,7 @@ def plot_available_mae(summary: list[dict[str, object]]) -> None:
         for family, color in FAMILY_COLORS.items()
     ]
     fig.suptitle(
-        "LC12 (Goldzak12): literature comparison against one common experimental reference",
+        "LC10: literature comparison against one common experimental reference",
         y=0.995,
     )
     fig.legend(
@@ -390,7 +390,7 @@ def plot_common5_heatmap(records: list[dict[str, object]]) -> None:
                 color = "white" if normalized > 0.55 else "black"
                 ax.text(j, i, f"{matrix[i, j]:+.{digits}f}", ha="center", va="center", color=color, fontsize=7.5)
         fig.colorbar(image, ax=ax, fraction=0.046, pad=0.04)
-    fig.suptitle("LC12 (Goldzak12) common five-system subset: signed errors")
+    fig.suptitle("LC10 common five-system subset: signed errors")
     fig.tight_layout(rect=(0, 0, 1, 0.96))
     FIGURES.mkdir(parents=True, exist_ok=True)
     out = FIGURES / "goldzak12_common5_error_heatmap"

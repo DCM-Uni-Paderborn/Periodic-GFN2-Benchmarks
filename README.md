@@ -15,9 +15,8 @@ Supporting Information for periodic GFN calculations in CP2K.
   optimizations, crystal single-point k-point tests, native Bloch 2x2x2
   crystal cell optimizations, converged 3x3x3/4x4x4 final-geometry energies,
   volume errors, and summary plots.
-- `Goldzak12/`: LC12 equations of state, cohesive energies, literature
-  comparisons, and charge-collapse diagnostics for cubic covalent and ionic
-  solids.
+- `Goldzak12/`: LC10 equations of state, cohesive energies, and literature
+  comparisons for ten cubic covalent and ionic solids.
 - `patches/`: local CP2K and tblite patches used for the final benchmark
   revision.
 - `scripts/`: helper scripts used for the final k-point, cell-optimization,
@@ -51,10 +50,10 @@ Primary aggregate results:
 | X23b lattice energies | k333 SP on native Bloch k222 cell opt | GFN2-xTB | 14.092104 kJ mol-1 |
 | X23b cell volumes | native Bloch k222 cell opt | GFN1-xTB | 7.514116 percent |
 | X23b cell volumes | native Bloch k222 cell opt | GFN2-xTB | 5.842296 percent |
-| LC12 lattice constants | k444 EOS, 12/12 | GFN1-xTB | 0.136650 A |
-| LC12 lattice constants | k444 EOS, 10/12 | GFN2-xTB | 0.062410 A |
-| LC12 cohesive energies | k555 on k444 EOS minima, 12/12 | GFN1-xTB | 1.457694 eV atom-1 |
-| LC12 cohesive energies | k555 on k444 EOS minima, 10/12 | GFN2-xTB | 1.299325 eV atom-1 |
+| LC10 lattice constants | k444 EOS, 10/10 | GFN1-xTB | 0.145118 A |
+| LC10 lattice constants | k444 EOS, 10/10 | GFN2-xTB | 0.062410 A |
+| LC10 cohesive energies | k555 on k444 EOS minima, 10/10 | GFN1-xTB | 1.543851 eV atom-1 |
+| LC10 cohesive energies | k555 on k444 EOS minima, 10/10 | GFN2-xTB | 1.299325 eV atom-1 |
 
 All production k-point calculations use native Bloch sampling with full
 SPGLIB symmetry reduction. The completed production counts are 156/156 for
