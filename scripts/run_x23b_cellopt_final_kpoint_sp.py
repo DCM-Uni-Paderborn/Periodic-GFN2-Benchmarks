@@ -17,6 +17,7 @@ from pathlib import Path
 HARTREE_TO_KJMOL = 2625.499638
 FLOAT = r"[-+]?(?:\d+\.\d*|\.\d+|\d+)(?:[Ee][-+]?\d+)?"
 REPOSITORY = Path(__file__).resolve().parents[1]
+LEGACY_METHODS = {"GFN1", "GFN2"}
 
 
 KPOINTS = {
@@ -114,6 +115,13 @@ def source_cases(source_csv: Path, variant: str, methods: set[str] | None, syste
             continue
         method = row["method"]
         system = row["system"]
+        if method not in LEGACY_METHODS:
+            if methods is None or method in methods:
+                raise ValueError(
+                    f"legacy final-kpoint runner does not support {method}; "
+                    "use X23b/scripts/x23b_final_kpoint_sp.py"
+                )
+            continue
         if methods is not None and method not in methods:
             continue
         if systems is not None and system not in systems:
